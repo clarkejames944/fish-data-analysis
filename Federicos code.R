@@ -7,7 +7,7 @@ library(plot3D)
 library(MuMIn)
 
 ######## Data arrangement
-dd<-read.csv("./fish-data-analysis-master/otoliths (working)/data_derived/data_otolith_complete.csv")
+dd<-read.csv("./otoliths (working)/data_derived/data_otolith_complete.csv")
 oto_size<-rep(0,27429)
 for (i in 1:27429) oto_size[i]<-sum(Increment[((i-Age[i])+1):i])
 dd<-data.frame(cbind(dd,oto_size))
