@@ -1,0 +1,36 @@
+---
+title: "Data sleuthing notes"
+author: "James Clarke"
+date: "13 December 2018"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+First of all I want to look at the differences between the data_raw and data_derived files.
+Data raw contains three datasets. These include:
+
+*Average annual growth by zone
++includes the zone fish collected in, the associated annual average bottom temperature, estimate of population-wide average growth and the CI's associated with this
+
+*Environmental data
++Includes the zone, it's associated lattitude and longitude, the average annual bottom temperature of each year, total catch in kg (not taking into account fishing effort) and zone specific catch per unit time (CPUE)- this can't be compared across zones as based on deviations from zone average
+
+*tiger flathead data major zones
++Includes zone, batch, fish number and code (all of which can be ignored), the gear type, readability of the otolith, the capture year and month of the fish, port of landing (again ignore), Gender, fish length, age, otolith reader, the edge type of the otolith, radius of otolith, fish ID number, year of spawning, age associated with a particular increment and then the associated increment width and year of this increment. Additionally there is information on whether the individual is a juvenile or adult for a particular increment.
+
+All of these have been assembled in the data derived spreadsheet arranged predominantly by fish ID, including two readings for the water temperature (although both appear to be identical throughout the data), the logarithmic of the increment width has also been added in this.
+
+#Variables that have contiuous measurements for each individual fish
+*'Age'
+*'Year'
+*'Increment'
+*'CPUE'
+*'totalcatch'
+*'bottomtemp1' and 'bottomtemp2'
+*'growth'
+*'log_incr'
+
+All the rest will be common for each fish- therefore make sure to group or will obtain false readings
