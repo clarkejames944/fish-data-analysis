@@ -33,4 +33,15 @@ All of these have been assembled in the data derived spreadsheet arranged predom
 *'growth'
 *'log_incr'
 
-All the rest will be common for each fish- therefore make sure to group or will obtain false readings
+All the rest will be common for each fish- therefore make sure to group or will obtain false readings.
+
+#Some interesting relationships found
++between fish length and radius
++between zones and increment length
++between zones and radius
++between zones and growth
++between areas and increment length
++between areas and radius
++between areas and growth
++between age and radius
++between temperature and growth

@@ -10,7 +10,7 @@ library(ggplot2)
 fish <- read.csv("./otoliths (working)/data_derived/data_otolith_complete.csv")
 
 #See the Data sleuthing notes Rmarkdown file for some general comments about 
-#the datasets and its constituent variables
+#the datasets and their constituent variables
 
 #explore the data a bit
 glimpse(fish)
