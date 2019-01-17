@@ -21,14 +21,19 @@ write.csv(dd,"extended_data_oto.csv")
 ####### Parallel data oto
 dd<-read.csv("extended_data_oto.csv")
 attach(dd)
+##which fish have an age that isn't 1
+
 ind_not_1<-which(Age!=1)
 new<-filter(dd, Age!=1)
+##a new column added called prev which consists of the age not 1 data
+#Not sure what the 1 and 33 do and why these numbers are chosen
 new<-mutate(new, prev=dd[ind_not_1-1,33])
 write.csv(new,"parallel_data_oto.csv")
 #######
 
 dd<-read.csv("extended_data_oto.csv")
-dd<-dd[,4:34]
+#again don't know what is happening here
+dd<-dd[, 4:34]
 
 # At the very beginning I conduct the analysis only on a region.
 dp<-dd[which(dd[,1]=="NSW"),]
