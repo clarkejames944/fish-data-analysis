@@ -16,6 +16,7 @@ fish <- read.csv("./otoliths (working)/data_derived/data_otolith_complete.csv")
 glimpse(fish)
 
 str(fish)
+summarise_all(fish, funs(mean))
 
 #make a few plots of variables of interest- start with the effect of temperature on some variables
 ggplot(fish, aes(x=bottomtemp1, y=Increment))+
@@ -30,8 +31,8 @@ ggplot(fish, aes(x=bottomtemp1, y=growth))+
 #Shows that as the temperature increases so does the 
 #population-wide average growth
 
-#for radius and fish length must group by fish ID
-ggplot(fish, aes(x=bottomtemp1, y=radius))+
+#for radius must use increment and must group by fish ID
+ggplot(fish, aes(x=bottomtemp1, y=Increment))+
   geom_point(size=1)
 
 
@@ -40,13 +41,16 @@ ggplot(fish, aes(x=bottomtemp1, y=radius))+
 ggplot(fish, aes(x=Age, y=growth))+
   geom_point(size=1)
 
-ggplot(fish, aes(x=Age, y=radius))+
+ggplot(fish, aes(x=AdjAge, y=radius))+
   geom_point(size=1)
 
 ggplot(fish, aes(x=Age, y=Increment))+
   geom_point(size=1)
 
 ggplot(fish, aes(x=Age, y=log_incr))+
+  geom_point(size=1)
+
+ggplot(fish, aes(x=AdjAge, y=floorlength))+
   geom_point(size=1)
 
 #Look at time of year of capture- must group by a particular age before doing this one
@@ -75,6 +79,9 @@ ggplot(fish, aes(x=sex, y=Increment))+
   geom_boxplot()
 
 ggplot(fish, aes(x=sex, y=log_incr))+
+  geom_boxplot()
+
+ggplot(fish, aes(x=sex, y=AdjAge))+
   geom_boxplot()
 
 #Effect of area caught

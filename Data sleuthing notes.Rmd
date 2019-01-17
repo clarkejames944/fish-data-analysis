@@ -24,7 +24,7 @@ Data raw contains three datasets. These include:
 All of these have been assembled in the data derived spreadsheet arranged predominantly by fish ID, including two readings for the water temperature (although both appear to be identical throughout the data), the logarithmic of the increment width has also been added in this.
 
 #Variables that have contiuous measurements for each individual fish
-*'Age'
+*'Age' -AdjAge possible to use for fixed measures of the fish
 *'Year'
 *'Increment'
 *'CPUE'
@@ -33,7 +33,7 @@ All of these have been assembled in the data derived spreadsheet arranged predom
 *'growth'
 *'log_incr'
 
-All the rest will be common for each fish- therefore make sure to group or will obtain weird readings.
+All the rest will be common for each fish- therefore make sure to group or will obtain weird readings. For fish length and age must use AdjAge
 
 #Some interesting relationships found
 +between fish length and radius
@@ -44,4 +44,8 @@ All the rest will be common for each fish- therefore make sure to group or will 
 +between areas and radius
 +between areas and growth
 +between age and radius
++between age and fishlength
++between age and radius
 +between temperature and growth
+
+Could group by juvenile and adult separately to determine that effect on various relationships
