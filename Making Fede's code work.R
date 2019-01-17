@@ -9,8 +9,10 @@ library(MuMIn)
 
 ######## Data arrangement
 dd<-read.csv("./otoliths (working)/data_derived/data_otolith_complete.csv")
-oto_size<-rep(0,27429)
-for (i in 1:27429) oto_size[i]<-sum(Increment[((i-Age[i])+1):i])
+##Making a new coloumn called otolith size and then logging that and making a
+##new csv from that- cqn't get this to work
+oto_size<-rep(0,27429) 
+for (i in 1:27429) oto_size[i] <- sum(Increment[((i-Age[i])+1):i])
 dd<-data.frame(cbind(dd,oto_size))
 dd<-mutate(dd, log_oto_size=log(oto_size))
 write.csv(dd,"extended_data_oto.csv")
