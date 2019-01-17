@@ -33,7 +33,7 @@ All of these have been assembled in the data derived spreadsheet arranged predom
 *'growth'
 *'log_incr'
 
-All the rest will be common for each fish- therefore make sure to group or will obtain false readings.
+All the rest will be common for each fish- therefore make sure to group or will obtain weird readings.
 
 #Some interesting relationships found
 +between fish length and radius
