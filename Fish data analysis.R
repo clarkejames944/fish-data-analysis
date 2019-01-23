@@ -99,6 +99,9 @@ ggplot(fish, aes(x=area, y=Increment))+
 ggplot(fish, aes(x=area, y=log_incr))+
   geom_boxplot()
 
+ggplot(fish, aes(x=area, y=floorlength))+
+  geom_boxplot()
+
 #Effect of zone caught
 
 ggplot(fish, aes(x=zone, y=growth))+
@@ -113,19 +116,26 @@ ggplot(fish, aes(x=zone, y=Increment))+
 ggplot(fish, aes(x=zone, y=log_incr))+
   geom_boxplot()
 
+ggplot(fish, aes(x=zone, y=floorlength))+
+  geom_boxplot()
+
 #plotting fish length against otolith size variables
 
 ggplot(fish, aes(x=floorlength, y=growth))+
   geom_point(size=1)
+#The above one doesn't match up in terms one is continuous across 
+#a fishes life and the other is discrete
 
 ggplot(fish, aes(x=floorlength, y=radius))+
   geom_point(size=1)
 
 ggplot(fish, aes(x=floorlength, y=Increment))+
   geom_point(size=1)
+#Again doesn't match up
 
 ggplot(fish, aes(x=floorlength, y=log_incr))+
   geom_point(size=1)
+#Again doesn't match
 
 #Fishing gear effects
 

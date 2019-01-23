@@ -41,12 +41,14 @@ All the rest will be common for each fish- therefore make sure to group or you w
 +between zones and increment length
 +between zones and radius
 +between zones and growth
++between zones and floorlength
 +between areas and increment length
 +between areas and radius
 +between areas and growth
 +between age and radius
 +between age and fishlength
 +between age and radius
++no difference between sex and age
 +between temperature and growth
 
 Could group by juvenile and adult separately to determine that effect on various relationships.
