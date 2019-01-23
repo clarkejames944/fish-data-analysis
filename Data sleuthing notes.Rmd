@@ -21,10 +21,10 @@ Data raw contains three datasets. These include:
 *tiger flathead data major zones
 +Includes zone, batch, fish number and code (all of which can be ignored), the gear type, readability of the otolith, the capture year and month of the fish, port of landing (again ignore), Gender, fish length, age, otolith reader, the edge type of the otolith, radius of otolith, fish ID number, year of spawning, age associated with a particular increment and then the associated increment width and year of this increment. Additionally there is information on whether the individual is a juvenile or adult for a particular increment.
 
-All of these have been assembled in the data derived spreadsheet arranged predominantly by fish ID, including two readings for the water temperature (although both appear to be identical throughout the data), the logarithmic of the increment width has also been added in this.
+All of these have been assembled in the data derived spreadsheet arranged predominantly by fish ID, including two readings for the water temperature (although both appear to be identical throughout the data), and the logarithmic of the increment width has also been added in this.
 
-#Variables that have contiuous measurements for each individual fish
-*'Age' -AdjAge possible to use for fixed measures of the fish
+#Variables that have continuous measurements for each individual fish
+*'Age' -AdjAge possible to use for fixed measures for the fish
 *'Year'
 *'Increment'
 *'CPUE'
@@ -33,7 +33,8 @@ All of these have been assembled in the data derived spreadsheet arranged predom
 *'growth'
 *'log_incr'
 
-All the rest will be common for each fish- therefore make sure to group or will obtain weird readings. For fish length and age must use AdjAge
+All the rest will be common for each fish- therefore make sure to group or you will obtain weird readings. For fish length and age must use AdjAge.
+
 
 #Some interesting relationships found
 +between fish length and radius
@@ -48,4 +49,33 @@ All the rest will be common for each fish- therefore make sure to group or will 
 +between age and radius
 +between temperature and growth
 
-Could group by juvenile and adult separately to determine that effect on various relationships
+Could group by juvenile and adult separately to determine that effect on various relationships.
+
+Extra information on tiger flathead form the Australian governments fishery page(https://www.afma.gov.au/fisheries-management/species/tiger-flathead)
+
+#comments on some categorical variables
+
++zone
+Four zones. EBS, ETAS, NSW, WTAS.
+The majority of the data is obtained from the EBS zone
+
++gear
+Two types. Danish seine and trawl.
+The majority is carried out by trawling.
+501 unknown values also.
+
++sex
+most have positive gender ID. 3804 unknown however.
+
++reader
+5 different readers. The most common reader was Simon.
+
++edge type
+most common are blank, 1, n or w. Very few are '4'.
+
+#Some comments on continuous variables
++For growth, upper and lower there are a total of 6 missing values
++The latest record that we have is from 1971, although the mean is 2001. Latest is 2009.
++Increment. Some potential outliers. Max is 0.877 but mean is 0.21414.
++Fish length- max is 65, mean 40.12, min is 20. 72 missing values.
+

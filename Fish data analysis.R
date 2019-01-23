@@ -14,6 +14,7 @@ fish <- read.csv("./otoliths (working)/data_derived/data_otolith_complete.csv")
 
 #explore the data a bit
 glimpse(fish)
+summary(fish)
 
 str(fish)
 summarise_all(fish, funs(mean))
