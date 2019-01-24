@@ -24,7 +24,7 @@ Data raw contains three datasets. These include:
 All of these have been assembled in the data derived spreadsheet arranged predominantly by fish ID, including two readings for the water temperature (although both appear to be identical throughout the data), and the logarithmic of the increment width has also been added in this.
 
 #Variables that have continuous measurements for each individual fish
-*'Age' -AdjAge possible to use for fixed measures for the fish
+*'Age' -AdjAge possible to use for fixed measures for each fish
 *'Year'
 *'Increment'
 *'CPUE'
@@ -80,8 +80,12 @@ As mentioned by fede in his explanatory notes, juveniles seem to be categorised 
 
 #Some comments on continuous variables
 +For growth, upper and lower there are a total of 6 missing values
+
 +The latest record that we have is from 1971, although the mean is 2001. Latest is 2009.
+
 +Increment. Some potential outliers. Max is 0.877 but mean is 0.21414.
+
 +Fish length- max is 65, mean 40.12, min is 20. 72 missing values. Website says that they grow up to 70cm, and that females are generally larger than males.
+
 +Age- website says they live up to 15 years and that females live longer than males. Apparantly in the adjusted age section the max value is 28. This seems unlikely though, however, in the notes it is said that this otolith is huge(although the fish length was not the biggest), it is also carried out by Simon, who is the most common reader. The next oldest is 25 and it has been noted for this one that it was difficult to read this otolith. Not sure where they get these values from the Age section though as only 15 increments were counted for the 28 year old fish and only 10 counted for the 25 year old one. Mean for AdjAge is 6.712. and min is 2 years old.
 

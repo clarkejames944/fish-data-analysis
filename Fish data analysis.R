@@ -5,6 +5,7 @@
 #Libraries required
 library(dplyr)
 library(ggplot2)
+library(mgcv)
 
 #Data required
 fish <- read.csv("./otoliths (working)/data_derived/data_otolith_complete.csv")
@@ -31,10 +32,6 @@ ggplot(fish, aes(x=bottomtemp1, y=growth))+
 
 #Shows that as the temperature increases so does the 
 #population-wide average growth
-
-#for radius must use increment and must group by fish ID
-ggplot(fish, aes(x=bottomtemp1, y=Increment))+
-  geom_point(size=1)
 
 
 #make a few plots of variables of interest- have a look at age in years now
@@ -150,3 +147,10 @@ ggplot(fish, aes(x=gear, y=Increment))+
 
 ggplot(fish, aes(x=gear, y=log_incr))+
   geom_boxplot()
+
+
+#######################################
+###Fitting some GAMs to the models####
+
+
+
