@@ -150,7 +150,14 @@ ggplot(fish, aes(x=gear, y=log_incr))+
 
 
 #######################################
-###Fitting some GAMs to the models####
+###Fitting some GAMs to the data####
 
+##Remove fish with unknown gender from the dataset
+fish <- fish %>% filter(sex !='U')
+fish %>% group_by(zone, sex)
 
+##Must create otoloth size information. Federico did this by;
+oto_size <- rep(1:23625)
+for (i in 1:23625) oto_size[i] <- sum(Increment[((i-Age[i])+1):i])
+#Doesn't work
 
