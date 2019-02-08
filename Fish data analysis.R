@@ -11,7 +11,7 @@ library(MASS)
 library(car)
 
 #Data required
-fish <- read.csv("./otoliths (working)/data_derived/data_otolith_complete.csv")
+fish <- read.csv("https://raw.githubusercontent.com/clarkejames944/fish-data-analysis/master/otoliths%20(working)/data_derived/data_otolith_complete.csv")
 
 #See the Data sleuthing notes Rmarkdown file for some general comments about 
 #the datasets and their constituent variables
@@ -256,6 +256,7 @@ gam.check(res_bcv_gam)
 summary(res_bcv_gam)
 plot(res_bcv_gam)
 #Different looking relationship from the bcPower function-but still not right- not too bad compared with the other one
+#The one for ETAS looks decent
 
 
 #I'll try a log transformation now to see what happens for the GAMs
@@ -301,4 +302,4 @@ res_box_gam <- gam(res_box_size~s(oto_box[ind_not_1-1], by=not_1$zone))
 gam.check(res_box_gam)
 summary(res_box_gam)
 plot(res_box_gam)
-#Nah
+#No still not good
