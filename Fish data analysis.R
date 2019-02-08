@@ -184,35 +184,259 @@ write.csv(not_1,"parallel_data_oto.csv")
 ##Oto_size against previous year
 ?gam
 
-size_gam <- gam(oto_size[ind_not_1]~s(oto_size[ind_not_1-1], k=4, by=not_1$zone))
+
+#create subsets
+
+
+EBSm <- not_1 %>% filter(sex=='M', zone=='EBS')
+EBSf <- not_1 %>% filter(sex=='F', zone=='EBS')
+ETASm <- not_1 %>% filter(sex=='M', zone=='ETAS')
+ETASf <- not_1 %>% filter(sex=='F', zone=='ETAS')
+NSWm <- not_1 %>% filter(sex=='M', zone=='NSW')
+NSWf <- not_1 %>% filter(sex=='F', zone=='NSW')
+WTASm <- not_1 %>% filter(sex=='M', zone=='WTAS')
+WTASf <- not_1 %>% filter(sex=='F', zone=='WTAS')
+
+##I will start with the EBS male data and create a GAM from this
+EBSm_size_gam <- gam(EBSm$oto_size~s(EBSm$prev, k=4))
 ##using gam.check helps to influence the choice of the value of k
 ##4 seems to be the best to use in this case
-gam.check(size_gam)
+gam.check(EBSm_size_gam)
 
-summary(size_gam)
-#Number of observations was 19130
-#This means that the analysis doesn't include the age 1 fish 
+summary(EBSm_size_gam)
+
 #R-sq=0.978
 #Deviance explained = 97.8%
 #GCV=0.0018687
 #GCV is the measure of the degree of smoothness of the function
-
+EBSm <- EBSm %>% mutate(preds=predict(EBSm_size_gam))
 plot(size_gam)
 
 
 ##GAM between size and extracted residuals
 ##extract residuals
-res_size<- residuals(size_gam)
+EBSm_res_size<- residuals(EBSm_size_gam)
 #absolute values only
-res_size <- abs(res_size)
+EBSm_res_size <- abs(EBSm_res_size)
 
 #The GAM of size against the extracted residuals
-res_gam <- gam(res_size~s(oto_size[ind_not_1-1], by=not_1$zone))
-gam.check(res_gam)
-summary(res_gam)
+EBSm_res_gam <- gam(EBSm_res_size~s(EBSm$prev))
+gam.check(EBSm_res_gam)
+summary(EBSm_res_gam)
 
 plot(res_gam)
 
+##Same again for EBS females
+EBSf_size_gam <- gam(EBSf$oto_size~s(EBSf$prev, k=4))
+##using gam.check helps to influence the choice of the value of k
+##4 seems to be the best to use in this case
+gam.check(EBSf_size_gam)
+
+summary(EBSf_size_gam)
+
+#R-sq=0.978
+#Deviance explained = 97.8%
+#GCV=0.0018687
+#GCV is the measure of the degree of smoothness of the function
+EBSf <- EBSf %>% mutate(preds=predict(EBSf_size_gam))
+plot(size_gam)
+
+
+##GAM between size and extracted residuals
+##extract residuals
+EBSf_res_size<- residuals(EBSf_size_gam)
+#absolute values only
+EBSf_res_size <- abs(EBSf_res_size)
+
+#The GAM of size against the extracted residuals
+EBSf_res_gam <- gam(EBSf_res_size~s(EBSf$prev))
+gam.check(EBSf_res_gam)
+summary(EBSf_res_gam)
+
+plot(res_gam)
+
+##now for ETAS males
+ETASm_size_gam <- gam(ETASm$oto_size~s(ETASm$prev, k=4))
+##using gam.check helps to influence the choice of the value of k
+##4 seems to be the best to use in this case
+gam.check(ETASm_size_gam)
+
+summary(ETASm_size_gam)
+
+#R-sq=0.978
+#Deviance explained = 97.8%
+#GCV=0.0018687
+#GCV is the measure of the degree of smoothness of the function
+ETASm <- ETASm %>% mutate(preds=predict(ETASm_size_gam))
+plot(size_gam)
+
+
+##GAM between size and extracted residuals
+##extract residuals
+ETASm_res_size<- residuals(ETASm_size_gam)
+#absolute values only
+ETASm_res_size <- abs(ETASm_res_size)
+
+#The GAM of size against the extracted residuals
+ETASm_res_gam <- gam(ETASm_res_size~s(ETASm$prev))
+gam.check(ETASm_res_gam)
+summary(ETASm_res_gam)
+
+plot(res_gam)
+
+
+##now for ETAS females
+ETASf_size_gam <- gam(ETASf$oto_size~s(ETASf$prev, k=4))
+##using gam.check helps to influence the choice of the value of k
+##4 seems to be the best to use in this case
+gam.check(ETASf_size_gam)
+
+summary(ETASf_size_gam)
+
+#R-sq=0.978
+#Deviance explained = 97.8%
+#GCV=0.0018687
+#GCV is the measure of the degree of smoothness of the function
+ETASf <- ETASf %>% mutate(preds=predict(ETASf_size_gam))
+plot(size_gam)
+
+
+##GAM between size and extracted residuals
+##extract residuals
+ETASf_res_size<- residuals(ETASf_size_gam)
+#absolute values only
+ETASf_res_size <- abs(ETASf_res_size)
+
+#The GAM of size against the extracted residuals
+ETASf_res_gam <- gam(ETASf_res_size~s(ETASf$prev))
+gam.check(ETASf_res_gam)
+summary(ETASf_res_gam)
+
+plot(res_gam)
+
+##now for NSW males
+NSWm_size_gam <- gam(NSWm$oto_size~s(NSWm$prev, k=4))
+##using gam.check helps to influence the choice of the value of k
+##4 seems to be the best to use in this case
+gam.check(NSWm_size_gam)
+
+summary(NSWm_size_gam)
+
+#R-sq=0.978
+#Deviance explained = 97.8%
+#GCV=0.0018687
+#GCV is the measure of the degree of smoothness of the function
+NSWm <- NSWm %>% mutate(preds=predict(NSWm_size_gam))
+plot(size_gam)
+
+
+##GAM between size and extracted residuals
+##extract residuals
+NSWm_res_size<- residuals(NSWm_size_gam)
+#absolute values only
+NSWm_res_size <- abs(NSWm_res_size)
+
+#The GAM of size against the extracted residuals
+NSWm_res_gam <- gam(NSWm_res_size~s(NSWm$prev))
+gam.check(NSWm_res_gam)
+summary(NSWm_res_gam)
+
+plot(res_gam)
+
+##now for NSW females
+NSWf_size_gam <- gam(NSWf$oto_size~s(NSWf$prev, k=4))
+##using gam.check helps to influence the choice of the value of k
+##4 seems to be the best to use in this case
+gam.check(NSWf_size_gam)
+
+summary(NSWf_size_gam)
+
+NSWf <- NSWf %>% mutate(preds=predict(NSWf_size_gam))
+plot(size_gam)
+
+
+##GAM between size and extracted residuals
+##extract residuals
+NSWf_res_size<- residuals(NSWf_size_gam)
+#absolute values only
+NSWf_res_size <- abs(NSWf_res_size)
+
+#The GAM of size against the extracted residuals
+NSWf_res_gam <- gam(NSWf_res_size~s(NSWf$prev))
+gam.check(NSWf_res_gam)
+summary(NSWf_res_gam)
+
+plot(res_gam)
+
+
+##now for WTAS males
+WTASm_size_gam <- gam(WTASm$oto_size~s(WTASm$prev, k=4))
+##using gam.check helps to influence the choice of the value of k
+##4 seems to be the best to use in this case
+gam.check(WTASm_size_gam)
+
+summary(WTASm_size_gam)
+
+#R-sq=0.978
+#Deviance explained = 97.8%
+#GCV=0.0018687
+#GCV is the measure of the degree of smoothness of the function
+WTASm <- WTASm %>% mutate(preds=predict(WTASm_size_gam))
+plot(size_gam)
+
+
+##GAM between size and extracted residuals
+##extract residuals
+WTASm_res_size<- residuals(WTASm_size_gam)
+#absolute values only
+WTASm_res_size <- abs(WTASm_res_size)
+
+#The GAM of size against the extracted residuals
+WTASm_res_gam <- gam(WTASm_res_size~s(WTASm$prev))
+gam.check(WTASm_res_gam)
+summary(WTASm_res_gam)
+
+plot(res_gam)
+
+
+##now for WTAS females
+WTASf_size_gam <- gam(WTASf$oto_size~s(WTASf$prev, k=4))
+##using gam.check helps to influence the choice of the value of k
+##4 seems to be the best to use in this case
+gam.check(WTASf_size_gam)
+
+summary(WTASf_size_gam)
+
+#R-sq=0.978
+#Deviance explained = 97.8%
+#GCV=0.0018687
+#GCV is the measure of the degree of smoothness of the function
+
+WTASf <- WTASf %>% mutate(preds=predict(WTASf_size_gam))
+plot(size_gam)
+
+
+##GAM between size and extracted residuals
+##extract residuals
+WTASf_res_size<- residuals(WTASf_size_gam)
+#absolute values only
+WTASf_res_size <- abs(WTASf_res_size)
+
+#The GAM of size against the extracted residuals
+WTASf_res_gam <- gam(WTASf_res_size~s(WTASf$prev))
+gam.check(WTASf_res_gam)
+summary(WTASf_res_gam)
+
+plot(res_gam)
+
+
+
+
+
+
+
+
+##Now we can move on to the transformations of these
 #This shows that as size increases the residuals are decreasing 
 #We would like to remove this effect as much as possible
 #So we will try box-cox transformations
@@ -220,7 +444,7 @@ plot(res_gam)
 ##Box-cox transformations of the otolith size data
 
 #Transform the otolith size data using bcPower from the 'car' package
-fish <- mutate(fish, bc_oto_size=bcPower(oto_size, lambda=TRUE))
+fish <- mutate(fish, bc_oto_size=bcPower(oto_size, lambda = -2:2))
 
 #create the box-cox GAM
 bc_size_gam <- gam(fish$bc_oto_size[ind_not_1]~s(fish$bc_oto_size[ind_not_1-1], k=4, by=not_1$zone))
