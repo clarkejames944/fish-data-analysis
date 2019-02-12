@@ -226,7 +226,7 @@ ggplot(EBSm,aes(x=prev, y=oto_size))+
 ##extract residuals
 EBSm_res_size<- residuals(EBSm_size_gam)
 #absolute values only
-EBSm_res_size <- abs(EBSm_res_size)^2
+EBSm_res_size <- (EBSm_res_size)^2
 EBSm <- EBSm %>% mutate(res_oto_size=EBSm_res_size)
 
 #The GAM of size against the extracted residuals
@@ -271,7 +271,7 @@ ggplot(EBSf,aes(x=prev, y=oto_size))+
 ##extract residuals
 EBSf_res_size<- residuals(EBSf_size_gam)
 #absolute values only
-EBSf_res_size <- abs(EBSf_res_size)^2
+EBSf_res_size <- (EBSf_res_size)^2
 EBSf <- EBSf %>% mutate(res_oto_size=EBSf_res_size)
 
 #The GAM of size against the extracted residuals
@@ -315,7 +315,7 @@ ggplot(ETASm,aes(x=prev, y=oto_size))+
 ##extract residuals
 ETASm_res_size<- residuals(ETASm_size_gam)
 #absolute values only
-ETASm_res_size <- abs(ETASm_res_size)^2
+ETASm_res_size <- (ETASm_res_size)^2
 ETASm <- ETASm %>% mutate(res_oto_size=ETASm_res_size)
 
 #The GAM of size against the extracted residuals
@@ -361,7 +361,7 @@ ggplot(ETASf,aes(x=prev, y=oto_size))+
 ##extract residuals
 ETASf_res_size<- residuals(ETASf_size_gam)
 #absolute values only
-ETASf_res_size <- abs(ETASf_res_size)^2
+ETASf_res_size <- (ETASf_res_size)^2
 ETASf <- ETASf %>% mutate(res_oto_size=ETASf_res_size)
 
 #The GAM of size against the extracted residuals
@@ -404,7 +404,7 @@ ggplot(NSWm,aes(x=prev, y=oto_size))+
 ##extract residuals
 NSWm_res_size<- residuals(NSWm_size_gam)
 #absolute values only
-NSWm_res_size <- abs(NSWm_res_size)^2
+NSWm_res_size <-(NSWm_res_size)^2
 NSWm <- NSWm %>% mutate(res_oto_size=NSWm_res_size)
 
 #The GAM of size against the extracted residuals
@@ -444,7 +444,7 @@ ggplot(NSWf,aes(x=prev, y=oto_size))+
 ##extract residuals
 NSWf_res_size<- residuals(NSWf_size_gam)
 #absolute values only
-NSWf_res_size <- abs(NSWf_res_size)^2
+NSWf_res_size <- (NSWf_res_size)^2
 NSWf <- NSWf %>% mutate(res_oto_size=NSWf_res_size)
 
 #The GAM of size against the extracted residuals
@@ -487,7 +487,7 @@ ggplot(WTASm,aes(x=prev, y=oto_size))+
 ##extract residuals
 WTASm_res_size<- residuals(WTASm_size_gam)
 #absolute values only
-WTASm_res_size <- abs(WTASm_res_size)^2
+WTASm_res_size <- (WTASm_res_size)^2
 WTASm <- WTASm %>% mutate(res_oto_size=WTASm_res_size)
 
 #The GAM of size against the extracted residuals
@@ -532,7 +532,7 @@ ggplot(WTASf,aes(x=prev, y=oto_size))+
 ##extract residuals
 WTASf_res_size<- residuals(WTASf_size_gam)
 #absolute values only
-WTASf_res_size <- abs(WTASf_res_size)^2
+WTASf_res_size <- (WTASf_res_size)^2
 WTASf <- WTASf %>% mutate(res_oto_size=WTASf_res_size)
 
 #The GAM of size against the extracted residuals
@@ -586,7 +586,7 @@ ggplot(NSWm,aes(x=NSWm_bc_prev, y=NSWm_bc_oto_size))+
 
 #Extract the residuals from this
 NSWm_res_bc_size <- residuals(NSWm_bc_size_gam)
-NSWm_res_bc_size <- abs(NSWm_res_bc_size)^2
+NSWm_res_bc_size <- (NSWm_res_bc_size)^2
 NSWm <- NSWm %>% mutate(res_bc_size=NSWm_res_bc_size)
 
 #GAM of the residuals
@@ -604,45 +604,50 @@ ggplot(NSWm,aes(x=NSWm_bc_prev, y=res_bc_size))+
   theme_classic()
 
 ##That didn't seem to work
+##This method seems to create a lot of NAs within the dataset
 
-#same relationship found- try another box-cox rather than bcPower (try 'powerTransform' and 'boxCoxVariable' and 'boxTidwell'- all from 'car' package)
+#same relationship found- try another box-cox rather than bcPower (try 'powerTransform' and 'boxCoxVariable'- all from 'car' package)
 #Transform the otolith size data
-fish <- mutate(fish, bcv_oto_size=boxCoxVariable(oto_size))
+NSWm <- mutate(NSWm, bcv_oto_size=boxCoxVariable(oto_size))
+NSWm <- mutate(NSWm, bcv_oto_prev=boxCoxVariable(prev))
 
 #create the boxcoxVariable GAM extract residuals and then plot the residual GAM
-bcv_size_gam <- gam(fish$bcv_oto_size[ind_not_1]~s(fish$bcv_oto_size[ind_not_1-1], k=4, by=not_1$zone))
-gam.check(bcv_size_gam)
-summary(bcv_size_gam)
-plot(bcv_size_gam)
+NSWm_bcv_size_gam <- gam(NSWm$bcv_oto_size~s(NSWm$bcv_oto_prev, k=4))
+gam.check(NSWm_bcv_size_gam)
+summary(NSWm_bcv_size_gam)
+NSWm <- NSWm %>% mutate(bcv_preds=predict(NSWm_bcv_size_gam))
+ggplot(NSWm,aes(x=bcv_oto_prev, y=bcv_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=bcv_oto_prev, y=bcv_preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("Box-Cox Variable NSWm")+
+  theme_classic()
 
-res_bcv_size <- residuals(bcv_size_gam)
-res_bcv_size <- abs(res_bcv_size)
+#Extract the residuals from this
+NSWm_res_bcv_size <- residuals(NSWm_bcv_size_gam)
+NSWm_res_bcv_size <- (NSWm_res_bcv_size)^2
+NSWm <- NSWm %>% mutate(res_bcv_size=NSWm_res_bcv_size)
 
-res_bcv_gam <- gam(res_bcv_size~s(fish$bcv_oto_size[ind_not_1-1], by=not_1$zone))
-gam.check(res_bcv_gam)
-summary(res_bcv_gam)
-plot(res_bcv_gam)
-#Different looking relationship from the bcPower function-but still not right- not too bad compared with the other one
-#The one for ETAS looks decent
+#GAM of the residuals
+NSWm_res_bcv_gam <- gam(NSWm$res_bcv_size~s(NSWm$bcv_oto_prev))
+gam.check(NSWm_res_bcv_gam)
+summary(NSWm_res_bcv_gam)
 
+NSWm <- NSWm %>% mutate(res_bcv_preds=predict(NSWm_res_bcv_gam))
+ggplot(NSWm,aes(x=bcv_oto_prev, y=res_bcv_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=bcv_oto_prev, y=res_bcv_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("Box-Cox Variable NSWm")+
+  theme_classic()
 
-#I'll try a log transformation now to see what happens for the GAMs
+#Better than bcPower function-but still not right
 
-log_size_gam <- gam(fish$log_oto_size[ind_not_1]~s(fish$log_oto_size[ind_not_1-1], k=4, by=not_1$zone))
-gam.check(log_size_gam)
-summary(log_size_gam)
-plot(log_size_gam)
-
-res_log_size <- residuals(log_size_gam)
-res_log_size <- abs(res_log_size)
-
-res_log_gam <- gam(res_log_size~s(fish$log_oto_size[ind_not_1-1], by=not_1$zone))
-gam.check(res_log_gam)
-summary(res_log_gam)
-plot(res_log_gam)
-##no still not good- similar relationship as seen with bcPower function
 
 ##Try a different method for Box-Cox transformation
+#The manual method 
 Box=boxcox(NSWm$oto_size~1,
            lambda= seq(-6, 6, 0.1)
            )
@@ -653,20 +658,136 @@ Cox2[1,]
 
 #To obtain the appropriate value of lambda
 lambda = Cox2[1, "Box.x"]
-oto_box = (oto_size ^ lambda -1)/lambda
+oto_box = (NSWm$oto_size ^ lambda -1)/lambda
+oto_box_prev = (NSWm$prev^lambda-1)/lambda
 
 #Make a GAM of this new boxcox data
 
-box_size_gam <- gam(oto_box[ind_not_1]~s(oto_box[ind_not_1-1], k=4, by=not_1$zone))
-gam.check(box_size_gam)
-summary(box_size_gam)
-plot(box_size_gam)
 
-res_box_size <- residuals(box_size_gam)
-res_box_size <- abs(res_box_size)
+#create the box-cox GAM
+NSWm_box_size_gam <- gam(oto_box~s(oto_box_prev, k=4))
+gam.check(NSWm_box_size_gam)
+summary(NSWm_box_size_gam)
+NSWm <- NSWm %>% mutate(box_preds=predict(NSWm_box_size_gam))
+ggplot(NSWm,aes(x=oto_box_prev, y=oto_box))+
+  geom_point(size=1)+
+  geom_line(aes(x=oto_box_prev, y=box_preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("Manual Box-Cox NSWm")+
+  theme_classic()
 
-res_box_gam <- gam(res_box_size~s(oto_box[ind_not_1-1], by=not_1$zone))
-gam.check(res_box_gam)
-summary(res_box_gam)
-plot(res_box_gam)
+
+
+#Extract the residuals from this
+NSWm_res_box_size <- residuals(NSWm_box_size_gam)
+NSWm_res_box_size <- (NSWm_res_box_size)^2
+NSWm <- NSWm %>% mutate(res_box_size=NSWm_res_box_size)
+
+#GAM of the residuals
+NSWm_res_box_gam <- gam(NSWm$res_box_size~s(oto_box_prev, k=4))
+gam.check(NSWm_res_box_gam)
+summary(NSWm_res_box_gam)
+
+NSWm <- NSWm %>% mutate(res_box_preds=predict(NSWm_res_box_gam))
+ggplot(NSWm,aes(x=oto_box_prev, y=res_box_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=oto_box_prev, y=res_box_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("Manual Box-Cox NSWm")+
+  theme_classic()
+
 #No still not good
+
+
+##Try boxCoxVariable for the ETASm dataset now to see what happens
+ETASm <- mutate(ETASm, bcv_oto_size=boxCoxVariable(oto_size))
+ETASm <- mutate(ETASm, bcv_oto_prev=boxCoxVariable(prev))
+
+#create the boxcoxVariable GAM extract residuals and then plot the residual GAM
+ETASm_bcv_size_gam <- gam(ETASm$bcv_oto_size~s(ETASm$bcv_oto_prev, k=4))
+gam.check(ETASm_bcv_size_gam)
+summary(ETASm_bcv_size_gam)
+ETASm <- ETASm %>% mutate(bcv_preds=predict(ETASm_bcv_size_gam))
+ggplot(ETASm,aes(x=bcv_oto_prev, y=bcv_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=bcv_oto_prev, y=bcv_preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("Box-Cox Variable ETASm")+
+  theme_classic()
+
+#Extract the residuals from this
+ETASm_res_bcv_size <- residuals(ETASm_bcv_size_gam)
+ETASm_res_bcv_size <- (ETASm_res_bcv_size)^2
+ETASm <- ETASm %>% mutate(res_bcv_size=ETASm_res_bcv_size)
+
+#GAM of the residuals
+ETASm_res_bcv_gam <- gam(ETASm$res_bcv_size~s(ETASm$bcv_oto_prev))
+gam.check(ETASm_res_bcv_gam)
+summary(ETASm_res_bcv_gam)
+
+ETASm <- ETASm %>% mutate(res_bcv_preds=predict(ETASm_res_bcv_gam))
+ggplot(ETASm,aes(x=bcv_oto_prev, y=res_bcv_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=bcv_oto_prev, y=res_bcv_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("Box-Cox Variable ETASm")+
+  theme_classic()
+
+##No that is not a good one
+##Try the manual method now for ETASm
+
+ETASm_Box=boxcox(ETASm$oto_size~1,
+           lambda= seq(-6, 6, 0.1)
+)
+
+ETASm_Cox=data.frame(Box$x, Box$y)
+ETASm_Cox2=ETASm_Cox[with(Cox, order(-Cox$Box.y)),]
+ETASm_Cox2[1,]
+
+#To obtain the appropriate value of lambda
+lambda = ETASm_Cox2[1, "Box.x"]
+ETASm_oto_box = (ETASm$oto_size ^ lambda -1)/lambda
+ETASm_oto_box_prev = (ETASm$prev^lambda-1)/lambda
+
+#Make a GAM of this new boxcox data
+
+
+#create the box-cox GAM
+ETASm_box_size_gam <- gam(ETASm_oto_box~s(ETASm_oto_box_prev, k=4))
+gam.check(ETASm_box_size_gam)
+summary(ETASm_box_size_gam)
+ETASm <- ETASm %>% mutate(box_preds=predict(ETASm_box_size_gam))
+ggplot(ETASm,aes(x=ETASm_oto_box_prev, y=ETASm_oto_box))+
+  geom_point(size=1)+
+  geom_line(aes(x=ETASm_oto_box_prev, y=box_preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("Manual Box-Cox ETASm")+
+  theme_classic()
+
+
+
+#Extract the residuals from this
+ETASm_res_box_size <- residuals(ETASm_box_size_gam)
+ETASm_res_box_size <- (ETASm_res_box_size)^2
+ETASm <- ETASm %>% mutate(res_box_size=ETASm_res_box_size)
+
+#GAM of the residuals
+ETASm_res_box_gam <- gam(ETASm$res_box_size~s(ETASm_oto_box_prev, k=4))
+gam.check(ETASm_res_box_gam)
+summary(ETASm_res_box_gam)
+
+ETASm <- ETASm %>% mutate(res_box_preds=predict(ETASm_res_box_gam))
+ggplot(ETASm,aes(x=ETASm_oto_box_prev, y=res_box_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=ETASm_oto_box_prev, y=res_box_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("Manual Box-Cox ETASm")+
+  theme_classic()
+
+##No not good
