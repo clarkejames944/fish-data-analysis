@@ -177,7 +177,7 @@ fish <- read.csv("extended_data_oto.csv")
 attach(fish)
 ind_not_1 <- which(Age!=1)
 not_1 <- filter(fish, Age!=1 )
-not_1 <- mutate(not_1, prev=fish[ind_not_1-1,33])
+not_1 <- mutate(not_1, prev=fish[ind_not_1-1,34])
 write.csv(not_1,"parallel_data_oto.csv")
 
 ##Now all is set up to do a GAM
@@ -209,22 +209,39 @@ summary(EBSm_size_gam)
 #Deviance explained = 97.8%
 #GCV=0.0018687
 #GCV is the measure of the degree of smoothness of the function
+
+#plot the graph for EBSm
 EBSm <- EBSm %>% mutate(preds=predict(EBSm_size_gam))
-plot(size_gam)
+ggplot(EBSm,aes(x=prev, y=oto_size))+
+  geom_point(size=1)+
+    geom_line(aes(x=prev, y=preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("EBSm")+
+  theme_classic()
+
 
 
 ##GAM between size and extracted residuals
 ##extract residuals
 EBSm_res_size<- residuals(EBSm_size_gam)
 #absolute values only
-EBSm_res_size <- abs(EBSm_res_size)
+EBSm_res_size <- abs(EBSm_res_size)^2
+EBSm <- EBSm %>% mutate(res_oto_size=EBSm_res_size)
 
 #The GAM of size against the extracted residuals
 EBSm_res_gam <- gam(EBSm_res_size~s(EBSm$prev))
 gam.check(EBSm_res_gam)
 summary(EBSm_res_gam)
 
-plot(res_gam)
+EBSm <- EBSm %>% mutate(res_preds=predict(EBSm_res_gam))
+ggplot(EBSm,aes(x=prev, y=res_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("EBSm")+
+  theme_classic()
 
 ##Same again for EBS females
 EBSf_size_gam <- gam(EBSf$oto_size~s(EBSf$prev, k=4))
@@ -238,22 +255,38 @@ summary(EBSf_size_gam)
 #Deviance explained = 97.8%
 #GCV=0.0018687
 #GCV is the measure of the degree of smoothness of the function
+
 EBSf <- EBSf %>% mutate(preds=predict(EBSf_size_gam))
-plot(size_gam)
+ggplot(EBSf,aes(x=prev, y=oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("EBSf")+
+  theme_classic()
+
 
 
 ##GAM between size and extracted residuals
 ##extract residuals
 EBSf_res_size<- residuals(EBSf_size_gam)
 #absolute values only
-EBSf_res_size <- abs(EBSf_res_size)
+EBSf_res_size <- abs(EBSf_res_size)^2
+EBSf <- EBSf %>% mutate(res_oto_size=EBSf_res_size)
 
 #The GAM of size against the extracted residuals
 EBSf_res_gam <- gam(EBSf_res_size~s(EBSf$prev))
 gam.check(EBSf_res_gam)
 summary(EBSf_res_gam)
 
-plot(res_gam)
+EBSf <- EBSf %>% mutate(res_preds=predict(EBSf_res_gam))
+ggplot(EBSf,aes(x=prev, y=res_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("EBSf")+
+  theme_classic()
 
 ##now for ETAS males
 ETASm_size_gam <- gam(ETASm$oto_size~s(ETASm$prev, k=4))
@@ -268,21 +301,36 @@ summary(ETASm_size_gam)
 #GCV=0.0018687
 #GCV is the measure of the degree of smoothness of the function
 ETASm <- ETASm %>% mutate(preds=predict(ETASm_size_gam))
-plot(size_gam)
+
+ggplot(ETASm,aes(x=prev, y=oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("ETASm")+
+  theme_classic()
 
 
 ##GAM between size and extracted residuals
 ##extract residuals
 ETASm_res_size<- residuals(ETASm_size_gam)
 #absolute values only
-ETASm_res_size <- abs(ETASm_res_size)
+ETASm_res_size <- abs(ETASm_res_size)^2
+ETASm <- ETASm %>% mutate(res_oto_size=ETASm_res_size)
 
 #The GAM of size against the extracted residuals
 ETASm_res_gam <- gam(ETASm_res_size~s(ETASm$prev))
 gam.check(ETASm_res_gam)
 summary(ETASm_res_gam)
 
-plot(res_gam)
+ETASm <- ETASm %>% mutate(res_preds=predict(ETASm_res_gam))
+ggplot(ETASm,aes(x=prev, y=res_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("ETASm")+
+  theme_classic()
 
 
 ##now for ETAS females
@@ -298,21 +346,37 @@ summary(ETASf_size_gam)
 #GCV=0.0018687
 #GCV is the measure of the degree of smoothness of the function
 ETASf <- ETASf %>% mutate(preds=predict(ETASf_size_gam))
-plot(size_gam)
+
+ggplot(ETASf,aes(x=prev, y=oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("ETASf")+
+  theme_classic()
+
 
 
 ##GAM between size and extracted residuals
 ##extract residuals
 ETASf_res_size<- residuals(ETASf_size_gam)
 #absolute values only
-ETASf_res_size <- abs(ETASf_res_size)
+ETASf_res_size <- abs(ETASf_res_size)^2
+ETASf <- ETASf %>% mutate(res_oto_size=ETASf_res_size)
 
 #The GAM of size against the extracted residuals
 ETASf_res_gam <- gam(ETASf_res_size~s(ETASf$prev))
 gam.check(ETASf_res_gam)
 summary(ETASf_res_gam)
 
-plot(res_gam)
+ETASf <- ETASf %>% mutate(res_preds=predict(ETASf_res_gam))
+ggplot(ETASf,aes(x=prev, y=res_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("ETASf")+
+  theme_classic()
 
 ##now for NSW males
 NSWm_size_gam <- gam(NSWm$oto_size~s(NSWm$prev, k=4))
@@ -327,21 +391,36 @@ summary(NSWm_size_gam)
 #GCV=0.0018687
 #GCV is the measure of the degree of smoothness of the function
 NSWm <- NSWm %>% mutate(preds=predict(NSWm_size_gam))
-plot(size_gam)
+ggplot(NSWm,aes(x=prev, y=oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("NSWm")+
+  theme_classic()
 
 
 ##GAM between size and extracted residuals
 ##extract residuals
 NSWm_res_size<- residuals(NSWm_size_gam)
 #absolute values only
-NSWm_res_size <- abs(NSWm_res_size)
+NSWm_res_size <- abs(NSWm_res_size)^2
+NSWm <- NSWm %>% mutate(res_oto_size=NSWm_res_size)
 
 #The GAM of size against the extracted residuals
 NSWm_res_gam <- gam(NSWm_res_size~s(NSWm$prev))
 gam.check(NSWm_res_gam)
 summary(NSWm_res_gam)
 
-plot(res_gam)
+NSWm <- NSWm %>% mutate(res_preds=predict(NSWm_res_gam))
+ggplot(NSWm,aes(x=prev, y=res_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("NSWm")+
+  theme_classic()
+
 
 ##now for NSW females
 NSWf_size_gam <- gam(NSWf$oto_size~s(NSWf$prev, k=4))
@@ -352,22 +431,35 @@ gam.check(NSWf_size_gam)
 summary(NSWf_size_gam)
 
 NSWf <- NSWf %>% mutate(preds=predict(NSWf_size_gam))
-plot(size_gam)
+ggplot(NSWf,aes(x=prev, y=oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("NSWf")+
+  theme_classic()
 
 
 ##GAM between size and extracted residuals
 ##extract residuals
 NSWf_res_size<- residuals(NSWf_size_gam)
 #absolute values only
-NSWf_res_size <- abs(NSWf_res_size)
+NSWf_res_size <- abs(NSWf_res_size)^2
+NSWf <- NSWf %>% mutate(res_oto_size=NSWf_res_size)
 
 #The GAM of size against the extracted residuals
 NSWf_res_gam <- gam(NSWf_res_size~s(NSWf$prev))
 gam.check(NSWf_res_gam)
 summary(NSWf_res_gam)
 
-plot(res_gam)
-
+NSWf <- NSWf %>% mutate(res_preds=predict(NSWf_res_gam))
+ggplot(NSWf,aes(x=prev, y=res_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("NSWf")+
+  theme_classic()
 
 ##now for WTAS males
 WTASm_size_gam <- gam(WTASm$oto_size~s(WTASm$prev, k=4))
@@ -382,21 +474,35 @@ summary(WTASm_size_gam)
 #GCV=0.0018687
 #GCV is the measure of the degree of smoothness of the function
 WTASm <- WTASm %>% mutate(preds=predict(WTASm_size_gam))
-plot(size_gam)
+ggplot(WTASm,aes(x=prev, y=oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("WTASm")+
+  theme_classic()
 
 
 ##GAM between size and extracted residuals
 ##extract residuals
 WTASm_res_size<- residuals(WTASm_size_gam)
 #absolute values only
-WTASm_res_size <- abs(WTASm_res_size)
+WTASm_res_size <- abs(WTASm_res_size)^2
+WTASm <- WTASm %>% mutate(res_oto_size=WTASm_res_size)
 
 #The GAM of size against the extracted residuals
 WTASm_res_gam <- gam(WTASm_res_size~s(WTASm$prev))
 gam.check(WTASm_res_gam)
 summary(WTASm_res_gam)
 
-plot(res_gam)
+WTASm <- WTASm %>% mutate(res_preds=predict(WTASm_res_gam))
+ggplot(WTASm,aes(x=prev, y=res_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("WTASm")+
+  theme_classic()
 
 
 ##now for WTAS females
@@ -413,21 +519,36 @@ summary(WTASf_size_gam)
 #GCV is the measure of the degree of smoothness of the function
 
 WTASf <- WTASf %>% mutate(preds=predict(WTASf_size_gam))
-plot(size_gam)
+ggplot(WTASf,aes(x=prev, y=oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("WTASf")+
+  theme_classic()
 
 
 ##GAM between size and extracted residuals
 ##extract residuals
 WTASf_res_size<- residuals(WTASf_size_gam)
 #absolute values only
-WTASf_res_size <- abs(WTASf_res_size)
+WTASf_res_size <- abs(WTASf_res_size)^2
+WTASf <- WTASf %>% mutate(res_oto_size=WTASf_res_size)
 
 #The GAM of size against the extracted residuals
 WTASf_res_gam <- gam(WTASf_res_size~s(WTASf$prev))
 gam.check(WTASf_res_gam)
 summary(WTASf_res_gam)
 
-plot(res_gam)
+WTASf <- WTASf %>% mutate(res_preds=predict(WTASf_res_gam))
+ggplot(WTASf,aes(x=prev, y=res_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("WTASf")+
+  theme_classic()
+
 
 
 
@@ -443,24 +564,46 @@ plot(res_gam)
 
 ##Box-cox transformations of the otolith size data
 
+##I will try the transformations out on the NSWm data first as it has a particularly noticeable 
+##relationship
+
 #Transform the otolith size data using bcPower from the 'car' package
-fish <- mutate(fish, bc_oto_size=bcPower(oto_size, lambda = -2:2))
+NSWm <- mutate(NSWm, NSWm_bc_oto_size=bcPower(oto_size, lambda = seq(-2, 2, length=50)))
+NSWm <- mutate(NSWm, NSWm_bc_prev=bcPower(prev, lambda = seq(-2,2, length=50)))
 
 #create the box-cox GAM
-bc_size_gam <- gam(fish$bc_oto_size[ind_not_1]~s(fish$bc_oto_size[ind_not_1-1], k=4, by=not_1$zone))
-gam.check(bc_size_gam)
-summary(bc_size_gam)
-plot(bc_size_gam)
+NSWm_bc_size_gam <- gam(NSWm$NSWm_bc_oto_size~s(NSWm$NSWm_bc_prev, k=4))
+gam.check(NSWm_bc_size_gam)
+summary(NSWm_bc_size_gam)
+NSWm <- NSWm %>% mutate(bc_preds=predict(NSWm_bc_size_gam))
+ggplot(NSWm,aes(x=NSWm_bc_prev, y=NSWm_bc_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=NSWm_bc_prev, y=bc_preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("Box-Cox NSWm")+
+  theme_classic()
 
 #Extract the residuals from this
-res_bc_size <- residuals(bc_size_gam)
-res_bc_size <- abs(res_bc_size)
+NSWm_res_bc_size <- residuals(NSWm_bc_size_gam)
+NSWm_res_bc_size <- abs(NSWm_res_bc_size)^2
+NSWm <- NSWm %>% mutate(res_bc_size=NSWm_res_bc_size)
 
 #GAM of the residuals
-res_bc_gam <- gam(res_bc_size~s(fish$bc_oto_size[ind_not_1-1], by=not_1$zone))
-gam.check(res_bc_gam)
-summary(res_bc_gam)
-plot(res_bc_gam)
+NSWm_res_bc_gam <- gam(NSWm$res_bc_size~s(NSWm$NSWm_bc_prev))
+gam.check(NSWm_res_bc_gam)
+summary(NSWm_res_bc_gam)
+
+NSWm <- NSWm %>% mutate(res_bc_preds=predict(NSWm_res_bc_gam))
+ggplot(NSWm,aes(x=NSWm_bc_prev, y=res_bc_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=NSWm_bc_prev, y=res_bc_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("Box-Cox NSWm")+
+  theme_classic()
+
+##That didn't seem to work
 
 #same relationship found- try another box-cox rather than bcPower (try 'powerTransform' and 'boxCoxVariable' and 'boxTidwell'- all from 'car' package)
 #Transform the otolith size data
@@ -500,7 +643,7 @@ plot(res_log_gam)
 ##no still not good- similar relationship as seen with bcPower function
 
 ##Try a different method for Box-Cox transformation
-Box=boxcox(oto_size~1,
+Box=boxcox(NSWm$oto_size~1,
            lambda= seq(-6, 6, 0.1)
            )
 
