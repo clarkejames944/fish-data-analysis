@@ -1255,3 +1255,311 @@ ggplot(NSWm, aes(x=prev))+
     xlab("Box Cox s")+
     ggtitle("Manual Box-Cox WTASf")+
     theme_classic()
+  
+  ##I'll have a go at improving the ETASm transformation
+  lambda = Cox2[1, "Box.x"]
+  ETASm_oto_box = (ETASm$oto_size^lambda -1)/lambda
+  ETASm_oto_box1=(ETASm$oto_size^-2 -1)/-2
+  ETASm_oto_box2=(ETASm$oto_size^-1.5 -1)/-1.5
+  ETASm_oto_box3=(ETASm$oto_size^-1 -1)/-1
+  ETASm_oto_box4=(ETASm$oto_size^-0.5 -1)/-0.5
+  ETASm_oto_box6=(ETASm$oto_size^0.5 -1)/0.5
+  ETASm_oto_box7=(ETASm$oto_size^1 -1)/1
+  ETASm_oto_box8=(ETASm$oto_size^1.5 -1)/1.5
+  ETASm_oto_box9=(ETASm$oto_size^2 -1)/2
+  #Make a GAM of this new boxcox data
+  #Fit this over a range of values see how it changes
+  
+  #create the box-cox GAM
+  ETASm_box_size_gam <- gam(ETASm_oto_box~s(ETASm$prev, k=4))
+  gam.check(ETASm_box_size_gam)
+  summary(ETASm_box_size_gam)
+  ETASm <- ETASm %>% mutate(box_preds=predict(ETASm_box_size_gam))
+  ggplot(ETASm,aes(x=prev, y=ETASm_ETASm_oto_box))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm")+
+    theme_classic()
+  
+  ETASm_box_size_gam1 <- gam(ETASm_oto_box1~s(ETASm$prev, k=4))
+  gam.check(ETASm_box_size_gam1)
+  summary(ETASm_box_size_gam1)
+  ETASm <- ETASm %>% mutate(box_preds1=predict(ETASm_box_size_gam1))
+  ggplot(ETASm,aes(x=prev, y=ETASm_oto_box1))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds1), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm1")+
+    theme_classic()
+  
+  ETASm_box_size_gam2 <- gam(ETASm_oto_box2~s(ETASm$prev, k=4))
+  gam.check(ETASm_box_size_gam2)
+  summary(ETASm_box_size_gam2)
+  ETASm <- ETASm %>% mutate(box_preds2=predict(ETASm_box_size_gam2))
+  ggplot(ETASm,aes(x=prev, y=ETASm_oto_box2))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds2), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm2")+
+    theme_classic()
+  
+  ETASm_box_size_gam3 <- gam(ETASm_oto_box3~s(ETASm$prev, k=4))
+  gam.check(ETASm_box_size_gam3)
+  summary(ETASm_box_size_gam3)
+  ETASm <- ETASm %>% mutate(box_preds3=predict(ETASm_box_size_gam3))
+  ggplot(ETASm,aes(x=prev, y=ETASm_oto_box3))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds3), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm3")+
+    theme_classic()
+  
+  ETASm_box_size_gam4 <- gam(ETASm_oto_box4~s(ETASm$prev, k=4))
+  gam.check(ETASm_box_size_gam4)
+  summary(ETASm_box_size_gam4)
+  ETASm <- ETASm %>% mutate(box_preds4=predict(ETASm_box_size_gam4))
+  ggplot(ETASm,aes(x=prev, y=ETASm_oto_box4))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds4), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm4")+
+    theme_classic()
+  
+  ETASm_box_size_gam5 <- gam(ETASm_oto_box5~s(ETASm$prev, k=4))
+  gam.check(ETASm_box_size_gam5)
+  summary(ETASm_box_size_gam5)
+  ETASm <- ETASm %>% mutate(box_preds5=predict(ETASm_box_size_gam5))
+  ggplot(ETASm,aes(x=prev, y=ETASm_oto_box5))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds5), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm5")+
+    theme_classic()
+  
+  ETASm_box_size_gam6 <- gam(ETASm_oto_box6~s(ETASm$prev, k=4))
+  gam.check(ETASm_box_size_gam6)
+  summary(ETASm_box_size_gam6)
+  ETASm <- ETASm %>% mutate(box_preds6=predict(ETASm_box_size_gam6))
+  ggplot(ETASm,aes(x=prev, y=ETASm_oto_box6))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds6), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm6")+
+    theme_classic()
+  
+  ETASm_box_size_gam7 <- gam(ETASm_oto_box7~s(ETASm$prev, k=4))
+ 
+  ETASm <- ETASm %>% mutate(box_preds7=predict(ETASm_box_size_gam7))
+  ggplot(ETASm,aes(x=prev, y=ETASm_oto_box7))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds7), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm7")+
+    theme_classic()
+  
+  ETASm_box_size_gam8 <- gam(ETASm_oto_box8~s(ETASm$prev, k=4))
+ 
+  ETASm <- ETASm %>% mutate(box_preds8=predict(ETASm_box_size_gam8))
+  ggplot(ETASm,aes(x=prev, y=ETASm_oto_box8))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds8), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm8")+
+    theme_classic()
+  
+  ETASm_box_size_gam9 <- gam(ETASm_oto_box9~s(ETASm$prev, k=4))
+  
+  ETASm <- ETASm %>% mutate(box_preds9=predict(ETASm_box_size_gam9))
+  ggplot(ETASm,aes(x=prev, y=ETASm_oto_box9))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds9), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm9")+
+    theme_classic()
+  
+  #Extract the residuals from these
+  ETASm_res_box_size <- residuals(ETASm_box_size_gam)
+  ETASm_res_box_size <- (ETASm_res_box_size)^2
+  ETASm <- ETASm %>% mutate(res_box_size=ETASm_res_box_size)
+  
+  ETASm_res_box_size1 <- residuals(ETASm_box_size_gam1)
+  ETASm_res_box_size1 <- (ETASm_res_box_size1)^2
+  ETASm <- ETASm %>% mutate(res_box_size1=ETASm_res_box_size1)
+  
+  ETASm_res_box_size2 <- residuals(ETASm_box_size_gam2)
+  ETASm_res_box_size2 <- (ETASm_res_box_size2)^2
+  ETASm <- ETASm %>% mutate(res_box_size2=ETASm_res_box_size2)
+  
+  ETASm_res_box_size3 <- residuals(ETASm_box_size_gam3)
+  ETASm_res_box_size3 <- (ETASm_res_box_size3)^2
+  ETASm <- ETASm %>% mutate(res_box_size3=ETASm_res_box_size3)
+  
+  ETASm_res_box_size4 <- residuals(ETASm_box_size_gam4)
+  ETASm_res_box_size4 <- (ETASm_res_box_size4)^2
+  ETASm <- ETASm %>% mutate(res_box_size4=ETASm_res_box_size4)
+  
+  ETASm_res_box_size6 <- residuals(ETASm_box_size_gam6)
+  ETASm_res_box_size6 <- (ETASm_res_box_size6)^2
+  ETASm <- ETASm %>% mutate(res_box_size6=ETASm_res_box_size6)
+  
+  ETASm_res_box_size7 <- residuals(ETASm_box_size_gam7)
+  ETASm_res_box_size7 <- (ETASm_res_box_size7)^2
+  ETASm <- ETASm %>% mutate(res_box_size7=ETASm_res_box_size7)
+  
+  ETASm_res_box_size8 <- residuals(ETASm_box_size_gam8)
+  ETASm_res_box_size8 <- (ETASm_res_box_size8)^2
+  ETASm <- ETASm %>% mutate(res_box_size8=ETASm_res_box_size8)
+  
+  ETASm_res_box_size9 <- residuals(ETASm_box_size_gam9)
+  ETASm_res_box_size9 <- (ETASm_res_box_size9)^2
+  ETASm <- ETASm %>% mutate(res_box_size9=ETASm_res_box_size9)
+  
+  #GAM of the residuals
+  ETASm_res_box_gam <- gam(ETASm$res_box_size~s(ETASm$prev, k=4))
+
+  ETASm <- ETASm %>% mutate(res_box_preds=predict(ETASm_res_box_gam))
+  ggplot(ETASm,aes(x=prev, y=res_box_size))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm")+
+    theme_classic()
+  
+  ETASm_res_box_gam1 <- gam(ETASm$res_box_size1~s(ETASm$prev, k=4))
+  gam.check(ETASm_res_box_gam1)
+  summary(ETASm_res_box_gam1)
+  ETASm <- ETASm %>% mutate(res_box_preds1=predict(ETASm_res_box_gam1))
+  ggplot(ETASm,aes(x=prev, y=res_box_size1))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds1), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm1")+
+    theme_classic()
+  
+  ETASm_res_box_gam2 <- gam(ETASm$res_box_size2~s(ETASm$prev, k=4))
+  gam.check(ETASm_res_box_gam2)
+  summary(ETASm_res_box_gam2)
+  ETASm <- ETASm %>% mutate(res_box_preds2=predict(ETASm_res_box_gam2))
+  ggplot(ETASm,aes(x=prev, y=res_box_size2))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds2), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm2")+
+    theme_classic()
+  
+  ETASm_res_box_gam3 <- gam(ETASm$res_box_size3~s(ETASm$prev, k=4))
+  gam.check(ETASm_res_box_gam3)
+  summary(ETASm_res_box_gam3)
+  ETASm <- ETASm %>% mutate(res_box_preds3=predict(ETASm_res_box_gam3))
+  ggplot(ETASm,aes(x=prev, y=res_box_size3))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds3), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm3")+
+    theme_classic()
+  
+  ETASm_res_box_gam4 <- gam(ETASm$res_box_size4~s(ETASm$prev, k=4))
+  gam.check(ETASm_res_box_gam4)
+  summary(ETASm_res_box_gam4)
+  ETASm <- ETASm %>% mutate(res_box_preds4=predict(ETASm_res_box_gam4))
+  ggplot(ETASm,aes(x=prev, y=res_box_size4))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds4), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm4")+
+    theme_classic()
+  
+  ETASm_res_box_gam6 <- gam(ETASm$res_box_size6~s(ETASm$prev, k=4))
+  gam.check(ETASm_res_box_gam6)
+  summary(ETASm_res_box_gam6)
+  ETASm <- ETASm %>% mutate(res_box_preds6=predict(ETASm_res_box_gam6))
+  ggplot(ETASm,aes(x=prev, y=res_box_size6))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds6), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm1")+
+    theme_classic()
+  
+  ETASm_res_box_gam7 <- gam(ETASm$res_box_size7~s(ETASm$prev, k=4))
+  gam.check(ETASm_res_box_gam7)
+  summary(ETASm_res_box_gam7)
+  ETASm <- ETASm %>% mutate(res_box_preds7=predict(ETASm_res_box_gam7))
+  ggplot(ETASm,aes(x=prev, y=res_box_size7))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds7), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm7")+
+    theme_classic()
+  
+  ETASm_res_box_gam8 <- gam(ETASm$res_box_size8~s(ETASm$prev, k=4))
+  gam.check(ETASm_res_box_gam8)
+  summary(ETASm_res_box_gam8)
+  ETASm <- ETASm %>% mutate(res_box_preds8=predict(ETASm_res_box_gam8))
+  ggplot(ETASm,aes(x=prev, y=res_box_size8))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds8), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm8")+
+    theme_classic()
+  
+  ETASm_res_box_gam9 <- gam(ETASm$res_box_size9~s(ETASm$prev, k=4))
+  gam.check(ETASm_res_box_gam9)
+  summary(ETASm_res_box_gam9)
+  ETASm <- ETASm %>% mutate(res_box_preds9=predict(ETASm_res_box_gam9))
+  ggplot(ETASm,aes(x=prev, y=res_box_size9))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds9), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm9")+
+    theme_classic()
+  
+  
+  ##On a graph altogether these lines are
+  
+  ggplot(ETASm, aes(x=prev))+
+    geom_line(aes(y=res_box_preds1), colour="steelblue")+
+    geom_line(aes(y=res_box_preds2), colour="green")+
+    geom_line(aes(y=res_box_preds3), colour="red")+
+    geom_line(aes(y=res_box_preds4), colour="orange")+
+    geom_line(aes(y=res_box_preds6), colour="aquamarine")+
+    geom_line(aes(y=res_box_preds7), colour="mediumorchid1")+
+    geom_line(aes(y=res_box_preds8), colour="purple")+
+    geom_line(aes(y=res_box_preds9), colour="cyan")+
+    ylab("r^2")+
+    xlab("s")+
+    ggtitle("Manual Box-Cox ETASm")+
+    theme_classic()
+  
+  ##Only the last three lines now
+  
+  ggplot(ETASm, aes(x=prev))+
+    geom_line(aes(y=res_box_preds7), colour="mediumorchid1")+
+    geom_line(aes(y=res_box_preds8), colour="purple")+
+    geom_line(aes(y=res_box_preds9), colour="cyan")+
+    ylab("r^2")+
+    xlab("s")+
+    ggtitle("Manual Box-Cox ETASm")+
+    theme_classic()
+  
+  ##None of these seem to want to flatten 
+  

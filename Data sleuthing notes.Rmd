@@ -178,13 +178,13 @@ ggplot(ETASm,aes(x=prev, y=res_oto_size))+
   ggtitle("ETASm")+
   theme_classic()
 
-ggplot(ETASm,aes(x=ETASm_oto_box_prev, y=res_box_size))+
-  geom_point(size=1)+
-  geom_line(aes(x=ETASm_oto_box_prev, y=res_box_preds), size=1.3, colour="steelblue")+
-  ylab("r^2")+
-  xlab("s")+
-  ggtitle("Manual Box-Cox ETASm (lambda=1.85)")+
-  theme_classic()
+ggplot(ETASm,aes(x=prev, y=res_box_size))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm (Lambda=1.85)")+
+    theme_classic()
 ```
 
 
@@ -306,7 +306,7 @@ ggplot(WTASm,aes(x=prev, y=res_oto_size))+
     geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
     ylab("Box Cox r^2")+
     xlab("Box Cox s")+
-    ggtitle("Manual Box-Cox WTASm")+
+    ggtitle("Manual Box-Cox WTASm (Lambda=1.85)")+
     theme_classic()
 ```
 
@@ -338,3 +338,8 @@ ggplot(WTASf,aes(x=prev, y=res_oto_size))+
     ggtitle("Manual Box-Cox WTASf (Lambda=1.85)")+
     theme_classic()
 ```
+
+
+NSW and WTASf are good when lambda= 1.85 but the others (especially ETAS subsets) need perhaps another transformation
+
+Had a look at transforming the ETASm subset with a different lambda- but the same lambda value was needed it just doesn't want to go flat.
