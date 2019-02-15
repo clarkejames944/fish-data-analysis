@@ -95,3 +95,246 @@ The naming of the subsets
 +ETAS(m/f)
 +NSW(m/f)
 +WTAS(m/f)
+
+
+
+Some figures of the GAMs created
+For the EBSm data first
+
+```{r}
+EBSm <- EBSm %>% mutate(preds=predict(EBSm_size_gam))
+ggplot(EBSm,aes(x=prev, y=oto_size))+
+  geom_point(size=1)+
+    geom_line(aes(x=prev, y=preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("EBSm")+
+  theme_classic()
+
+EBSm <- EBSm %>% mutate(res_preds=predict(EBSm_res_gam))
+ggplot(EBSm,aes(x=prev, y=res_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("EBSm")+
+  theme_classic()
+
+  ggplot(EBSm,aes(x=prev, y=res_box_size))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox EBSm(lambda=1.85)")+
+    theme_classic()
+```
+
+For EBSf
+
+```{r}
+EBSf <- EBSf %>% mutate(preds=predict(EBSf_size_gam))
+ggplot(EBSf,aes(x=prev, y=oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("EBSf")+
+  theme_classic()
+
+EBSf <- EBSf %>% mutate(res_preds=predict(EBSf_res_gam))
+ggplot(EBSf,aes(x=prev, y=res_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("EBSf")+
+  theme_classic()
+
+  ggplot(EBSf,aes(x=prev, y=res_box_size))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox EBSf (lambda=1.85)")+
+    theme_classic()
+```
+
+For ETASm
+```{r}
+ggplot(ETASm,aes(x=prev, y=oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("ETASm")+
+  theme_classic()
+
+ETASm <- ETASm %>% mutate(res_preds=predict(ETASm_res_gam))
+ggplot(ETASm,aes(x=prev, y=res_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("ETASm")+
+  theme_classic()
+
+ggplot(ETASm,aes(x=ETASm_oto_box_prev, y=res_box_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=ETASm_oto_box_prev, y=res_box_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("Manual Box-Cox ETASm (lambda=1.85)")+
+  theme_classic()
+```
+
+
+For ETASf
+```{r}
+ggplot(ETASf,aes(x=prev, y=oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("ETASf")+
+  theme_classic()
+
+ETASf <- ETASf %>% mutate(res_preds=predict(ETASf_res_gam))
+ggplot(ETASf,aes(x=prev, y=res_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("ETASf")+
+  theme_classic()
+
+ggplot(ETASf,aes(x=prev, y=res_box_size))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASf (lambda=1.85)")+
+    theme_classic()
+```
+
+
+For NSWm
+Includes the attempts at a Box Cox transformation.
+bcPower-transforms the elements of a vector or columns of a matrix- power transformation-is different as x is now U+gamma(gamma selected to make sure x is strictly positive)
+boxCoxVariable- concerned with the transformation of the response variable of a linear model
+manual- transformation- x^(lambda)-1/lambda
+
+```{r}
+NSWm <- NSWm %>% mutate(preds=predict(NSWm_size_gam))
+ggplot(NSWm,aes(x=prev, y=oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("NSWm")+
+  theme_classic()
+
+NSWm <- NSWm %>% mutate(res_preds=predict(NSWm_res_gam))
+ggplot(NSWm,aes(x=prev, y=res_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("NSWm")+
+  theme_classic()
+
+ggplot(NSWm,aes(x=prev, y=res_box_sizeB))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_box_predsB), size=1.3, colour="steelblue")+
+  ylab("Box Cox r^2")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm (Lambda=1.85")+
+  theme_classic()
+```
+
+
+For NSWf
+```{r}
+NSWf <- NSWf %>% mutate(preds=predict(NSWf_size_gam))
+ggplot(NSWf,aes(x=prev, y=oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("NSWf")+
+  theme_classic()
+
+NSWf <- NSWf %>% mutate(res_preds=predict(NSWf_res_gam))
+ggplot(NSWf,aes(x=prev, y=res_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("NSWf")+
+  theme_classic()
+
+  ggplot(NSWf,aes(x=prev, y=res_box_size))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox NSWf (Lambda=1.85)")+
+    theme_classic()
+```
+
+For WTASm
+```{r}
+WTASm <- WTASm %>% mutate(preds=predict(WTASm_size_gam))
+ggplot(WTASm,aes(x=prev, y=oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("WTASm")+
+  theme_classic()
+
+WTASm <- WTASm %>% mutate(res_preds=predict(WTASm_res_gam))
+ggplot(WTASm,aes(x=prev, y=res_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("WTASm")+
+  theme_classic()
+
+ ggplot(WTASm,aes(x=prev, y=res_box_size))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox WTASm")+
+    theme_classic()
+```
+
+For WTASf
+```{r}
+WTASf <- WTASf %>% mutate(preds=predict(WTASf_size_gam))
+ggplot(WTASf,aes(x=prev, y=oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=preds), size=1.3, colour="steelblue")+
+  ylab("s'")+
+  xlab("s")+
+  ggtitle("WTASf")+
+  theme_classic()
+
+WTASf <- WTASf %>% mutate(res_preds=predict(WTASf_res_gam))
+ggplot(WTASf,aes(x=prev, y=res_oto_size))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_preds), size=1.3, colour="steelblue")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("WTASf")+
+  theme_classic()
+
+ ggplot(WTASf,aes(x=prev, y=res_box_size))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox WTASf (Lambda=1.85)")+
+    theme_classic()
+```

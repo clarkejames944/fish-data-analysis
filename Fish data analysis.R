@@ -155,6 +155,21 @@ ggplot(fish, aes(x=gear, y=log_incr))+
 #######################################
 ###Fitting some GAMs to the data####
 
+#Setting up-----------
+#Libraries required
+library(dplyr)
+library(ggplot2)
+library(mgcv)
+library(voxel)
+library(MASS)
+library(car)
+library(ggfortify)
+library(scales)
+library(directlabels)
+
+#Data required
+fish <- read.csv("https://raw.githubusercontent.com/clarkejames944/fish-data-analysis/master/otoliths%20(working)/data_derived/data_otolith_complete.csv")
+
 ##Remove fish with unknown gender from the dataset
 fish <- fish %>% filter(sex !='U')
 
@@ -177,8 +192,9 @@ fish <- read.csv("extended_data_oto.csv")
 attach(fish)
 ind_not_1 <- which(Age!=1)
 not_1 <- filter(fish, Age!=1 )
-not_1 <- mutate(not_1, prev=fish[ind_not_1-1,34])
+not_1 <- mutate(not_1, prev=fish[ind_not_1-1,33])
 write.csv(not_1,"parallel_data_oto.csv")
+
 
 ##Now all is set up to do a GAM
 ##Oto_size against previous year
@@ -564,87 +580,6 @@ ggplot(WTASf,aes(x=prev, y=res_oto_size))+
 
 ##Box-cox transformations of the otolith size data
 
-##I will try the transformations out on the NSWm data first as it has a particularly noticeable 
-##relationship
-
-#Transform the otolith size data using bcPower from the 'car' package
-NSWm <- mutate(NSWm, NSWm_bc_oto_size=bcPower(oto_size, lambda = seq(-2, 2, length=50)))
-NSWm <- mutate(NSWm, NSWm_bc_prev=bcPower(prev, lambda = seq(-2,2, length=50)))
-
-#create the box-cox GAM
-NSWm_bc_size_gam <- gam(NSWm$NSWm_bc_oto_size~s(NSWm$NSWm_bc_prev, k=4))
-gam.check(NSWm_bc_size_gam)
-summary(NSWm_bc_size_gam)
-NSWm <- NSWm %>% mutate(bc_preds=predict(NSWm_bc_size_gam))
-ggplot(NSWm,aes(x=NSWm_bc_prev, y=NSWm_bc_oto_size))+
-  geom_point(size=1)+
-  geom_line(aes(x=NSWm_bc_prev, y=bc_preds), size=1.3, colour="steelblue")+
-  ylab("s'")+
-  xlab("s")+
-  ggtitle("Box-Cox NSWm")+
-  theme_classic()
-
-#Extract the residuals from this
-NSWm_res_bc_size <- residuals(NSWm_bc_size_gam)
-NSWm_res_bc_size <- (NSWm_res_bc_size)^2
-NSWm <- NSWm %>% mutate(res_bc_size=NSWm_res_bc_size)
-
-#GAM of the residuals
-NSWm_res_bc_gam <- gam(NSWm$res_bc_size~s(NSWm$NSWm_bc_prev))
-gam.check(NSWm_res_bc_gam)
-summary(NSWm_res_bc_gam)
-
-NSWm <- NSWm %>% mutate(res_bc_preds=predict(NSWm_res_bc_gam))
-ggplot(NSWm,aes(x=NSWm_bc_prev, y=res_bc_size))+
-  geom_point(size=1)+
-  geom_line(aes(x=NSWm_bc_prev, y=res_bc_preds), size=1.3, colour="steelblue")+
-  ylab("r^2")+
-  xlab("s")+
-  ggtitle("Box-Cox NSWm")+
-  theme_classic()
-
-##That didn't seem to work
-##This method seems to create a lot of NAs within the dataset
-
-#same relationship found- try another box-cox rather than bcPower (try 'powerTransform' and 'boxCoxVariable'- all from 'car' package)
-#Transform the otolith size data
-NSWm <- mutate(NSWm, bcv_oto_size=boxCoxVariable(oto_size))
-NSWm <- mutate(NSWm, bcv_oto_prev=boxCoxVariable(prev))
-
-#create the boxcoxVariable GAM extract residuals and then plot the residual GAM
-NSWm_bcv_size_gam <- gam(NSWm$bcv_oto_size~s(NSWm$bcv_oto_prev, k=4))
-gam.check(NSWm_bcv_size_gam)
-summary(NSWm_bcv_size_gam)
-NSWm <- NSWm %>% mutate(bcv_preds=predict(NSWm_bcv_size_gam))
-ggplot(NSWm,aes(x=bcv_oto_prev, y=bcv_oto_size))+
-  geom_point(size=1)+
-  geom_line(aes(x=bcv_oto_prev, y=bcv_preds), size=1.3, colour="steelblue")+
-  ylab("s'")+
-  xlab("s")+
-  ggtitle("Box-Cox Variable NSWm")+
-  theme_classic()
-
-#Extract the residuals from this
-NSWm_res_bcv_size <- residuals(NSWm_bcv_size_gam)
-NSWm_res_bcv_size <- (NSWm_res_bcv_size)^2
-NSWm <- NSWm %>% mutate(res_bcv_size=NSWm_res_bcv_size)
-
-#GAM of the residuals
-NSWm_res_bcv_gam <- gam(NSWm$res_bcv_size~s(NSWm$bcv_oto_prev))
-gam.check(NSWm_res_bcv_gam)
-summary(NSWm_res_bcv_gam)
-
-NSWm <- NSWm %>% mutate(res_bcv_preds=predict(NSWm_res_bcv_gam))
-ggplot(NSWm,aes(x=bcv_oto_prev, y=res_bcv_size))+
-  geom_point(size=1)+
-  geom_line(aes(x=bcv_oto_prev, y=res_bcv_preds), size=1.3, colour="steelblue")+
-  ylab("r^2")+
-  xlab("s")+
-  ggtitle("Box-Cox Variable NSWm")+
-  theme_classic()
-
-#Better than bcPower function-but still not right
-
 
 ##Try a different method for Box-Cox transformation
 #The manual method 
@@ -658,136 +593,665 @@ Cox2[1,]
 
 #To obtain the appropriate value of lambda
 lambda = Cox2[1, "Box.x"]
-oto_box = (NSWm$oto_size ^ lambda -1)/lambda
-oto_box_prev = (NSWm$prev^lambda-1)/lambda
-
+oto_box = (NSWm$oto_size^lambda -1)/lambda
+oto_box1=(NSWm$oto_size^-2 -1)/-2
+oto_box2=(NSWm$oto_size^-1.5 -1)/-1.5
+oto_box3=(NSWm$oto_size^-1 -1)/-1
+oto_box4=(NSWm$oto_size^-0.5 -1)/-0.5
+oto_box6=(NSWm$oto_size^0.5 -1)/0.5
+oto_box7=(NSWm$oto_size^1 -1)/1
+oto_box8=(NSWm$oto_size^1.5 -1)/1.5
+oto_box9=(NSWm$oto_size^2 -1)/2
 #Make a GAM of this new boxcox data
+#Fit this over a range of values see how it changes
 
 
 #create the box-cox GAM
-NSWm_box_size_gam <- gam(oto_box~s(oto_box_prev, k=4))
+NSWm_box_size_gam <- gam(oto_box~s(NSWm$prev, k=4))
 gam.check(NSWm_box_size_gam)
 summary(NSWm_box_size_gam)
 NSWm <- NSWm %>% mutate(box_preds=predict(NSWm_box_size_gam))
-ggplot(NSWm,aes(x=oto_box_prev, y=oto_box))+
+ggplot(NSWm,aes(x=prev, y=oto_box))+
   geom_point(size=1)+
-  geom_line(aes(x=oto_box_prev, y=box_preds), size=1.3, colour="steelblue")+
-  ylab("s'")+
-  xlab("s")+
+  geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
+  ylab("Box Cox s'")+
+  xlab("Box Cox s")+
   ggtitle("Manual Box-Cox NSWm")+
   theme_classic()
 
+NSWm_box_size_gam1 <- gam(oto_box1~s(NSWm$prev, k=4))
+gam.check(NSWm_box_size_gam1)
+summary(NSWm_box_size_gam1)
+NSWm <- NSWm %>% mutate(box_preds1=predict(NSWm_box_size_gam1))
+ggplot(NSWm,aes(x=prev, y=oto_box1))+
+  geom_point(size=1)+
+  geom_line(aes(x=oto_box_prev, y=box_preds1), size=1.3, colour="steelblue")+
+  ylab("Box Cox s'")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm1")+
+  theme_classic()
 
+NSWm_box_size_gam2 <- gam(oto_box2~s(NSWm$prev, k=4))
+gam.check(NSWm_box_size_gam2)
+summary(NSWm_box_size_gam2)
+NSWm <- NSWm %>% mutate(box_preds2=predict(NSWm_box_size_gam2))
+ggplot(NSWm,aes(x=prev, y=oto_box2))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=box_preds2), size=1.3, colour="steelblue")+
+  ylab("Box Cox s'")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm2")+
+  theme_classic()
 
-#Extract the residuals from this
+NSWm_box_size_gam3 <- gam(oto_box3~s(NSWm$prev, k=4))
+gam.check(NSWm_box_size_gam3)
+summary(NSWm_box_size_gam3)
+NSWm <- NSWm %>% mutate(box_preds3=predict(NSWm_box_size_gam3))
+ggplot(NSWm,aes(x=prev, y=oto_box3))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=box_preds3), size=1.3, colour="steelblue")+
+  ylab("Box Cox s'")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm3")+
+  theme_classic()
+
+NSWm_box_size_gam4 <- gam(oto_box4~s(NSWm$prev, k=4))
+gam.check(NSWm_box_size_gam4)
+summary(NSWm_box_size_gam4)
+NSWm <- NSWm %>% mutate(box_preds4=predict(NSWm_box_size_gam4))
+ggplot(NSWm,aes(x=prev, y=oto_box4))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=box_preds4), size=1.3, colour="steelblue")+
+  ylab("Box Cox s'")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm4")+
+  theme_classic()
+
+NSWm_box_size_gam5 <- gam(oto_box5~s(NSWm$prev, k=4))
+gam.check(NSWm_box_size_gam5)
+summary(NSWm_box_size_gam5)
+NSWm <- NSWm %>% mutate(box_preds5=predict(NSWm_box_size_gam5))
+ggplot(NSWm,aes(x=prev, y=oto_box5))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=box_preds5), size=1.3, colour="steelblue")+
+  ylab("Box Cox s'")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm5")+
+  theme_classic()
+
+NSWm_box_size_gam6 <- gam(oto_box6~s(NSWm$prev, k=4))
+gam.check(NSWm_box_size_gam6)
+summary(NSWm_box_size_gam6)
+NSWm <- NSWm %>% mutate(box_preds6=predict(NSWm_box_size_gam6))
+ggplot(NSWm,aes(x=prev, y=oto_box6))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=box_preds6), size=1.3, colour="steelblue")+
+  ylab("Box Cox s'")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm6")+
+  theme_classic()
+
+NSWm_box_size_gam7 <- gam(oto_box7~s(NSWm$prev, k=4))
+gam.check(NSWm_box_size_gam7)
+summary(NSWm_box_size_gam7)
+NSWm <- NSWm %>% mutate(box_preds7=predict(NSWm_box_size_gam7))
+ggplot(NSWm,aes(x=prev, y=oto_box7))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=box_preds7), size=1.3, colour="steelblue")+
+  ylab("Box Cox s'")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm7")+
+  theme_classic()
+
+NSWm_box_size_gam8 <- gam(oto_box8~s(NSWm$prev, k=4))
+gam.check(NSWm_box_size_gam8)
+summary(NSWm_box_size_gam8)
+NSWm <- NSWm %>% mutate(box_preds8=predict(NSWm_box_size_gam8))
+ggplot(NSWm,aes(x=prev, y=oto_box8))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=box_preds8), size=1.3, colour="steelblue")+
+  ylab("Box Cox s'")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm8")+
+  theme_classic()
+
+NSWm_box_size_gam9 <- gam(oto_box9~s(NSWm$prev, k=4))
+gam.check(NSWm_box_size_gam9)
+summary(NSWm_box_size_gam9)
+NSWm <- NSWm %>% mutate(box_preds9=predict(NSWm_box_size_gam9))
+ggplot(NSWm,aes(x=prev, y=oto_box9))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=box_preds9), size=1.3, colour="steelblue")+
+  ylab("Box Cox s'")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm9")+
+  theme_classic()
+
+#Extract the residuals from these
 NSWm_res_box_size <- residuals(NSWm_box_size_gam)
 NSWm_res_box_size <- (NSWm_res_box_size)^2
 NSWm <- NSWm %>% mutate(res_box_size=NSWm_res_box_size)
 
+NSWm_res_box_size1 <- residuals(NSWm_box_size_gam1)
+NSWm_res_box_size1 <- (NSWm_res_box_size1)^2
+NSWm <- NSWm %>% mutate(res_box_size1=NSWm_res_box_size1)
+
+NSWm_res_box_size2 <- residuals(NSWm_box_size_gam2)
+NSWm_res_box_size2 <- (NSWm_res_box_size2)^2
+NSWm <- NSWm %>% mutate(res_box_size2=NSWm_res_box_size2)
+
+NSWm_res_box_size3 <- residuals(NSWm_box_size_gam3)
+NSWm_res_box_size3 <- (NSWm_res_box_size3)^2
+NSWm <- NSWm %>% mutate(res_box_size3=NSWm_res_box_size3)
+
+NSWm_res_box_size4 <- residuals(NSWm_box_size_gam4)
+NSWm_res_box_size4 <- (NSWm_res_box_size4)^2
+NSWm <- NSWm %>% mutate(res_box_size4=NSWm_res_box_size4)
+
+NSWm_res_box_size6 <- residuals(NSWm_box_size_gam6)
+NSWm_res_box_size6 <- (NSWm_res_box_size6)^2
+NSWm <- NSWm %>% mutate(res_box_size6=NSWm_res_box_size6)
+
+NSWm_res_box_size7 <- residuals(NSWm_box_size_gam7)
+NSWm_res_box_size7 <- (NSWm_res_box_size7)^2
+NSWm <- NSWm %>% mutate(res_box_size7=NSWm_res_box_size7)
+
+NSWm_res_box_size8 <- residuals(NSWm_box_size_gam8)
+NSWm_res_box_size8 <- (NSWm_res_box_size8)^2
+NSWm <- NSWm %>% mutate(res_box_size8=NSWm_res_box_size8)
+
+NSWm_res_box_size9 <- residuals(NSWm_box_size_gam9)
+NSWm_res_box_size9 <- (NSWm_res_box_size9)^2
+NSWm <- NSWm %>% mutate(res_box_size9=NSWm_res_box_size9)
+
 #GAM of the residuals
-NSWm_res_box_gam <- gam(NSWm$res_box_size~s(oto_box_prev, k=4))
+NSWm_res_box_gam <- gam(NSWm$res_box_size~s(NSWm$prev, k=4))
 gam.check(NSWm_res_box_gam)
 summary(NSWm_res_box_gam)
-
 NSWm <- NSWm %>% mutate(res_box_preds=predict(NSWm_res_box_gam))
-ggplot(NSWm,aes(x=oto_box_prev, y=res_box_size))+
+ggplot(NSWm,aes(x=prev, y=res_box_size))+
   geom_point(size=1)+
-  geom_line(aes(x=oto_box_prev, y=res_box_preds), size=1.3, colour="steelblue")+
+  geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
+  ylab("Box Cox r^2")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm")+
+  theme_classic()
+
+NSWm_res_box_gam1 <- gam(NSWm$res_box_size1~s(NSWm$prev, k=4))
+gam.check(NSWm_res_box_gam1)
+summary(NSWm_res_box_gam1)
+NSWm <- NSWm %>% mutate(res_box_preds1=predict(NSWm_res_box_gam1))
+ggplot(NSWm,aes(x=prev, y=res_box_size1))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_box_preds1), size=1.3, colour="steelblue")+
+  ylab("Box Cox r^2")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm1")+
+  theme_classic()
+
+NSWm_res_box_gam2 <- gam(NSWm$res_box_size2~s(NSWm$prev, k=4))
+gam.check(NSWm_res_box_gam2)
+summary(NSWm_res_box_gam2)
+NSWm <- NSWm %>% mutate(res_box_preds2=predict(NSWm_res_box_gam2))
+ggplot(NSWm,aes(x=prev, y=res_box_size2))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_box_preds2), size=1.3, colour="steelblue")+
+  ylab("Box Cox r^2")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm2")+
+  theme_classic()
+
+NSWm_res_box_gam3 <- gam(NSWm$res_box_size3~s(NSWm$prev, k=4))
+gam.check(NSWm_res_box_gam3)
+summary(NSWm_res_box_gam3)
+NSWm <- NSWm %>% mutate(res_box_preds3=predict(NSWm_res_box_gam3))
+ggplot(NSWm,aes(x=prev, y=res_box_size3))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_box_preds3), size=1.3, colour="steelblue")+
+  ylab("Box Cox r^2")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm3")+
+  theme_classic()
+
+NSWm_res_box_gam4 <- gam(NSWm$res_box_size4~s(NSWm$prev, k=4))
+gam.check(NSWm_res_box_gam4)
+summary(NSWm_res_box_gam4)
+NSWm <- NSWm %>% mutate(res_box_preds4=predict(NSWm_res_box_gam4))
+ggplot(NSWm,aes(x=prev, y=res_box_size4))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_box_preds4), size=1.3, colour="steelblue")+
+  ylab("Box Cox r^2")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm4")+
+  theme_classic()
+
+NSWm_res_box_gam6 <- gam(NSWm$res_box_size6~s(NSWm$prev, k=4))
+gam.check(NSWm_res_box_gam6)
+summary(NSWm_res_box_gam6)
+NSWm <- NSWm %>% mutate(res_box_preds6=predict(NSWm_res_box_gam6))
+ggplot(NSWm,aes(x=prev, y=res_box_size6))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_box_preds6), size=1.3, colour="steelblue")+
+  ylab("Box Cox r^2")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm1")+
+  theme_classic()
+
+NSWm_res_box_gam7 <- gam(NSWm$res_box_size7~s(NSWm$prev, k=4))
+gam.check(NSWm_res_box_gam7)
+summary(NSWm_res_box_gam7)
+NSWm <- NSWm %>% mutate(res_box_preds7=predict(NSWm_res_box_gam7))
+ggplot(NSWm,aes(x=prev, y=res_box_size7))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_box_preds7), size=1.3, colour="steelblue")+
+  ylab("Box Cox r^2")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm7")+
+  theme_classic()
+
+NSWm_res_box_gam8 <- gam(NSWm$res_box_size8~s(NSWm$prev, k=4))
+gam.check(NSWm_res_box_gam8)
+summary(NSWm_res_box_gam8)
+NSWm <- NSWm %>% mutate(res_box_preds8=predict(NSWm_res_box_gam8))
+ggplot(NSWm,aes(x=prev, y=res_box_size8))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_box_preds8), size=1.3, colour="steelblue")+
+  ylab("Box Cox r^2")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm8")+
+  theme_classic()
+
+NSWm_res_box_gam9 <- gam(NSWm$res_box_size9~s(NSWm$prev, k=4))
+gam.check(NSWm_res_box_gam9)
+summary(NSWm_res_box_gam9)
+NSWm <- NSWm %>% mutate(res_box_preds9=predict(NSWm_res_box_gam9))
+ggplot(NSWm,aes(x=prev, y=res_box_size9))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_box_preds9), size=1.3, colour="steelblue")+
+  ylab("Box Cox r^2")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWm8")+
+  theme_classic()
+
+
+##On a graph altogether these lines are
+
+ggplot(NSWm, aes(x=prev))+
+  geom_line(aes(y=res_box_preds1), colour="steelblue")+
+  geom_line(aes(y=res_box_preds2), colour="green")+
+  geom_line(aes(y=res_box_preds3), colour="red")+
+  geom_line(aes(y=res_box_preds4), colour="orange")+
+  geom_line(aes(y=res_box_preds6), colour="aquamarine")+
+  geom_line(aes(y=res_box_preds7), colour="mediumorchid1")+
+  geom_line(aes(y=res_box_preds8), colour="purple")+
+  geom_line(aes(y=res_box_preds9), colour="cyan")+
   ylab("r^2")+
   xlab("s")+
   ggtitle("Manual Box-Cox NSWm")+
   theme_classic()
 
-#No still not good
-
-
-##Try boxCoxVariable for the ETASm dataset now to see what happens
-ETASm <- mutate(ETASm, bcv_oto_size=boxCoxVariable(oto_size))
-ETASm <- mutate(ETASm, bcv_oto_prev=boxCoxVariable(prev))
-
-#create the boxcoxVariable GAM extract residuals and then plot the residual GAM
-ETASm_bcv_size_gam <- gam(ETASm$bcv_oto_size~s(ETASm$bcv_oto_prev, k=4))
-gam.check(ETASm_bcv_size_gam)
-summary(ETASm_bcv_size_gam)
-ETASm <- ETASm %>% mutate(bcv_preds=predict(ETASm_bcv_size_gam))
-ggplot(ETASm,aes(x=bcv_oto_prev, y=bcv_oto_size))+
-  geom_point(size=1)+
-  geom_line(aes(x=bcv_oto_prev, y=bcv_preds), size=1.3, colour="steelblue")+
-  ylab("s'")+
-  xlab("s")+
-  ggtitle("Box-Cox Variable ETASm")+
-  theme_classic()
-
-#Extract the residuals from this
-ETASm_res_bcv_size <- residuals(ETASm_bcv_size_gam)
-ETASm_res_bcv_size <- (ETASm_res_bcv_size)^2
-ETASm <- ETASm %>% mutate(res_bcv_size=ETASm_res_bcv_size)
-
-#GAM of the residuals
-ETASm_res_bcv_gam <- gam(ETASm$res_bcv_size~s(ETASm$bcv_oto_prev))
-gam.check(ETASm_res_bcv_gam)
-summary(ETASm_res_bcv_gam)
-
-ETASm <- ETASm %>% mutate(res_bcv_preds=predict(ETASm_res_bcv_gam))
-ggplot(ETASm,aes(x=bcv_oto_prev, y=res_bcv_size))+
-  geom_point(size=1)+
-  geom_line(aes(x=bcv_oto_prev, y=res_bcv_preds), size=1.3, colour="steelblue")+
+##Seems like lambda=1-2 is best
+##Keep these ones in the plot
+ggplot(NSWm, aes(x=prev))+
+  geom_line(aes(y=res_box_preds6), colour="aquamarine")+
+  geom_line(aes(y=res_box_preds7), colour="mediumorchid1")+
+  geom_line(aes(y=res_box_preds8), colour="purple")+
+  geom_line(aes(y=res_box_preds9), colour="cyan")+
   ylab("r^2")+
   xlab("s")+
-  ggtitle("Box-Cox Variable ETASm")+
+  ggtitle("Manual Box-Cox NSWm")+
   theme_classic()
 
-##No that is not a good one
-##Try the manual method now for ETASm
+##Somewhere in between 1.5 and 2 would be good for lambda
+oto_boxA=(NSWm$oto_size^1.75 -1)/1.75
 
-ETASm_Box=boxcox(ETASm$oto_size~1,
-           lambda= seq(-6, 6, 0.1)
-)
-
-ETASm_Cox=data.frame(Box$x, Box$y)
-ETASm_Cox2=ETASm_Cox[with(Cox, order(-Cox$Box.y)),]
-ETASm_Cox2[1,]
-
-#To obtain the appropriate value of lambda
-lambda = ETASm_Cox2[1, "Box.x"]
-ETASm_oto_box = (ETASm$oto_size ^ lambda -1)/lambda
-ETASm_oto_box_prev = (ETASm$prev^lambda-1)/lambda
-
-#Make a GAM of this new boxcox data
-
-
-#create the box-cox GAM
-ETASm_box_size_gam <- gam(ETASm_oto_box~s(ETASm_oto_box_prev, k=4))
-gam.check(ETASm_box_size_gam)
-summary(ETASm_box_size_gam)
-ETASm <- ETASm %>% mutate(box_preds=predict(ETASm_box_size_gam))
-ggplot(ETASm,aes(x=ETASm_oto_box_prev, y=ETASm_oto_box))+
+NSWm_box_size_gamA <- gam(oto_boxA~s(NSWm$prev, k=4))
+gam.check(NSWm_box_size_gamA)
+summary(NSWm_box_size_gamA)
+NSWm <- NSWm %>% mutate(box_predsA=predict(NSWm_box_size_gamA))
+ggplot(NSWm,aes(x=prev, y=oto_boxA))+
   geom_point(size=1)+
-  geom_line(aes(x=ETASm_oto_box_prev, y=box_preds), size=1.3, colour="steelblue")+
-  ylab("s'")+
-  xlab("s")+
-  ggtitle("Manual Box-Cox ETASm")+
+  geom_line(aes(x=prev, y=box_predsA), size=1.3, colour="steelblue")+
+  ylab("Box Cox s'")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWmA")+
   theme_classic()
 
+NSWm_res_box_sizeA <- residuals(NSWm_box_size_gamA)
+NSWm_res_box_sizeA <- (NSWm_res_box_sizeA)^2
+NSWm <- NSWm %>% mutate(res_box_sizeA=NSWm_res_box_sizeA)
 
-
-#Extract the residuals from this
-ETASm_res_box_size <- residuals(ETASm_box_size_gam)
-ETASm_res_box_size <- (ETASm_res_box_size)^2
-ETASm <- ETASm %>% mutate(res_box_size=ETASm_res_box_size)
-
-#GAM of the residuals
-ETASm_res_box_gam <- gam(ETASm$res_box_size~s(ETASm_oto_box_prev, k=4))
-gam.check(ETASm_res_box_gam)
-summary(ETASm_res_box_gam)
-
-ETASm <- ETASm %>% mutate(res_box_preds=predict(ETASm_res_box_gam))
-ggplot(ETASm,aes(x=ETASm_oto_box_prev, y=res_box_size))+
+NSWm_res_box_gamA <- gam(NSWm$res_box_sizeA~s(NSWm$prev, k=4))
+gam.check(NSWm_res_box_gamA)
+summary(NSWm_res_box_gamA)
+NSWm <- NSWm %>% mutate(res_box_predsA=predict(NSWm_res_box_gamA))
+ggplot(NSWm,aes(x=prev, y=res_box_sizeA))+
   geom_point(size=1)+
-  geom_line(aes(x=ETASm_oto_box_prev, y=res_box_preds), size=1.3, colour="steelblue")+
+  geom_line(aes(x=prev, y=res_box_predsA), size=1.3, colour="steelblue")+
+  ylab("Box Cox r^2")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWmA")+
+  theme_classic()
+
+##compare this with the others
+ggplot(NSWm, aes(x=prev))+
+  geom_line(aes(y=res_box_preds8), colour="purple")+
+  geom_line(aes(y=res_box_preds9), colour="cyan")+
+  geom_line(aes(y=res_box_predsA), colour="olivedrab")+
   ylab("r^2")+
   xlab("s")+
-  ggtitle("Manual Box-Cox ETASm")+
+  ggtitle("Manual Box-Cox NSWm")+
   theme_classic()
 
-##No not good
+#Between 2 and 1.75
+#Try 1.85
+oto_boxB=(NSWm$oto_size^1.85 -1)/1.85
+
+NSWm_box_size_gamB <- gam(oto_boxB~s(NSWm$prev, k=4))
+gam.check(NSWm_box_size_gamB)
+summary(NSWm_box_size_gamB)
+NSWm <- NSWm %>% mutate(box_predsB=predict(NSWm_box_size_gamB))
+ggplot(NSWm,aes(x=prev, y=oto_boxB))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=box_predsB), size=1.3, colour="steelblue")+
+  ylab("Box Cox s'")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWmB")+
+  theme_classic()
+
+NSWm_res_box_sizeB <- residuals(NSWm_box_size_gamB)
+NSWm_res_box_sizeB <- (NSWm_res_box_sizeB)^2
+NSWm <- NSWm %>% mutate(res_box_sizeB=NSWm_res_box_sizeB)
+
+NSWm_res_box_gamB <- gam(NSWm$res_box_sizeB~s(NSWm$prev, k=4))
+gam.check(NSWm_res_box_gamB)
+summary(NSWm_res_box_gamB)
+NSWm <- NSWm %>% mutate(res_box_predsB=predict(NSWm_res_box_gamB))
+ggplot(NSWm,aes(x=prev, y=res_box_sizeB))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_box_predsB), size=1.3, colour="steelblue")+
+  ylab("Box Cox r^2")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWmB")+
+  theme_classic()
+
+ggplot(NSWm, aes(x=prev))+
+  geom_line(aes(y=res_box_preds8), colour="purple")+
+  geom_line(aes(y=res_box_preds9), colour="cyan")+
+  geom_line(aes(y=res_box_predsA), colour="olivedrab")+
+  geom_line(aes(y=res_box_predsB), colour="gray")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("Manual Box-Cox NSWm")+
+  theme_classic()
+
+##1.85 is the best value of lambda so far
+##optimum will be somewhere between 1.85 and 2 for lambda
+
+#try 1.9
+oto_boxC=(NSWm$oto_size^1.9 -1)/1.9
+
+NSWm_box_size_gamC <- gam(oto_boxC~s(NSWm$prev, k=4))
+gam.check(NSWm_box_size_gamC)
+summary(NSWm_box_size_gamC)
+NSWm <- NSWm %>% mutate(box_predsC=predict(NSWm_box_size_gamC))
+ggplot(NSWm,aes(x=prev, y=oto_boxC))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=box_predsC), size=1.3, colour="steelblue")+
+  ylab("Box Cox s'")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWmC")+
+  theme_classic()
+
+NSWm_res_box_sizeC <- residuals(NSWm_box_size_gamC)
+NSWm_res_box_sizeC <- (NSWm_res_box_sizeC)^2
+NSWm <- NSWm %>% mutate(res_box_sizeC=NSWm_res_box_sizeC)
+
+NSWm_res_box_gamC <- gam(NSWm$res_box_sizeC~s(NSWm$prev, k=4))
+gam.check(NSWm_res_box_gamC)
+summary(NSWm_res_box_gamC)
+NSWm <- NSWm %>% mutate(res_box_predsC=predict(NSWm_res_box_gamC))
+ggplot(NSWm,aes(x=prev, y=res_box_sizeC))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=res_box_predsC), size=1.3, colour="steelblue")+
+  ylab("Box Cox r^2")+
+  xlab("Box Cox s")+
+  ggtitle("Manual Box-Cox NSWmC")+
+  theme_classic()
+
+ggplot(NSWm, aes(x=prev))+
+  geom_line(aes(y=res_box_preds8), colour="purple")+
+  geom_line(aes(y=res_box_preds9), colour="cyan")+
+  geom_line(aes(y=res_box_predsA), colour="olivedrab")+
+  geom_line(aes(y=res_box_predsB), colour="gray")+
+  geom_line(aes(y=res_box_predsC), colour="steelblue")
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("Manual Box-Cox NSWm")+
+  theme_classic()
+  
+  ##Answer is somewhere between 1.85 and 1.9
+  #I'll stick with lambda=1.85
+
+  
+  ##For NSWf
+  NSWf_oto_box = (NSWf$oto_size^1.85 -1)/1.85
+  
+  NSWf_box_size_gam <- gam(NSWf_oto_box~s(NSWf$prev, k=4))
+  gam.check(NSWf_box_size_gam)
+  summary(NSWf_box_size_gam)
+  NSWf <- NSWf %>% mutate(box_preds=predict(NSWf_box_size_gam))
+  ggplot(NSWf,aes(x=prev, y=NSWf_oto_box))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox NSWf")+
+    theme_classic()
+  
+  NSWf_res_box_size <- residuals(NSWf_box_size_gam)
+  NSWf_res_box_size <- (NSWf_res_box_size)^2
+  NSWf <- NSWf %>% mutate(res_box_size=NSWf_res_box_size)
+  
+  NSWf_res_box_gam <- gam(NSWf$res_box_size~s(NSWf$prev, k=4))
+  gam.check(NSWf_res_box_gam)
+  summary(NSWf_res_box_gam)
+  NSWf <- NSWf %>% mutate(res_box_preds=predict(NSWf_res_box_gam))
+  ggplot(NSWf,aes(x=prev, y=res_box_size))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox NSWf")+
+    theme_classic()
+  
+  ##For EBSm
+  EBSm_oto_box = (EBSm$oto_size^1.85 -1)/1.85
+  
+  EBSm_box_size_gam <- gam(EBSm_oto_box~s(EBSm$prev, k=4))
+  gam.check(EBSm_box_size_gam)
+  summary(EBSm_box_size_gam)
+  EBSm <- EBSm %>% mutate(box_preds=predict(EBSm_box_size_gam))
+  ggplot(EBSm,aes(x=prev, y=EBSm_oto_box))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox EBSm")+
+    theme_classic()
+  
+  EBSm_res_box_size <- residuals(EBSm_box_size_gam)
+  EBSm_res_box_size <- (EBSm_res_box_size)^2
+  EBSm <- EBSm %>% mutate(res_box_size=EBSm_res_box_size)
+  
+  EBSm_res_box_gam <- gam(EBSm$res_box_size~s(EBSm$prev, k=4))
+  gam.check(EBSm_res_box_gam)
+  summary(EBSm_res_box_gam)
+  EBSm <- EBSm %>% mutate(res_box_preds=predict(EBSm_res_box_gam))
+  ggplot(EBSm,aes(x=prev, y=res_box_size))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox EBSm")+
+    theme_classic()
+  
+  ##For EBSf
+  
+  EBSf_oto_box = (EBSf$oto_size^1.85 -1)/1.85
+  
+  EBSf_box_size_gam <- gam(EBSf_oto_box~s(EBSf$prev, k=4))
+  gam.check(EBSf_box_size_gam)
+  summary(EBSf_box_size_gam)
+  EBSf <- EBSf %>% mutate(box_preds=predict(EBSf_box_size_gam))
+  ggplot(EBSf,aes(x=prev, y=EBSf_oto_box))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox EBSf")+
+    theme_classic()
+  
+  EBSf_res_box_size <- residuals(EBSf_box_size_gam)
+  EBSf_res_box_size <- (EBSf_res_box_size)^2
+  EBSf <- EBSf %>% mutate(res_box_size=EBSf_res_box_size)
+  
+  EBSf_res_box_gam <- gam(EBSf$res_box_size~s(EBSf$prev, k=4))
+  gam.check(EBSf_res_box_gam)
+  summary(EBSf_res_box_gam)
+  EBSf <- EBSf %>% mutate(res_box_preds=predict(EBSf_res_box_gam))
+  ggplot(EBSf,aes(x=prev, y=res_box_size))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox EBSf")+
+    theme_classic()
+  
+  ##For ETASm
+  
+  
+  ETASm_oto_box = (ETASm$oto_size^1.85 -1)/1.85
+  
+  ETASm_box_size_gam <- gam(ETASm_oto_box~s(ETASm$prev, k=4))
+  gam.check(ETASm_box_size_gam)
+  summary(ETASm_box_size_gam)
+  ETASm <- ETASm %>% mutate(box_preds=predict(ETASm_box_size_gam))
+  ggplot(ETASm,aes(x=prev, y=ETASm_oto_box))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm")+
+    theme_classic()
+  
+  ETASm_res_box_size <- residuals(ETASm_box_size_gam)
+  ETASm_res_box_size <- (ETASm_res_box_size)^2
+  ETASm <- ETASm %>% mutate(res_box_size=ETASm_res_box_size)
+  
+  ETASm_res_box_gam <- gam(ETASm$res_box_size~s(ETASm$prev, k=4))
+  gam.check(ETASm_res_box_gam)
+  summary(ETASm_res_box_gam)
+  ETASm <- ETASm %>% mutate(res_box_preds=predict(ETASm_res_box_gam))
+  ggplot(ETASm,aes(x=prev, y=res_box_size))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASm")+
+    theme_classic()
+  
+  ##For ETASf
+  
+  ETASf_oto_box = (ETASf$oto_size^1.85 -1)/1.85
+  
+  ETASf_box_size_gam <- gam(ETASf_oto_box~s(ETASf$prev, k=4))
+  gam.check(ETASf_box_size_gam)
+  summary(ETASf_box_size_gam)
+  ETASf <- ETASf %>% mutate(box_preds=predict(ETASf_box_size_gam))
+  ggplot(ETASf,aes(x=prev, y=ETASf_oto_box))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASf")+
+    theme_classic()
+  
+  ETASf_res_box_size <- residuals(ETASf_box_size_gam)
+  ETASf_res_box_size <- (ETASf_res_box_size)^2
+  ETASf <- ETASf %>% mutate(res_box_size=ETASf_res_box_size)
+  
+  ETASf_res_box_gam <- gam(ETASf$res_box_size~s(ETASf$prev, k=4))
+  gam.check(ETASf_res_box_gam)
+  summary(ETASf_res_box_gam)
+  ETASf <- ETASf %>% mutate(res_box_preds=predict(ETASf_res_box_gam))
+  ggplot(ETASf,aes(x=prev, y=res_box_size))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox ETASf")+
+    theme_classic()
+  
+  ##For WTASm
+  
+  WTASm_oto_box = (WTASm$oto_size^1.85 -1)/1.85
+  
+  WTASm_box_size_gam <- gam(WTASm_oto_box~s(WTASm$prev, k=4))
+  gam.check(WTASm_box_size_gam)
+  summary(WTASm_box_size_gam)
+  WTASm <- WTASm %>% mutate(box_preds=predict(WTASm_box_size_gam))
+  ggplot(WTASm,aes(x=prev, y=WTASm_oto_box))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox WTASm")+
+    theme_classic()
+  
+  WTASm_res_box_size <- residuals(WTASm_box_size_gam)
+  WTASm_res_box_size <- (WTASm_res_box_size)^2
+  WTASm <- WTASm %>% mutate(res_box_size=WTASm_res_box_size)
+  
+  WTASm_res_box_gam <- gam(WTASm$res_box_size~s(WTASm$prev, k=4))
+  gam.check(WTASm_res_box_gam)
+  summary(WTASm_res_box_gam)
+  WTASm <- WTASm %>% mutate(res_box_preds=predict(WTASm_res_box_gam))
+  ggplot(WTASm,aes(x=prev, y=res_box_size))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox WTASm")+
+    theme_classic()
+  
+  ##For WTASf
+  WTASf_oto_box = (WTASf$oto_size^1.85 -1)/1.85
+  
+  WTASf_box_size_gam <- gam(WTASf_oto_box~s(WTASf$prev, k=4))
+  gam.check(WTASf_box_size_gam)
+  summary(WTASf_box_size_gam)
+  WTASf <- WTASf %>% mutate(box_preds=predict(WTASf_box_size_gam))
+  ggplot(WTASf,aes(x=prev, y=WTASf_oto_box))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox WTASf")+
+    theme_classic()
+  
+  WTASf_res_box_size <- residuals(WTASf_box_size_gam)
+  WTASf_res_box_size <- (WTASf_res_box_size)^2
+  WTASf <- WTASf %>% mutate(res_box_size=WTASf_res_box_size)
+  
+  WTASf_res_box_gam <- gam(WTASf$res_box_size~s(WTASf$prev, k=4))
+  gam.check(WTASf_res_box_gam)
+  summary(WTASf_res_box_gam)
+  WTASf <- WTASf %>% mutate(res_box_preds=predict(WTASf_res_box_gam))
+  ggplot(WTASf,aes(x=prev, y=res_box_size))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox r^2")+
+    xlab("Box Cox s")+
+    ggtitle("Manual Box-Cox WTASf")+
+    theme_classic()
