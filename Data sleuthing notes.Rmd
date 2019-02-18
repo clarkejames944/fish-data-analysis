@@ -98,8 +98,94 @@ The naming of the subsets
 
 
 
-Some figures of the GAMs created
-For the EBSm data first
+##Some figures of the GAMs created and the associated Box-Cox transformations.
+Box-Cox transformation was manual- transformation: x^(lambda)-1/lambda 
+
+lambda was optimised using the NSWm subset and was found to be near 1.85 (so lambda=1.85 for the transformations of all the subsets), as shown below
+
+```{r}
+ggplot(NSWm, aes(x=prev))+
+  geom_line(aes(y=res_box_preds1), colour="steelblue")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds1), label="lambda=-2")+
+  geom_line(aes(y=res_box_preds2), colour="green")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds2), label="lambda=-1.5")+
+  geom_line(aes(y=res_box_preds3), colour="red")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds3), label="lambda=-1")+
+  geom_line(aes(y=res_box_preds4), colour="orange")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds4), label="lambda=-0.5")+
+  geom_line(aes(y=res_box_preds6), colour="aquamarine")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds6), label="lambda=0.5")+
+  geom_line(aes(y=res_box_preds7), colour="mediumorchid1")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds7), label="lambda=1")+
+  geom_line(aes(y=res_box_preds8), colour="purple")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds8), label="lambda=1.5")+
+  geom_line(aes(y=res_box_preds9), colour="cyan")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds9), label="lambda=2")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("Manual Box-Cox NSWm")+
+  theme_classic()
+
+ggplot(NSWm, aes(x=prev))+
+  geom_line(aes(y=res_box_preds8), colour="purple")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds8), label="lambda=1.5")+
+  geom_line(aes(y=res_box_preds9), colour="cyan")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds9), label="lambda=2")+
+  geom_line(aes(y=res_box_predsA), colour="olivedrab")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_predsA), label="lambda=1.75")+
+  geom_line(aes(y=res_box_predsB), colour="gray")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_predsB), label="lambda=1.85")+
+  geom_line(aes(y=res_box_predsC), colour="steelblue")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_predsC), label="lambda=1.9")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("Manual Box-Cox NSWm")+
+  theme_classic()
+```
+
+The optimum lambda value was also tested on the ETASm subset (as it displays an uneven best fit line with 1.85).
+However it was still shown that the optimum would likely be around 1.85 anyway even if the line was not perfectly straight (as shown below)
+
+```{r}
+  ggplot(ETASm, aes(x=prev))+
+    geom_line(aes(y=res_box_preds1), colour="steelblue")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds1), label="lambda=-2")+
+    geom_line(aes(y=res_box_preds2), colour="green")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds2), label="lambda=-1.5")+
+    geom_line(aes(y=res_box_preds3), colour="red")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds3), label="lambda=-1")+
+    geom_line(aes(y=res_box_preds4), colour="orange")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds4), label="lambda=-0.5")+
+    geom_line(aes(y=res_box_preds6), colour="aquamarine")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds6), label="lambda=0.5")+
+    geom_line(aes(y=res_box_preds7), colour="mediumorchid1")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds7), label="lambda=1")+
+    geom_line(aes(y=res_box_preds8), colour="purple")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds8), label="lambda=1.5")+
+    geom_line(aes(y=res_box_preds9), colour="cyan")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds9), label="lambda=2")+
+    ylab("r^2")+
+    xlab("s")+
+    ggtitle("Manual Box-Cox ETASm")+
+    theme_classic()
+
+  ggplot(ETASm, aes(x=prev))+
+    geom_line(aes(y=res_box_preds7), colour="mediumorchid1")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds7), label="lambda=1")+
+    geom_line(aes(y=res_box_preds8), colour="orange")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds8), label="lambda=1.5")+
+    geom_line(aes(y=res_box_preds9), colour="cyan")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds9), label="lambda=2")+
+    geom_line(aes(y=res_box_preds), colour="steelblue")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds), label="lambda=1.85")+
+    ylab("r^2")+
+    xlab("s")+
+    ggtitle("Manual Box-Cox ETASm")+
+    theme_classic()
+  
+```
+
+#For the EBSm data first
 
 ```{r}
 EBSm <- EBSm %>% mutate(preds=predict(EBSm_size_gam))
@@ -120,16 +206,24 @@ ggplot(EBSm,aes(x=prev, y=res_oto_size))+
   ggtitle("EBSm")+
   theme_classic()
 
+ggplot(EBSm,aes(x=prev, y=EBSm_oto_box))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("s")+
+    ggtitle("Manual Box-Cox EBSm(lambda=1.85)")+
+    theme_classic()
+
   ggplot(EBSm,aes(x=prev, y=res_box_size))+
     geom_point(size=1)+
     geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
-    ylab("Box Cox r^2")+
-    xlab("Box Cox s")+
+    ylab("r^2")+
+    xlab("s")+
     ggtitle("Manual Box-Cox EBSm(lambda=1.85)")+
     theme_classic()
 ```
 
-For EBSf
+#For EBSf
 
 ```{r}
 EBSf <- EBSf %>% mutate(preds=predict(EBSf_size_gam))
@@ -150,16 +244,24 @@ ggplot(EBSf,aes(x=prev, y=res_oto_size))+
   ggtitle("EBSf")+
   theme_classic()
 
+ggplot(EBSf,aes(x=prev, y=EBSf_oto_box))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("s")+
+    ggtitle("Manual Box-Cox EBSf (lambda=1.85)")+
+    theme_classic()
+
   ggplot(EBSf,aes(x=prev, y=res_box_size))+
     geom_point(size=1)+
     geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
-    ylab("Box Cox r^2")+
-    xlab("Box Cox s")+
+    ylab("r^2")+
+    xlab("s")+
     ggtitle("Manual Box-Cox EBSf (lambda=1.85)")+
     theme_classic()
 ```
 
-For ETASm
+#For ETASm
 ```{r}
 ggplot(ETASm,aes(x=prev, y=oto_size))+
   geom_point(size=1)+
@@ -178,17 +280,25 @@ ggplot(ETASm,aes(x=prev, y=res_oto_size))+
   ggtitle("ETASm")+
   theme_classic()
 
+ggplot(ETASm,aes(x=prev, y=ETASm_oto_box))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("s")+
+    ggtitle("Manual Box-Cox ETASm (lambda=1.85)")+
+    theme_classic()
+
 ggplot(ETASm,aes(x=prev, y=res_box_size))+
     geom_point(size=1)+
     geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
-    ylab("Box Cox r^2")+
-    xlab("Box Cox s")+
-    ggtitle("Manual Box-Cox ETASm (Lambda=1.85)")+
+    ylab("r^2")+
+    xlab("s")+
+    ggtitle("Manual Box-Cox ETASm (lambda=1.85)")+
     theme_classic()
 ```
 
 
-For ETASf
+#For ETASf
 ```{r}
 ggplot(ETASf,aes(x=prev, y=oto_size))+
   geom_point(size=1)+
@@ -207,21 +317,25 @@ ggplot(ETASf,aes(x=prev, y=res_oto_size))+
   ggtitle("ETASf")+
   theme_classic()
 
+ ggplot(ETASf,aes(x=prev, y=ETASf_oto_box))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("s")+
+    ggtitle("Manual Box-Cox ETASf (lambda=1.85)")+
+    theme_classic()
+
 ggplot(ETASf,aes(x=prev, y=res_box_size))+
     geom_point(size=1)+
     geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
-    ylab("Box Cox r^2")+
-    xlab("Box Cox s")+
+    ylab("r^2")+
+    xlab("s")+
     ggtitle("Manual Box-Cox ETASf (lambda=1.85)")+
     theme_classic()
 ```
 
 
-For NSWm
-Includes the attempts at a Box Cox transformation.
-bcPower-transforms the elements of a vector or columns of a matrix- power transformation-is different as x is now U+gamma(gamma selected to make sure x is strictly positive)
-boxCoxVariable- concerned with the transformation of the response variable of a linear model
-manual- transformation- x^(lambda)-1/lambda
+#For NSWm
 
 ```{r}
 NSWm <- NSWm %>% mutate(preds=predict(NSWm_size_gam))
@@ -242,17 +356,25 @@ ggplot(NSWm,aes(x=prev, y=res_oto_size))+
   ggtitle("NSWm")+
   theme_classic()
 
+ggplot(NSWm,aes(x=prev, y=oto_boxB))+
+  geom_point(size=1)+
+  geom_line(aes(x=prev, y=box_predsB), size=1.3, colour="steelblue")+
+  ylab("Box Cox s'")+
+  xlab("s")+
+  ggtitle("Manual Box-Cox NSWm (lambda=1.85)")+
+  theme_classic()
+
 ggplot(NSWm,aes(x=prev, y=res_box_sizeB))+
   geom_point(size=1)+
   geom_line(aes(x=prev, y=res_box_predsB), size=1.3, colour="steelblue")+
-  ylab("Box Cox r^2")+
-  xlab("Box Cox s")+
-  ggtitle("Manual Box-Cox NSWm (Lambda=1.85")+
+  ylab("r^2")+
+  xlab("s")+
+  ggtitle("Manual Box-Cox NSWm (lambda=1.85)")+
   theme_classic()
 ```
 
 
-For NSWf
+#For NSWf
 ```{r}
 NSWf <- NSWf %>% mutate(preds=predict(NSWf_size_gam))
 ggplot(NSWf,aes(x=prev, y=oto_size))+
@@ -272,16 +394,25 @@ ggplot(NSWf,aes(x=prev, y=res_oto_size))+
   ggtitle("NSWf")+
   theme_classic()
 
+ ggplot(NSWf,aes(x=prev, y=NSWf_oto_box))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("s")+
+    ggtitle("Manual Box-Cox NSWf (lambda=1.85)")+
+    theme_classic()
+
   ggplot(NSWf,aes(x=prev, y=res_box_size))+
     geom_point(size=1)+
     geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
-    ylab("Box Cox r^2")+
-    xlab("Box Cox s")+
-    ggtitle("Manual Box-Cox NSWf (Lambda=1.85)")+
+    ylab("r^2")+
+    xlab("s")+
+    ggtitle("Manual Box-Cox NSWf (lambda=1.85)")+
     theme_classic()
+  
 ```
 
-For WTASm
+#For WTASm
 ```{r}
 WTASm <- WTASm %>% mutate(preds=predict(WTASm_size_gam))
 ggplot(WTASm,aes(x=prev, y=oto_size))+
@@ -301,16 +432,24 @@ ggplot(WTASm,aes(x=prev, y=res_oto_size))+
   ggtitle("WTASm")+
   theme_classic()
 
+ggplot(WTASm,aes(x=prev, y=WTASm_oto_box))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("s")+
+    ggtitle("Manual Box-Cox WTASm (lambda=1.85)")+
+    theme_classic()
+
  ggplot(WTASm,aes(x=prev, y=res_box_size))+
     geom_point(size=1)+
     geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
-    ylab("Box Cox r^2")+
-    xlab("Box Cox s")+
-    ggtitle("Manual Box-Cox WTASm (Lambda=1.85)")+
+    ylab("r^2")+
+    xlab("s")+
+    ggtitle("Manual Box-Cox WTASm (lambda=1.85)")+
     theme_classic()
 ```
 
-For WTASf
+#For WTASf
 ```{r}
 WTASf <- WTASf %>% mutate(preds=predict(WTASf_size_gam))
 ggplot(WTASf,aes(x=prev, y=oto_size))+
@@ -330,16 +469,24 @@ ggplot(WTASf,aes(x=prev, y=res_oto_size))+
   ggtitle("WTASf")+
   theme_classic()
 
+ggplot(WTASf,aes(x=prev, y=WTASf_oto_box))+
+    geom_point(size=1)+
+    geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
+    ylab("Box Cox s'")+
+    xlab("s")+
+    ggtitle("Manual Box-Cox WTASf (lambda=1.85)")+
+    theme_classic()
+
  ggplot(WTASf,aes(x=prev, y=res_box_size))+
     geom_point(size=1)+
     geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
-    ylab("Box Cox r^2")+
-    xlab("Box Cox s")+
-    ggtitle("Manual Box-Cox WTASf (Lambda=1.85)")+
+    ylab("r^2")+
+    xlab("s")+
+    ggtitle("Manual Box-Cox WTASf (lambda=1.85)")+
     theme_classic()
 ```
 
 
-NSW and WTASf are good when lambda= 1.85 but the others (especially ETAS subsets) need perhaps another transformation
+I think NSW, WTAS and EBS have been transformed well when lambda= 1.85 but perhaps the ETAS subsets need a different value of lambda.
 
 Had a look at transforming the ETASm subset with a different lambda- but the same lambda value was needed it just doesn't want to go flat.

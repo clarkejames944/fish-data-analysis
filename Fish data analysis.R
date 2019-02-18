@@ -874,17 +874,25 @@ ggplot(NSWm,aes(x=prev, y=res_box_size9))+
   theme_classic()
 
 
-##On a graph altogether these lines are
+##On a graph altogether these lines for each value of lambda are:
 
 ggplot(NSWm, aes(x=prev))+
   geom_line(aes(y=res_box_preds1), colour="steelblue")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds1), label="lambda=-2")+
   geom_line(aes(y=res_box_preds2), colour="green")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds2), label="lambda=-1.5")+
   geom_line(aes(y=res_box_preds3), colour="red")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds3), label="lambda=-1")+
   geom_line(aes(y=res_box_preds4), colour="orange")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds4), label="lambda=-0.5")+
   geom_line(aes(y=res_box_preds6), colour="aquamarine")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds6), label="lambda=0.5")+
   geom_line(aes(y=res_box_preds7), colour="mediumorchid1")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds7), label="lambda=1")+
   geom_line(aes(y=res_box_preds8), colour="purple")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds8), label="lambda=1.5")+
   geom_line(aes(y=res_box_preds9), colour="cyan")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds9), label="lambda=2")+
   ylab("r^2")+
   xlab("s")+
   ggtitle("Manual Box-Cox NSWm")+
@@ -894,9 +902,13 @@ ggplot(NSWm, aes(x=prev))+
 ##Keep these ones in the plot
 ggplot(NSWm, aes(x=prev))+
   geom_line(aes(y=res_box_preds6), colour="aquamarine")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds6), label="lambda=0.5")+
   geom_line(aes(y=res_box_preds7), colour="mediumorchid1")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds7), label="lambda=1")+
   geom_line(aes(y=res_box_preds8), colour="purple")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds8), label="lambda=1.5")+
   geom_line(aes(y=res_box_preds9), colour="cyan")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds9), label="lambda=2")+
   ylab("r^2")+
   xlab("s")+
   ggtitle("Manual Box-Cox NSWm")+
@@ -936,8 +948,11 @@ ggplot(NSWm,aes(x=prev, y=res_box_sizeA))+
 ##compare this with the others
 ggplot(NSWm, aes(x=prev))+
   geom_line(aes(y=res_box_preds8), colour="purple")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds8), label="lambda=1.5")+
   geom_line(aes(y=res_box_preds9), colour="cyan")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds9), label="lambda=2")+
   geom_line(aes(y=res_box_predsA), colour="olivedrab")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_predsA), label="lambda=1.75")+
   ylab("r^2")+
   xlab("s")+
   ggtitle("Manual Box-Cox NSWm")+
@@ -977,9 +992,13 @@ ggplot(NSWm,aes(x=prev, y=res_box_sizeB))+
 
 ggplot(NSWm, aes(x=prev))+
   geom_line(aes(y=res_box_preds8), colour="purple")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds8), label="lambda=1.5")+
   geom_line(aes(y=res_box_preds9), colour="cyan")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds9), label="lambda=2")+
   geom_line(aes(y=res_box_predsA), colour="olivedrab")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_predsA), label="lambda=1.75")+
   geom_line(aes(y=res_box_predsB), colour="gray")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_predsB), label="lambda=1.85")+
   ylab("r^2")+
   xlab("s")+
   ggtitle("Manual Box-Cox NSWm")+
@@ -1021,10 +1040,15 @@ ggplot(NSWm,aes(x=prev, y=res_box_sizeC))+
 
 ggplot(NSWm, aes(x=prev))+
   geom_line(aes(y=res_box_preds8), colour="purple")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds8), label="lambda=1.5")+
   geom_line(aes(y=res_box_preds9), colour="cyan")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_preds9), label="lambda=2")+
   geom_line(aes(y=res_box_predsA), colour="olivedrab")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_predsA), label="lambda=1.75")+
   geom_line(aes(y=res_box_predsB), colour="gray")+
-  geom_line(aes(y=res_box_predsC), colour="steelblue")
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_predsB), label="lambda=1.85")+
+  geom_line(aes(y=res_box_predsC), colour="steelblue")+
+  geom_text(data=subset(NSWm, prev=='0.5'), aes(y=res_box_predsC), label="lambda=1.9")+
   ylab("r^2")+
   xlab("s")+
   ggtitle("Manual Box-Cox NSWm")+
@@ -1129,7 +1153,6 @@ ggplot(NSWm, aes(x=prev))+
     theme_classic()
   
   ##For ETASm
-  
   
   ETASm_oto_box = (ETASm$oto_size^1.85 -1)/1.85
   
@@ -1258,7 +1281,7 @@ ggplot(NSWm, aes(x=prev))+
   
   ##I'll have a go at improving the ETASm transformation
   lambda = Cox2[1, "Box.x"]
-  ETASm_oto_box = (ETASm$oto_size^lambda -1)/lambda
+  
   ETASm_oto_box1=(ETASm$oto_size^-2 -1)/-2
   ETASm_oto_box2=(ETASm$oto_size^-1.5 -1)/-1.5
   ETASm_oto_box3=(ETASm$oto_size^-1 -1)/-1
@@ -1270,19 +1293,8 @@ ggplot(NSWm, aes(x=prev))+
   #Make a GAM of this new boxcox data
   #Fit this over a range of values see how it changes
   
-  #create the box-cox GAM
-  ETASm_box_size_gam <- gam(ETASm_oto_box~s(ETASm$prev, k=4))
-  gam.check(ETASm_box_size_gam)
-  summary(ETASm_box_size_gam)
-  ETASm <- ETASm %>% mutate(box_preds=predict(ETASm_box_size_gam))
-  ggplot(ETASm,aes(x=prev, y=ETASm_ETASm_oto_box))+
-    geom_point(size=1)+
-    geom_line(aes(x=prev, y=box_preds), size=1.3, colour="steelblue")+
-    ylab("Box Cox s'")+
-    xlab("Box Cox s")+
-    ggtitle("Manual Box-Cox ETASm")+
-    theme_classic()
-  
+  #create the box-cox GAM for each value of lambda
+ 
   ETASm_box_size_gam1 <- gam(ETASm_oto_box1~s(ETASm$prev, k=4))
   gam.check(ETASm_box_size_gam1)
   summary(ETASm_box_size_gam1)
@@ -1388,12 +1400,9 @@ ggplot(NSWm, aes(x=prev))+
     ggtitle("Manual Box-Cox ETASm9")+
     theme_classic()
   
-  #Extract the residuals from these
-  ETASm_res_box_size <- residuals(ETASm_box_size_gam)
-  ETASm_res_box_size <- (ETASm_res_box_size)^2
-  ETASm <- ETASm %>% mutate(res_box_size=ETASm_res_box_size)
-  
-  ETASm_res_box_size1 <- residuals(ETASm_box_size_gam1)
+  #Extract the residuals from these for each value of lambda
+
+   ETASm_res_box_size1 <- residuals(ETASm_box_size_gam1)
   ETASm_res_box_size1 <- (ETASm_res_box_size1)^2
   ETASm <- ETASm %>% mutate(res_box_size1=ETASm_res_box_size1)
   
@@ -1425,19 +1434,8 @@ ggplot(NSWm, aes(x=prev))+
   ETASm_res_box_size9 <- (ETASm_res_box_size9)^2
   ETASm <- ETASm %>% mutate(res_box_size9=ETASm_res_box_size9)
   
-  #GAM of the residuals
-  ETASm_res_box_gam <- gam(ETASm$res_box_size~s(ETASm$prev, k=4))
-
-  ETASm <- ETASm %>% mutate(res_box_preds=predict(ETASm_res_box_gam))
-  ggplot(ETASm,aes(x=prev, y=res_box_size))+
-    geom_point(size=1)+
-    geom_line(aes(x=prev, y=res_box_preds), size=1.3, colour="steelblue")+
-    ylab("Box Cox r^2")+
-    xlab("Box Cox s")+
-    ggtitle("Manual Box-Cox ETASm")+
-    theme_classic()
-  
-  ETASm_res_box_gam1 <- gam(ETASm$res_box_size1~s(ETASm$prev, k=4))
+  #GAM of the residuals for each size of lambda
+ETASm_res_box_gam1 <- gam(ETASm$res_box_size1~s(ETASm$prev, k=4))
   gam.check(ETASm_res_box_gam1)
   summary(ETASm_res_box_gam1)
   ETASm <- ETASm %>% mutate(res_box_preds1=predict(ETASm_res_box_gam1))
@@ -1534,32 +1532,46 @@ ggplot(NSWm, aes(x=prev))+
     theme_classic()
   
   
-  ##On a graph altogether these lines are
-  
+  ##On a graph altogether these lines from each model are:
+
   ggplot(ETASm, aes(x=prev))+
     geom_line(aes(y=res_box_preds1), colour="steelblue")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds1), label="lambda=-2")+
     geom_line(aes(y=res_box_preds2), colour="green")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds2), label="lambda=-1.5")+
     geom_line(aes(y=res_box_preds3), colour="red")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds3), label="lambda=-1")+
     geom_line(aes(y=res_box_preds4), colour="orange")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds4), label="lambda=-0.5")+
     geom_line(aes(y=res_box_preds6), colour="aquamarine")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds6), label="lambda=0.5")+
     geom_line(aes(y=res_box_preds7), colour="mediumorchid1")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds7), label="lambda=1")+
     geom_line(aes(y=res_box_preds8), colour="purple")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds8), label="lambda=1.5")+
     geom_line(aes(y=res_box_preds9), colour="cyan")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds9), label="lambda=2")+
     ylab("r^2")+
     xlab("s")+
     ggtitle("Manual Box-Cox ETASm")+
     theme_classic()
-  
-  ##Only the last three lines now
-  
+ 
+   ##Only the last three lines now
+  ##checking between 1 and 2 for the lambda value
   ggplot(ETASm, aes(x=prev))+
     geom_line(aes(y=res_box_preds7), colour="mediumorchid1")+
-    geom_line(aes(y=res_box_preds8), colour="purple")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds7), label="lambda=1")+
+    geom_line(aes(y=res_box_preds8), colour="orange")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds8), label="lambda=1.5")+
     geom_line(aes(y=res_box_preds9), colour="cyan")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds9), label="lambda=2")+
+    geom_line(aes(y=res_box_preds), colour="steelblue")+
+    geom_text(data=subset(ETASm, prev=='0.343'), aes(y=res_box_preds), label="lambda=1.85")+
     ylab("r^2")+
     xlab("s")+
     ggtitle("Manual Box-Cox ETASm")+
     theme_classic()
   
   ##None of these seem to want to flatten 
-  
+  ##Still the one at 1.5 seems to be the best of the three
+  ##Could probably stick with 1.85
