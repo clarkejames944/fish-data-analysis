@@ -243,6 +243,9 @@ ggplot(EBSm,aes(x=prev, y=EBSm_oto_box))+
     ggtitle("Manual Box-Cox EBSm- transformed x")+
     coord_fixed(ratio = 30)+
     theme_classic()
+  
+   qqnorm(EBSm_res_box_orig1)
+  qqline(EBSm_res_box_orig1)
 ```
 
 #For EBSf
@@ -303,6 +306,9 @@ ggplot(EBSf,aes(x=prev, y=EBSf_oto_box))+
     ggtitle("Manual Box-Cox EBSf-transformed x")+
     coord_fixed(ratio = 30)+
     theme_classic()
+   
+    qqnorm(EBSf_res_box_orig1)
+  qqline(EBSf_res_box_orig1)
   
 ```
 
@@ -362,6 +368,10 @@ ggplot(ETASm,aes(x=ETASm_box_prev, y=res_box_size1))+
     ggtitle("Manual Box-Cox ETASm-transformed x")+
     coord_fixed(ratio = 100)+
     theme_classic()
+
+ qqnorm(ETASm_res_box_orig1)
+  qqline(ETASm_res_box_orig1)
+
 ```
 
 
@@ -421,6 +431,9 @@ ggplot(ETASf,aes(x=prev, y=res_box_size))+
     ggtitle("Manual Box-Cox ETASf-transformed x")+
     coord_fixed(ratio = 75)+
     theme_classic()
+    
+      qqnorm(ETASf_res_box_orig1)
+  qqline(ETASf_res_box_orig1)
 ```
 
 
@@ -482,6 +495,9 @@ ggplot(NSWm,aes(x=NSWm_box_prev, y=res_box_size1B))+
   ggtitle("Manual Box-Cox NSWm-transformed x")+
   coord_fixed(ratio = 30)+
   theme_classic()
+
+  qqnorm(NSWm_res_box_orig1)
+  qqline(NSWm_res_box_orig1)
 ```
 
 
@@ -542,6 +558,9 @@ ggplot(NSWf,aes(x=prev, y=res_oto_size))+
     ggtitle("Manual Box-Cox NSWf- transformed x")+
     coord_fixed(ratio = 30)+
     theme_classic()
+   
+   qqnorm(NSWf_res_box_orig1)
+  qqline(NSWf_res_box_orig1)
   
 ```
 
@@ -602,6 +621,9 @@ ggplot(WTASm,aes(x=prev, y=WTASm_oto_box))+
     ggtitle("Manual Box-Cox WTASm-transformed x")+
     coord_fixed(ratio = 30)+
     theme_classic()
+   
+     qqnorm(WTASm_res_box_orig1)
+  qqline(WTASm_res_box_orig1)
   
 ```
 
@@ -662,6 +684,10 @@ ggplot(WTASf,aes(x=prev, y=WTASf_oto_box))+
     ggtitle("Manual Box-Cox WTASf-transformed x")+
     coord_fixed(ratio = 30)+
     theme_classic()
+    
+      qqnorm(WTASf_res_box_orig1)
+  qqline(WTASf_res_box_orig1)
+ 
   
 ```
 
