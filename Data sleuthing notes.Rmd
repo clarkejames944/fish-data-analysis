@@ -67,7 +67,7 @@ The majority is carried out by trawling.
 501 unknown values also.
 
 +sex
-most have positive gender ID. 3804 unknown however.
+most have positive gender ID. 3804 have unknown gender however.
 
 +reader
 5 different readers. The most common reader was Simon.
@@ -79,7 +79,13 @@ most common are blank, 1, n or w. Very few are '4'.
 As mentioned by fede in his explanatory notes, juveniles seem to be categorised as all ages below 5 years old. However, the website says this species will reach sexual maturity between 3-5 years?? Fede didn't really use this variable though.
 
 #Some comments on continuous variables
-+For growth, upper and lower there are a total of 6 missing values
+```{r}
+summary(fish)
+```
+
++For growth, upper and lower CIs there are a total of 6 missing values
+
++if using temperature use bottomtemp1 as it lacks the missing values(from the original data there should not be missing values)
 
 +The latest record that we have is from 1971, although the mean is 2001. Latest is 2009.
 
@@ -88,6 +94,9 @@ As mentioned by fede in his explanatory notes, juveniles seem to be categorised 
 +Fish length- max is 65, mean 40.12, min is 20. 72 missing values. Website says that they grow up to 70cm, and that females are generally larger than males.
 
 +Age- website says they live up to 15 years and that females live longer than males. Apparantly in the adjusted age section the max value is 28. This seems unlikely though, however, in the notes it is said that this otolith is huge(although the fish length was not the biggest), it is also carried out by Simon, who is the most common reader. The next oldest is 25 and it has been noted for this one that it was difficult to read this otolith. Not sure where they get these values from the Age section though as only 15 increments were counted for the 28 year old fish and only 10 counted for the 25 year old one. Mean for AdjAge is 6.712. and min is 2 years old.
+
+After looking at the AdjAge it is clear that this is in fact the difference between year at capture and year class. So is the true reading of age and does not necessarily conform with the Age variable which is the age from the increment counts- for older individuals in can be difficult to read the increments so presumably the first years are not included in the analysis. This is important to be considered for the analysis.
+
 
 ###The GAMs
 The naming of the subsets
@@ -694,4 +703,9 @@ ggplot(WTASf,aes(x=prev, y=WTASf_oto_box))+
 
 I think NSW, WTAS and EBS have been transformed well when lambda= 1.85 but perhaps the ETAS subsets need a different value of lambda.
 
-Had a look at transforming the ETASm subset with a different lambda- but the same lambda value was needed it just doesn't want to go flat.
+Had a look at transforming the ETASm subset with a different lambda- but the same lambda value was needed it just doesn't want to go flat. But it is good enough.
+
+To see if we can return to a more linear relationship within the data we also created some plots of a transformed x axis to plot against the transformed y-axis.
+This does seem to provide us with more of a linear relationship in the data. 
+
+Q-Q plots have also been added and the data doesn't really look normal.
