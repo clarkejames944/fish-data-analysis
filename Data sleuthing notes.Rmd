@@ -709,3 +709,504 @@ To see if we can return to a more linear relationship within the data we also cr
 This does seem to provide us with more of a linear relationship in the data. 
 
 Q-Q plots have also been added and the data doesn't really look normal.
+
+
+
+It is now time to specify different distributions and link functions in the GAM to see if this helps the mean-variance relationship and distributional fit.
+I will investigate the best combination to use using the EBSm subset.
+
+First of all look at the data with the defaults
+``` {r}
+EBSm_size_ggam <- gam(EBSm$oto_size~EBSm$prev+s(EBSm$prev, k=50, by=EBSm$maturity), family=gaussian(link="identity"))
+ 
+  #plot the graph for EBSm
+  EBSm <- EBSm %>% mutate(gpreds=predict(EBSm_size_ggam, type="response"))
+  ggplot(EBSm,aes(x=prev))+
+    geom_point(aes(y=oto_size, colour=maturity), size=1, alpha=0.1)+
+    geom_abline(intercept=0, slope= 1)+
+    geom_point(aes(y=gpreds), size=0.25, colour="steelblue")+
+    ylab("s'")+ xlab("s")+
+   ggtitle("EBSm")+
+    theme_classic()
+  
+  
+  ##extract residuals
+  EBSm_res_orig = residuals(EBSm_size_ggam, type="response")
+  ###log the residuals
+  EBSm_res_size = log(EBSm_res_orig^2)
+
+  
+  ggplot(EBSm,aes(x=gpreds, y=EBSm_res_size))+
+    geom_point(aes(colour=maturity), size=1, alpha=0.1)+
+    geom_smooth(method='gam',
+                formula = y~s(x, k=100), se=FALSE)+
+    geom_smooth(method='lm',
+                se=FALSE, linetype=2)
+
+ 
+   #GAM of residuals for normality    
+  EBSm_res_ggam <- gam(EBSm_res_size~s(EBSm$gpreds))
+  
+##Make some scaled residuals
+  EBSm <- mutate(EBSm,
+                       sc_resid = EBSm_res_orig / sqrt(exp(predict(EBSm_res_ggam))))
+  
+  ##Then make some qqplots (separting adult and juvenile)
+  with(EBSm, car::qqp(sc_resid[maturity == "juvenile"])) 
+  with(EBSm, car::qqp(sc_resid[maturity == "adult"])) 
+  
+```
+
+
+``` {r}
+EBSm_size_ggam <- gam(EBSm$oto_size~EBSm$prev+s(EBSm$prev, k=50, by=EBSm$maturity), family=gaussian(link="inverse"))
+ 
+  #plot the graph for EBSm
+  EBSm <- EBSm %>% mutate(gpreds=predict(EBSm_size_ggam, type="response"))
+  ggplot(EBSm,aes(x=prev))+
+    geom_point(aes(y=oto_size, colour=maturity), size=1, alpha=0.1)+
+    geom_abline(intercept=0, slope= 1)+
+    geom_point(aes(y=gpreds), size=0.25, colour="steelblue")+
+    ylab("s'")+ xlab("s")+
+   ggtitle("EBSm")+
+    theme_classic()
+  
+  
+  ##extract residuals
+  EBSm_res_orig = residuals(EBSm_size_ggam, type="response")
+  ###log the residuals
+  EBSm_res_size = log(EBSm_res_orig^2)
+
+  
+  ggplot(EBSm,aes(x=gpreds, y=EBSm_res_size))+
+    geom_point(aes(colour=maturity), size=1, alpha=0.1)+
+    geom_smooth(method='gam',
+                formula = y~s(x, k=100), se=FALSE)+
+    geom_smooth(method='lm',
+                se=FALSE, linetype=2)
+
+ 
+   #GAM of residuals for normality    
+  EBSm_res_ggam <- gam(EBSm_res_size~s(EBSm$gpreds))
+  
+##Make some scaled residuals
+  EBSm <- mutate(EBSm,
+                       sc_resid = EBSm_res_orig / sqrt(exp(predict(EBSm_res_ggam))))
+  
+  ##Then make some qqplots (separting adult and juvenile)
+  with(EBSm, car::qqp(sc_resid[maturity == "juvenile"])) 
+  with(EBSm, car::qqp(sc_resid[maturity == "adult"])) 
+  
+```
+``` {r}
+EBSm_size_ggam <- gam(EBSm$oto_size~EBSm$prev+s(EBSm$prev, k=50, by=EBSm$maturity), family=gaussian(link="log"))
+ 
+  #plot the graph for EBSm
+  EBSm <- EBSm %>% mutate(gpreds=predict(EBSm_size_ggam, type="response"))
+  ggplot(EBSm,aes(x=prev))+
+    geom_point(aes(y=oto_size, colour=maturity), size=1, alpha=0.1)+
+    geom_abline(intercept=0, slope= 1)+
+    geom_point(aes(y=gpreds), size=0.25, colour="steelblue")+
+    ylab("s'")+ xlab("s")+
+   ggtitle("EBSm")+
+    theme_classic()
+  
+  
+  ##extract residuals
+  EBSm_res_orig = residuals(EBSm_size_ggam, type="response")
+  ###log the residuals
+  EBSm_res_size = log(EBSm_res_orig^2)
+
+  
+  ggplot(EBSm,aes(x=gpreds, y=EBSm_res_size))+
+    geom_point(aes(colour=maturity), size=1, alpha=0.1)+
+    geom_smooth(method='gam',
+                formula = y~s(x, k=100), se=FALSE)+
+    geom_smooth(method='lm',
+                se=FALSE, linetype=2)
+
+ 
+   #GAM of residuals for normality    
+  EBSm_res_ggam <- gam(EBSm_res_size~s(EBSm$gpreds))
+  
+##Make some scaled residuals
+  EBSm <- mutate(EBSm,
+                       sc_resid = EBSm_res_orig / sqrt(exp(predict(EBSm_res_ggam))))
+  
+  ##Then make some qqplots (separting adult and juvenile)
+  with(EBSm, car::qqp(sc_resid[maturity == "juvenile"])) 
+  with(EBSm, car::qqp(sc_resid[maturity == "adult"])) 
+  
+```
+
+
+``` {r}
+EBSm_size_ggam <- gam(EBSm$oto_size~EBSm$prev+s(EBSm$prev, k=50, by=EBSm$maturity), family=quasi(link="log", variance = "constant"))
+ 
+  #plot the graph for EBSm
+  EBSm <- EBSm %>% mutate(gpreds=predict(EBSm_size_ggam, type="response"))
+  ggplot(EBSm,aes(x=prev))+
+    geom_point(aes(y=oto_size, colour=maturity), size=1, alpha=0.1)+
+    geom_abline(intercept=0, slope= 1)+
+    geom_point(aes(y=gpreds), size=0.25, colour="steelblue")+
+    ylab("s'")+ xlab("s")+
+   ggtitle("EBSm")+
+    theme_classic()
+  
+  
+  ##extract residuals
+  EBSm_res_orig = residuals(EBSm_size_ggam, type="response")
+  ###log the residuals
+  EBSm_res_size = log(EBSm_res_orig^2)
+
+  
+  ggplot(EBSm,aes(x=gpreds, y=EBSm_res_size))+
+    geom_point(aes(colour=maturity), size=1, alpha=0.1)+
+    geom_smooth(method='gam',
+                formula = y~s(x, k=100), se=FALSE)+
+    geom_smooth(method='lm',
+                se=FALSE, linetype=2)
+
+ 
+   #GAM of residuals for normality    
+  EBSm_res_ggam <- gam(EBSm_res_size~s(EBSm$gpreds))
+  
+##Make some scaled residuals
+  EBSm <- mutate(EBSm,
+                       sc_resid = EBSm_res_orig / sqrt(exp(predict(EBSm_res_ggam))))
+  
+  ##Then make some qqplots (separting adult and juvenile)
+  with(EBSm, car::qqp(sc_resid[maturity == "juvenile"])) 
+  with(EBSm, car::qqp(sc_resid[maturity == "adult"])) 
+  
+```
+
+
+``` {r}
+EBSm_size_ggam <- gam(EBSm$oto_size~EBSm$prev+s(EBSm$prev, k=50, by=EBSm$maturity), family=inverse.gaussian(link="log"))
+ 
+  #plot the graph for EBSm
+  EBSm <- EBSm %>% mutate(gpreds=predict(EBSm_size_ggam, type="response"))
+  ggplot(EBSm,aes(x=prev))+
+    geom_point(aes(y=oto_size, colour=maturity), size=1, alpha=0.1)+
+    geom_abline(intercept=0, slope= 1)+
+    geom_point(aes(y=gpreds), size=0.25, colour="steelblue")+
+    ylab("s'")+ xlab("s")+
+   ggtitle("EBSm")+
+    theme_classic()
+  
+  
+  ##extract residuals
+  EBSm_res_orig = residuals(EBSm_size_ggam, type="response")
+  ###log the residuals
+  EBSm_res_size = log(EBSm_res_orig^2)
+
+  
+  ggplot(EBSm,aes(x=gpreds, y=EBSm_res_size))+
+    geom_point(aes(colour=maturity), size=1, alpha=0.1)+
+    geom_smooth(method='gam',
+                formula = y~s(x, k=100), se=FALSE)+
+    geom_smooth(method='lm',
+                se=FALSE, linetype=2)
+
+ 
+   #GAM of residuals for normality    
+  EBSm_res_ggam <- gam(EBSm_res_size~s(EBSm$gpreds))
+  
+##Make some scaled residuals
+  EBSm <- mutate(EBSm,
+                       sc_resid = EBSm_res_orig / sqrt(exp(predict(EBSm_res_ggam))))
+  
+  ##Then make some qqplots (separting adult and juvenile)
+  with(EBSm, car::qqp(sc_resid[maturity == "juvenile"])) 
+  with(EBSm, car::qqp(sc_resid[maturity == "adult"])) 
+  
+```
+
+``` {r}
+EBSm_size_ggam <- gam(EBSm$oto_size~EBSm$prev+s(EBSm$prev, k=50, by=EBSm$maturity), family=inverse.gaussian(link="inverse"))
+ 
+  #plot the graph for EBSm
+  EBSm <- EBSm %>% mutate(gpreds=predict(EBSm_size_ggam, type="response"))
+  ggplot(EBSm,aes(x=prev))+
+    geom_point(aes(y=oto_size, colour=maturity), size=1, alpha=0.1)+
+    geom_abline(intercept=0, slope= 1)+
+    geom_point(aes(y=gpreds), size=0.25, colour="steelblue")+
+    ylab("s'")+ xlab("s")+
+   ggtitle("EBSm")+
+    theme_classic()
+  
+  
+  ##extract residuals
+  EBSm_res_orig = residuals(EBSm_size_ggam, type="response")
+  ###log the residuals
+  EBSm_res_size = log(EBSm_res_orig^2)
+
+  
+  ggplot(EBSm,aes(x=gpreds, y=EBSm_res_size))+
+    geom_point(aes(colour=maturity), size=1, alpha=0.1)+
+    geom_smooth(method='gam',
+                formula = y~s(x, k=100), se=FALSE)+
+    geom_smooth(method='lm',
+                se=FALSE, linetype=2)
+
+ 
+   #GAM of residuals for normality    
+  EBSm_res_ggam <- gam(EBSm_res_size~s(EBSm$gpreds))
+  
+##Make some scaled residuals
+  EBSm <- mutate(EBSm,
+                       sc_resid = EBSm_res_orig / sqrt(exp(predict(EBSm_res_ggam))))
+  
+  ##Then make some qqplots (separting adult and juvenile)
+  with(EBSm, car::qqp(sc_resid[maturity == "juvenile"])) 
+  with(EBSm, car::qqp(sc_resid[maturity == "adult"])) 
+  
+```
+
+``` {r}
+EBSm_size_ggam <- gam(EBSm$oto_size~EBSm$prev+s(EBSm$prev, k=50, by=EBSm$maturity), family=inverse.gaussian(link="1/mu^2"))
+ 
+  #plot the graph for EBSm
+  EBSm <- EBSm %>% mutate(gpreds=predict(EBSm_size_ggam, type="response"))
+  ggplot(EBSm,aes(x=prev))+
+    geom_point(aes(y=oto_size, colour=maturity), size=1, alpha=0.1)+
+    geom_abline(intercept=0, slope= 1)+
+    geom_point(aes(y=gpreds), size=0.25, colour="steelblue")+
+    ylab("s'")+ xlab("s")+
+   ggtitle("EBSm")+
+    theme_classic()
+  
+  
+  ##extract residuals
+  EBSm_res_orig = residuals(EBSm_size_ggam, type="response")
+  ###log the residuals
+  EBSm_res_size = log(EBSm_res_orig^2)
+
+  
+  ggplot(EBSm,aes(x=gpreds, y=EBSm_res_size))+
+    geom_point(aes(colour=maturity), size=1, alpha=0.1)+
+    geom_smooth(method='gam',
+                formula = y~s(x, k=100), se=FALSE)+
+    geom_smooth(method='lm',
+                se=FALSE, linetype=2)
+
+ 
+   #GAM of residuals for normality    
+  EBSm_res_ggam <- gam(EBSm_res_size~s(EBSm$gpreds))
+  
+##Make some scaled residuals
+  EBSm <- mutate(EBSm,
+                       sc_resid = EBSm_res_orig / sqrt(exp(predict(EBSm_res_ggam))))
+  
+  ##Then make some qqplots (separting adult and juvenile)
+  with(EBSm, car::qqp(sc_resid[maturity == "juvenile"])) 
+  with(EBSm, car::qqp(sc_resid[maturity == "adult"])) 
+  
+```
+
+``` {r}
+EBSm_size_ggam <- gam(EBSm$oto_size~EBSm$prev+s(EBSm$prev, k=50, by=EBSm$maturity), family=inverse.gaussian(link="identity"))
+ 
+  #plot the graph for EBSm
+  EBSm <- EBSm %>% mutate(gpreds=predict(EBSm_size_ggam, type="response"))
+  ggplot(EBSm,aes(x=prev))+
+    geom_point(aes(y=oto_size, colour=maturity), size=1, alpha=0.1)+
+    geom_abline(intercept=0, slope= 1)+
+    geom_point(aes(y=gpreds), size=0.25, colour="steelblue")+
+    ylab("s'")+ xlab("s")+
+   ggtitle("EBSm")+
+    theme_classic()
+  
+  
+  ##extract residuals
+  EBSm_res_orig = residuals(EBSm_size_ggam, type="response")
+  ###log the residuals
+  EBSm_res_size = log(EBSm_res_orig^2)
+
+  
+  ggplot(EBSm,aes(x=gpreds, y=EBSm_res_size))+
+    geom_point(aes(colour=maturity), size=1, alpha=0.1)+
+    geom_smooth(method='gam',
+                formula = y~s(x, k=100), se=FALSE)+
+    geom_smooth(method='lm',
+                se=FALSE, linetype=2)
+
+ 
+   #GAM of residuals for normality    
+  EBSm_res_ggam <- gam(EBSm_res_size~s(EBSm$gpreds))
+  
+##Make some scaled residuals
+  EBSm <- mutate(EBSm,
+                       sc_resid = EBSm_res_orig / sqrt(exp(predict(EBSm_res_ggam))))
+  
+  ##Then make some qqplots (separting adult and juvenile)
+  with(EBSm, car::qqp(sc_resid[maturity == "juvenile"])) 
+  with(EBSm, car::qqp(sc_resid[maturity == "adult"])) 
+  
+```
+
+``` {r}
+EBSm_size_ggam <- gam(EBSm$oto_size~EBSm$prev+s(EBSm$prev, k=50, by=EBSm$maturity), family=Gamma(link="log"))
+ 
+  #plot the graph for EBSm
+  EBSm <- EBSm %>% mutate(gpreds=predict(EBSm_size_ggam, type="response"))
+  ggplot(EBSm,aes(x=prev))+
+    geom_point(aes(y=oto_size, colour=maturity), size=1, alpha=0.1)+
+    geom_abline(intercept=0, slope= 1)+
+    geom_point(aes(y=gpreds), size=0.25, colour="steelblue")+
+    ylab("s'")+ xlab("s")+
+   ggtitle("EBSm")+
+    theme_classic()
+  
+  
+  ##extract residuals
+  EBSm_res_orig = residuals(EBSm_size_ggam, type="response")
+  ###log the residuals
+  EBSm_res_size = log(EBSm_res_orig^2)
+
+  
+  ggplot(EBSm,aes(x=gpreds, y=EBSm_res_size))+
+    geom_point(aes(colour=maturity), size=1, alpha=0.1)+
+    geom_smooth(method='gam',
+                formula = y~s(x, k=100), se=FALSE)+
+    geom_smooth(method='lm',
+                se=FALSE, linetype=2)
+
+ 
+   #GAM of residuals for normality    
+  EBSm_res_ggam <- gam(EBSm_res_size~s(EBSm$gpreds))
+  
+##Make some scaled residuals
+  EBSm <- mutate(EBSm,
+                       sc_resid = EBSm_res_orig / sqrt(exp(predict(EBSm_res_ggam))))
+  
+  ##Then make some qqplots (separting adult and juvenile)
+  with(EBSm, car::qqp(sc_resid[maturity == "juvenile"])) 
+  with(EBSm, car::qqp(sc_resid[maturity == "adult"])) 
+  
+```
+
+``` {r}
+EBSm_size_ggam <- gam(EBSm$oto_size~EBSm$prev+s(EBSm$prev, k=50, by=EBSm$maturity), family=Gamma(link="inverse"))
+ 
+  #plot the graph for EBSm
+  EBSm <- EBSm %>% mutate(gpreds=predict(EBSm_size_ggam, type="response"))
+  ggplot(EBSm,aes(x=prev))+
+    geom_point(aes(y=oto_size, colour=maturity), size=1, alpha=0.1)+
+    geom_abline(intercept=0, slope= 1)+
+    geom_point(aes(y=gpreds), size=0.25, colour="steelblue")+
+    ylab("s'")+ xlab("s")+
+   ggtitle("EBSm")+
+    theme_classic()
+  
+  
+  ##extract residuals
+  EBSm_res_orig = residuals(EBSm_size_ggam, type="response")
+  ###log the residuals
+  EBSm_res_size = log(EBSm_res_orig^2)
+
+  
+  ggplot(EBSm,aes(x=gpreds, y=EBSm_res_size))+
+    geom_point(aes(colour=maturity), size=1, alpha=0.1)+
+    geom_smooth(method='gam',
+                formula = y~s(x, k=100), se=FALSE)+
+    geom_smooth(method='lm',
+                se=FALSE, linetype=2)
+
+ 
+   #GAM of residuals for normality    
+  EBSm_res_ggam <- gam(EBSm_res_size~s(EBSm$gpreds))
+  
+##Make some scaled residuals
+  EBSm <- mutate(EBSm,
+                       sc_resid = EBSm_res_orig / sqrt(exp(predict(EBSm_res_ggam))))
+  
+  ##Then make some qqplots (separting adult and juvenile)
+  with(EBSm, car::qqp(sc_resid[maturity == "juvenile"])) 
+  with(EBSm, car::qqp(sc_resid[maturity == "adult"])) 
+  
+```
+
+
+``` {r}
+EBSm_size_ggam <- gam(EBSm$oto_size~EBSm$prev+s(EBSm$prev, k=50, by=EBSm$maturity), family=Gamma(link="identity"))
+ 
+  #plot the graph for EBSm
+  EBSm <- EBSm %>% mutate(gpreds=predict(EBSm_size_ggam, type="response"))
+  ggplot(EBSm,aes(x=prev))+
+    geom_point(aes(y=oto_size, colour=maturity), size=1, alpha=0.1)+
+    geom_abline(intercept=0, slope= 1)+
+    geom_point(aes(y=gpreds), size=0.25, colour="steelblue")+
+    ylab("s'")+ xlab("s")+
+   ggtitle("EBSm")+
+    theme_classic()
+  
+  
+  ##extract residuals
+  EBSm_res_orig = residuals(EBSm_size_ggam, type="response")
+  ###log the residuals
+  EBSm_res_size = log(EBSm_res_orig^2)
+
+  
+  ggplot(EBSm,aes(x=gpreds, y=EBSm_res_size))+
+    geom_point(aes(colour=maturity), size=1, alpha=0.1)+
+    geom_smooth(method='gam',
+                formula = y~s(x, k=100), se=FALSE)+
+    geom_smooth(method='lm',
+                se=FALSE, linetype=2)
+
+ 
+   #GAM of residuals for normality    
+  EBSm_res_ggam <- gam(EBSm_res_size~s(EBSm$gpreds))
+  
+##Make some scaled residuals
+  EBSm <- mutate(EBSm,
+                       sc_resid = EBSm_res_orig / sqrt(exp(predict(EBSm_res_ggam))))
+  
+  ##Then make some qqplots (separting adult and juvenile)
+  with(EBSm, car::qqp(sc_resid[maturity == "juvenile"])) 
+  with(EBSm, car::qqp(sc_resid[maturity == "adult"])) 
+  
+```
+
+``` {r}
+EBSm_size_ggam <- gam(EBSm$oto_size~EBSm$prev+s(EBSm$prev, k=50, by=EBSm$maturity), family=scat(link="log"))
+ 
+  #plot the graph for EBSm
+  EBSm <- EBSm %>% mutate(gpreds=predict(EBSm_size_ggam, type="response"))
+  ggplot(EBSm,aes(x=prev))+
+    geom_point(aes(y=oto_size, colour=maturity), size=1, alpha=0.1)+
+    geom_abline(intercept=0, slope= 1)+
+    geom_point(aes(y=gpreds), size=0.25, colour="steelblue")+
+    ylab("s'")+ xlab("s")+
+   ggtitle("EBSm")+
+    theme_classic()
+  
+  
+  ##extract residuals
+  EBSm_res_orig = residuals(EBSm_size_ggam, type="response")
+  ###log the residuals
+  EBSm_res_size = log(EBSm_res_orig^2)
+
+  
+  ggplot(EBSm,aes(x=gpreds, y=EBSm_res_size))+
+    geom_point(aes(colour=maturity), size=1, alpha=0.1)+
+    geom_smooth(method='gam',
+                formula = y~s(x, k=100), se=FALSE)+
+    geom_smooth(method='lm',
+                se=FALSE, linetype=2)
+
+ 
+   #GAM of residuals for normality    
+  EBSm_res_ggam <- gam(EBSm_res_size~s(EBSm$gpreds))
+  
+##Make some scaled residuals
+  EBSm <- mutate(EBSm,
+                       sc_resid = EBSm_res_orig / sqrt(exp(predict(EBSm_res_ggam))))
+  
+  ##Then make some qqplots (separting adult and juvenile)
+  with(EBSm, car::qqp(sc_resid[maturity == "juvenile"])) 
+  with(EBSm, car::qqp(sc_resid[maturity == "adult"])) 
+  
+```
