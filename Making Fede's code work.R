@@ -10,9 +10,9 @@ library(MuMIn)
 ######## Data arrangement
 dd<-read.csv("./otoliths (working)/data_derived/data_otolith_complete.csv")
 ##Making a new coloumn called otolith size and then logging that and making a
-##new csv from that- cqn't get this to work
+##new csv from that
 oto_size<-rep(0,27429) 
-for (i in 1:27429) oto_size[i] <- sum(Increment[((i-Age[i])+1):i])
+for (i in 1:27429) oto_size[i] <- sum(dd$Increment[((i-dd$Age[i])+1):i])
 dd<-data.frame(cbind(dd,oto_size))
 dd<-mutate(dd, log_oto_size=log(oto_size))
 write.csv(dd,"extended_data_oto.csv")
@@ -26,13 +26,13 @@ attach(dd)
 ind_not_1<-which(Age!=1)
 new<-filter(dd, Age!=1)
 ##a new column added called prev which consists of the age not 1 data
-#Not sure what the 1 and 33 do and why these numbers are chosen
+#Not sure what the 1 and 33 do and why these numbers are chosen- these are the selected columns
 new<-mutate(new, prev=dd[ind_not_1-1,33])
 write.csv(new,"parallel_data_oto.csv")
 #######
 
 dd<-read.csv("extended_data_oto.csv")
-#again don't know what is happening here
+#choosing only the columns between 4 and 34
 dd<-dd[, 4:34]
 
 # At the very beginning I conduct the analysis only on a region.
