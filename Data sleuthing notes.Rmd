@@ -1168,6 +1168,7 @@ EBSm_size_ggam <- gam(EBSm$oto_size~EBSm$prev+s(EBSm$prev, k=50, by=EBSm$maturit
   with(EBSm, car::qqp(sc_resid[maturity == "juvenile"])) 
   with(EBSm, car::qqp(sc_resid[maturity == "adult"])) 
   
+  
 ```
 
 ``` {r}

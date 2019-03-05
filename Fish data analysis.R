@@ -2039,7 +2039,7 @@ qqnorm(EBSm_res_orig)
 
  
    #GAM of residuals for normality    
-  EBSm_res_ggam <- gam(EBSm$res_oto_size~s(EBSm$gpreds))
+  EBSm_res_ggam <- gam(EBSm_res_size~s(EBSm$gpreds))
   gam.check(EBSm_res_ggam)
   summary(EBSm_res_ggam)
   
