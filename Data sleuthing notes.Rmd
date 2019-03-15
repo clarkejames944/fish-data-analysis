@@ -1211,3 +1211,96 @@ EBSm_size_ggam <- gam(EBSm$oto_size~EBSm$prev+s(EBSm$prev, k=50, by=EBSm$maturit
   with(EBSm, car::qqp(sc_resid[maturity == "adult"])) 
   
 ```
+
+
+
+
+
+Now time to have a go at a Stan model. To do this properly I feel that I should understand previous Stan code and seeing if I can apply it to my model.
+From http://www.maths.bath.ac.uk/~jjf23/stan/ there are multiple examples to examine. I want to understand what they do with the yhat value as that is the complicated bit.
+Basically fishID should be treated as a random effect and Age is nested within that. So I need to match that info with previous examples.
+
+One fixed and one random effect:
+for (i in 1:N)
+    yhat[i] <- trt[treat[i]]+bld[blk[i]];
+    
+Split model: 
+ for (i in 1:N)
+    yhat[i] <- mu+ir2*irmeth2[i]+ir3*irmeth3[i]+ir4*irmeth4[i]+va2*var2[i]+fld[field[i]];
+    
+Nested model: (e.g. workers nested in a factory) (Age nested within FishID??)
+ for (i in 1:Nobs)
+    yhat[i] <- mu+ran1[levind1[i]]+ran2[levind2[i]]+ran3[levind3[i]];
+    
+Crossed model: (e.g. workers work in multiple factories)
+  for (i in 1:N)
+    yhat[i] <- trt[treat[i]] + bld1[blk1[i]] + bld2[blk2[i]];
+
+Multilevel model: (hierarchical structure e.g. pupils within classes within schools(or ages of fish within zones))
+  for (i in 1:Nobs)
+    yhat[i] <- x[i]*beta+ran1[levind1[i]]+ran2[levind2[i]];
+
+Longitudinal model:(several individuals and measurements are taken repeatedly on each individual over time)
+ for (i in 1:Nobs)
+    yhat[i] <- x[i]*beta+ranint[group[i]]+ranslope[group[i]]*timevar[i];
+    
+Repeated measures model: (several individuals and measurements are taken repeatedly on each individual, though time is not of interest)
+  for (i in 1:Nobs)
+    yhat[i] <- x[i]*beta+ran1[levind1[i]]+ran2[levind2[i]];
+
+Multiple response multilevel model: (multilevel model in which there are more than one response variable of interest. e.g. the results to a maths AND english test )
+  for (i in 1:Nobs)
+    yhat[i] = x[i]*beta+ran1[levind1[i]]+ran2[levind2[i]]+ran3[levind3[i]];
+    
+    
+
+
+Longitudinal model seems like the most suitable. Here is the full stan file for that one:
+data {
+     int<lower=0> Nobs;
+     int<lower=0> Npreds;
+     int<lower=0> Ngroups;
+     vector[Nobs] y;
+     matrix[Nobs,Npreds] x;
+     vector[Nobs] timevar;
+     int<lower=1,upper=Ngroups> group[Nobs];
+}
+parameters {
+           vector[Npreds] beta;
+           real<lower=0> sigmaint;
+           real<lower=0> sigmaslope;
+           real<lower=0> sigmaeps;
+
+           vector[Ngroups] etaint;
+           vector[Ngroups] etaslope;
+}
+transformed parameters {
+  vector[Ngroups] ranint;
+  vector[Ngroups] ranslope;
+  vector[Nobs] yhat;
+
+  ranint  <- sigmaint * etaint;
+  ranslope  <- sigmaslope * etaslope;
+
+  for (i in 1:Nobs)
+    yhat[i] <- x[i]*beta+ranint[group[i]]+ranslope[group[i]]*timevar[i];
+
+}
+model {
+  etaint ~ normal(0, 1);
+  etaslope ~ normal(0, 1);
+  y ~ normal(yhat, sigmaeps);
+}
+
+AND the associated rcode:
+
+psid$cyear <- psid$year-78
+lmod <- lm(log(income) ~ cyear*sex +age+educ, psid)
+x <- model.matrix(lmod)
+psiddat <- list(Nobs = nrow(psid),
+                Npreds = ncol(x),
+                Ngroups = length(unique(psid$person)),
+                y = log(psid$income),
+                x = x,
+                timevar = psid$cyear,
+                group = psid$person)
