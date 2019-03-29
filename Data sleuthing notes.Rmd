@@ -1304,3 +1304,31 @@ psiddat <- list(Nobs = nrow(psid),
                 x = x,
                 timevar = psid$cyear,
                 group = psid$person)
+                
+                
+                
+
+After specifying the Stan code and running the model in R I then had the opportunity to check the diagnostics of the model.
+First of all I check one parameter to elucidate the health of the model e.g. for divergences
+```{r}
+color_scheme_set("mix-brightblue-gray")
+mcmc_trace(posterior_fit, pars = "bp[271]", np = np_fit)
+
+color_scheme_set("red")
+mcmc_nuts_divergence(np_fit, lp_fit)
+```
+
+
+Now for the energy
+```{r}
+mcmc_nuts_energy(np_fit)
+```
+
+Now for the analysis of all the Rhat values and number of effective samples ratios for each of the parameters
+```{r}
+color_scheme_set("brightblue")
+mcmc_rhat(rhats)
+
+mcmc_neff(ratios_fit, size = 2)
+```
+

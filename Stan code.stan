@@ -1,60 +1,41 @@
 data {
     int<lower=0> N_EBSm;
-    int<lower=0> Npreds;
     int<lower=0> Ngroups;
-    int<lower=1, upper=Ngroups> fishID;
-    vector[N_EBSm] prev;
-    vector[N_EBSm] oto_size;
+    int<lower=1, upper=Ngroups> fishID[N_EBSm];
+    vector<lower=0>[N_EBSm] prev;
+    vector<lower=0>[N_EBSm] oto_size;
 }
 
 parameters {
-    real<lower=1, upper=3> breakpoint;
+    real<lower=0, upper=2> bp[Ngroups];
     
-    vector[Npreds] gamma;
-    real<lower=0> sigmaint;
-    real<lower=0> sigmaslope;
-    real<lower=0> sigmaeps;
-
-    vector[Ngroups] etaint; //intercept
-    vector[Ngroups] etaslope1; //slope before breakpoint
-    vector[Ngroups] etaslope2; // part of slope after breakpoint   
+    real<lower=0> error;    ///Leave a constant variance across fish individuals for now
+    
+    real intercept[Ngroups]; //intercept (etaint)
+    real slope_before[Ngroups]; //slope before breakpoint (etaslope1)
+    real slope_after[Ngroups]; // part of slope after breakpoint (etaslope2)
 }
 
 transformed parameters {
-    vector[Ngroups] beta; //slope after breakpoint
-    real kappa;
+    vector[N_EBSm] yhat;   //The conditional mean
 
-    vector[Ngroups] ranint;
-    vector[Ngroups] ranslope1;
-    vector[Ngroups] ranslope2;
-    vector[N_EBSm] yhat;
-
-    beta <- etaslope1 + etaslope2;
-    
     for (i in 1:N_EBSm) {
-        if (prev[i] < breakpoint) {
-            kappa[i] = 0;
+        if (prev[i] < bp[fishID[i]]) {
+            yhat[i] = intercept[fishID[i]] + slope_before[fishID[i]] * (prev[i] - bp[fishID[i]]);
         } else {
-            kappa[i] = 1;
+            yhat[i] = intercept[fishID[i]] + slope_after[fishID[i]] * (prev[i] - bp[fishID[i]]);
         }
-    }   
-
-    ranint <- sigmaint * etaint;
-    ranslope1 <- sigmaslope * etaslope1;
-    ranslope2 <- sigmaslope * etaslope2;
-
-    for (i in 1:N_EBSm)
-        yhat[i] <- ranint[fishID[i]] + ranslope1[fishID[i]] * prev[i] + ranslope2[fishID[i]] * (prev[i] - breakpoint) * kappa[i];
+    }
 }
 
 model {
-    breakpoint ~ normal(0, 1);
-    etaint ~ normal(0, 1);
-    etaslope1 ~ normal(0, 1);
-    etaslope2 ~ normal(0, 1);
-    sigmaeps ~ normal(0, 2);
-    sigmaint ~ normal(0, 2);
-    sigmaslope ~ normal(0, 2);
+    bp ~ normal(0.5, 0.5);
+    intercept ~ normal(0, 0.5);
+    slope_before ~ normal(0.5, 1);
+    slope_after ~ normal(0.5, 1);
+    error ~ normal(0, 1);
 
-    oto_size ~ normal(yhat, sigmaeps);
+    for (i in 1:N_EBSm) {
+        oto_size[i] ~ normal(yhat[i], error);
+         }
 }
