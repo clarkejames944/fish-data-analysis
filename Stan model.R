@@ -68,9 +68,30 @@ fishdat <- list(N_EBSm=nrow(EBSm),
 ##Running the model
 rt <- stanc(file="Stan code.stan")
 sm <- stan_model(stanc_ret = rt, verbose=FALSE)
-#system.time(fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=15)))
+#system.time(fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10)))
 
 
+post <- rstan::extract(fit)
+
+
+plot(fishdat$prev, fishdat$oto_size, 
+     xlab = 's', ylab = 's following')
+for (i in seq_along(post$lp__)) {
+  segments(x0 = min(fishdat$prev), x1 = post$bp[i], 
+           y0 = post$intercept[i] + post$beta[i, 1] * min(fishdat$prev), 
+           y1 = post$intercept[i] + post$beta[i, 1] * post$bp[i], 
+           col = alpha(3, .1))
+  segments(x1 = max(fishdat$prev), x0 = post$bp[i], 
+           y1 = post$intercept[i] + 
+             post$beta[i, 2] * (max(fishdat$prev) - post$bp[i]) + 
+             post$beta[i, 1] * max(fishdat$prev), 
+           y0 = post$intercept[i] + post$beta[i, 1] * post$bp[i], 
+           col = alpha(2, .1))
+}
+
+points(fishdat$prev, fishdat$oto_size, pch = 19)
+
+rug(post$bp)
 
 ##Check the output
 print(fit)
@@ -128,8 +149,4 @@ print(ratios_fit)
 mcmc_neff(ratios_fit, size = 2)
 ##Again with the number of effective sample sizes there are some that are under 0.1 (which isn't good)- 
 ##suggests autocorrelation for these parameters (mostly the effective sample sizes are above 0.5 though)
-
-color_scheme_set("red")
-ppc_dens_overlay(y = fit$oto_size[1],
-                 yrep = posterior_predict(fit, draws = 50))
 

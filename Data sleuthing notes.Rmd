@@ -1332,3 +1332,25 @@ mcmc_rhat(rhats)
 mcmc_neff(ratios_fit, size = 2)
 ```
 
+Finally graph of the new predicted values on the orignal plotted values, as of the method in https://gist.github.com/mbjoseph/25d649e46602a419f9765638d5a2bfbc:
+
+```{r}
+plot(fishdat$prev, fishdat$oto_size, 
+     xlab = 's', ylab = 's following')
+for (i in seq_along(post$lp__)) {
+  segments(x0 = min(fishdat$prev), x1 = post$bp[i], 
+           y0 = post$intercept[i] + post$beta[i, 1] * min(fishdat$prev), 
+           y1 = post$intercept[i] + post$beta[i, 1] * post$bp[i], 
+           col = alpha(3, .1))
+  segments(x1 = max(fishdat$prev), x0 = post$bp[i], 
+           y1 = post$intercept[i] + 
+             post$beta[i, 2] * (max(fishdat$prev) - post$bp[i]) + 
+             post$beta[i, 1] * max(fishdat$prev), 
+           y0 = post$intercept[i] + post$beta[i, 1] * post$bp[i], 
+           col = alpha(2, .1))
+}
+
+points(fishdat$prev, fishdat$oto_size, pch = 19)
+
+rug(post$bp)
+```

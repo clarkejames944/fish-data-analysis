@@ -12,30 +12,31 @@ parameters {
     real<lower=0> error;    ///Leave a constant variance across fish individuals for now
     
     real intercept[Ngroups]; //intercept (etaint)
-    real slope_before[Ngroups]; //slope before breakpoint (etaslope1)
-    real slope_after[Ngroups]; // part of slope after breakpoint (etaslope2)
+    vector[2] beta;
 }
 
 transformed parameters {
-    vector[N_EBSm] yhat;   //The conditional mean
+    vector[N_EBSm] x2; //indicator variable
 
     for (i in 1:N_EBSm) {
         if (prev[i] < bp[fishID[i]]) {
-            yhat[i] = intercept[fishID[i]] + slope_before[fishID[i]] * (prev[i] - bp[fishID[i]]);
+            x2[i] = 0;
         } else {
-            yhat[i] = intercept[fishID[i]] + slope_after[fishID[i]] * (prev[i] - bp[fishID[i]]);
+            x2[i] = 1;
         }
     }
 }
 
 model {
+    vector[N_EBSm] yhat;   //The conditional mean
     bp ~ normal(0.5, 0.5);
     intercept ~ normal(0, 0.5);
-    slope_before ~ normal(0.5, 1);
-    slope_after ~ normal(0.5, 1);
+    beta ~ normal(0, 1);
     error ~ normal(0, 1);
 
     for (i in 1:N_EBSm) {
-        oto_size[i] ~ normal(yhat[i], error);
+        yhat[i] = intercept[fishID[i]] + beta[1] * prev[i] + beta[2] * (prev[i] - bp[fishID[i]]) * x2[i];
          }
+    
+    oto_size ~ normal(yhat, error);
 }
