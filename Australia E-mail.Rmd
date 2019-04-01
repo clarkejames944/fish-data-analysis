@@ -1,0 +1,39 @@
+---
+
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+Hello,
+
+After some preliminary analysis of the Tiger Flathead otolith dataset I have one question to ask in regards to the 'AdjAge' variable within the dataset.
+
+From what I understand 'AdjAge' is a measure of the overall age of the fish when caught (as stated in Federico's original explanatory notes, as shown below):
+
+
+
+
+
+``````{r, echo=FALSE, fig.cap="Federico's original notes on AdjAge", out.width = '75%'}
+knitr::include_graphics("AdjAge.png")
+```
+
+
+
+
+
+From this statement I expected only deviations of 1 between the final 'Age' value and the 'AdjAge'. However, as shown in the original dataset below, for older individuals these values 
+do no exhibit this pattern. As seen highlighted within the dataset, an AdjAge value of 28 corresponds to an individual with only 15 years of 'Age' counts. I understand that this value of 28 is the difference between the age at capture (yearcap) and the year of birth (YearClass). However, I previously presumed that the age (and therefore year of birth) would be inferred through increment counts. But given this example were only 15 increments were measured it may be through other means, or perhaps 28 increments were present but only 15 were measured. This is common throughout the older individuals within the dataset and I was hoping you could shed some light on this matter.
+
+
+
+``````{r, echo=FALSE, fig.cap="The datasheet-highlighted cells indicate the query", out.width = '100%'}
+knitr::include_graphics("AdjAge-datasheet.png")
+```
+
+
+Many thanks,
+James
