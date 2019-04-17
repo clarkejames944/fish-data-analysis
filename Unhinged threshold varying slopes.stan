@@ -7,16 +7,18 @@ data {
 }
 
 parameters {
-    vector[Ngroups] bp;
-    real mu_bp;
-    real <lower=0, upper=100> sigma_bp;
+    vector<lower=0>[Ngroups] bp;
+
+    real<lower=0> mu_bp;
+    real<lower=0> sigma_bp;
     
-    real<lower=0, upper=100> error;    ///Leave a constant variance across fish individuals for now
+    real<lower=0> error;    ///Leave a constant variance across fish individuals for now
     
+    real<lower=0> sigma_int_aft;
+    real<lower=0> sigma_int_bef;
     vector[Ngroups] interceptbefore; //This should be different now as I have 2 different values within each group
     vector[Ngroups] interceptafter;
-    real<lower=0, upper=100> sigma_int_aft;
-    real<lower=0, upper=100> sigma_int_bef;
+ 
 
     vector[Ngroups] betabefore; //slope will be different within the groups
     vector[Ngroups] betaafter;
@@ -36,14 +38,19 @@ vector[N_EBSm] yhat;   //The conditional mean
 
 
 model {
+    mu_bp ~ normal(0, 5);
+    sigma_bp ~ cauchy(0, 10);
     bp ~ normal(mu_bp, sigma_bp);
     
+    sigma_int_bef ~ cauchy(0, 10);
+    sigma_int_aft ~ cauchy(0, 10);
     interceptbefore ~ normal(0, sigma_int_bef); //intercept varies but is kept constant for the mean
     interceptafter ~ normal(0, sigma_int_aft);
     
-    betabefore ~ normal(0, 1); ///beta is constant 
-    betaafter ~ normal(0,1;)
+    betabefore ~ normal(0, 10); ///beta is constant 
+    betaafter ~ normal(0, 10);
     
-    error ~ uniform(0, 100);    
+    error ~ cauchy(0, 10);
+
     oto_size ~ normal(yhat, error);
 }

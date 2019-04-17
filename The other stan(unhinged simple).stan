@@ -7,16 +7,18 @@ data {
 }
 
 parameters {
-    vector[Ngroups] bp;
+    vector<lower=0>[Ngroups] bp;
+    
     real<lower=0> mu_bp;
+    real<lower=0> sigma_bp;
     
     real<lower=0> error;    ///Leave a constant variance across fish individuals for now
     
-    real interceptbefore[Ngroups]; //This should be different now as I have 2 different values within each group
-    real interceptafter[Ngroups];
-
-
-    real beta[Ngroups]; //slope will be common for each group
+    real<lower=0> sigma_int_bef;
+    real<lower=0> sigma_int_after;
+    real interceptbefore; //This should be different now as I have 2 different values within each group
+    real interceptafter;
+    real beta; //slope will be common for each group
 }
 
 transformed parameters {
@@ -24,21 +26,24 @@ transformed parameters {
 
         for (i in 1:N_EBSm) {
         if (prev[i] < bp[fishID[i]]){
-            yhat[i] = interceptbefore[fishID[i]] + beta[fishID[i]] * (prev[i] - bp[fishID[i]]); //got the same slopes =beta
+            yhat[i] = interceptbefore+ beta * (prev[i] - bp[fishID[i]]); //got the same slopes =beta
          } else {
-            yhat[i] = interceptafter[fishID[i]] + beta[fishID[i]] * (prev[i] - bp[fishID[i]]); //intercepts should be different
+            yhat[i] = interceptafter + beta * (prev[i] - bp[fishID[i]]); //intercepts should be different
          }
         }
 }
 model {
-    mu_bp ~ normal(2, 10);
-    bp ~ normal(mu_bp, 100);
+    mu_bp ~ normal(0, 5);
+    sigma_bp ~ cauchy(0, 10);
+    bp ~ normal(mu_bp, sigma_bp);
     
-    interceptbefore ~ normal(0, 10); //intercept varies but is kept constant for the mean
-    interceptafter ~ normal(0, 10);
-    
-    beta ~ normal(0.5, 10); ///beta is constant 
+    sigma_int_bef ~ cauchy(0, 10);
+    sigma_int_after ~ cauchy(0, 10);
+    interceptbefore ~ normal(0, sigma_int_bef); //intercept varies but is kept constant for the mean
+    interceptafter ~ normal(0, sigma_int_after);
+    beta ~ normal(0, 10); ///beta is constant 
 
-    error ~ uniform(0, 100);    
+    error ~ cauchy(0, 10);
+
     oto_size ~ normal(yhat, error);
 }
