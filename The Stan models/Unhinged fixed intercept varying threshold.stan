@@ -15,9 +15,8 @@ parameters {
     real<lower=0> error;    ///Leave a constant variance across fish individuals for now
     
     real<lower=0> sigma_int;
-    vector[Ngroups] intercept; // one intercept per group
-    vector[Ngroups] beta1;///two different beta values for each fish ID
-    vector[Ngroups] beta2;
+    vector[2] intercept; // two intercepts per fishID
+    vector[2] beta;///two different beta values for each fish ID
 }
 
 transformed parameters {
@@ -25,7 +24,7 @@ transformed parameters {
     vector[N_EBSm] yhat;
     
     for (i in 1:N_EBSm) {
-        if (prev[i] < bp[fishID[i]]) {
+        if (prev[i] < bp[fishID[i]] {
             x2[i] = 0;
         } else {
             x2[i] = 1;
@@ -33,7 +32,8 @@ transformed parameters {
     }
     
     for (i in 1:N_EBSm){
-         yhat[i] = intercept[fishID[i]] + beta1[fishID[i]] * prev[i] + beta2[fishID[i]] * (prev[i] - bp[fishID[i]]) * x2[i];
+         yhat[i] = (intercept[1] + beta[1] * prev[i]) * (1-x2[i]) + 
+                (intercept[2] + beta[2]) * x2[i];
         }
 }
 
@@ -44,31 +44,9 @@ model {///make sure you have a distribution for each parameter defined
     
     sigma_int ~ cauchy(0,10);
     intercept ~ normal(0, sigma_int);
-    beta1 ~ normal(0, 10);
-    beta2 ~ normal(0, 10);
+    beta ~ normal(0, 10);
     
     error ~ cauchy(0, 10);
 
     oto_size ~ normal(yhat, error);
-}
-
-generated quantities {
-    real y_intercept[N_EBSm];
-    real slope[N_EBSm];
-
-    for (i in 1:N_EBSm){
-        if (prev[i] < bp[fishID[i]]) {
-            y_intercept[i] = intercept[fishID[i]];
-        } else {
-            y_intercept[i] = intercept[fishID[i]] - (bp[fishID[i]] * beta2[fishID[i]]);
-        }
-    }
-
-    for (i in 1:N_EBSm){
-        if (prev[i]< bp[fishID[i]]){
-            slope[i] = beta1[fishID[i]];
-        } else {
-            slope[i] = beta1[fishID[i]] + beta2[fishID[i]];
-        }
-    }
 }
