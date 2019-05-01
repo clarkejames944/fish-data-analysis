@@ -9,6 +9,8 @@ library(rstan)
 library(ggmcmc)
 library(bayesplot)
 library(scales)
+library(coda)
+
 
 #Data required
 fish <- read.csv("https://raw.githubusercontent.com/clarkejames944/fish-data-analysis/master/otoliths%20(working)/data_derived/data_otolith_complete.csv")
@@ -47,7 +49,6 @@ NSWf <- not_1 %>% filter(sex=='F', zone=='NSW')
 WTASm <- not_1 %>% filter(sex=='M', zone=='WTAS')
 WTASf <- not_1 %>% filter(sex=='F', zone=='WTAS')
 
-
 ##Setting up for Stan
 rstan_options(auto_write = TRUE)
 options(mc.cores = parallel::detectCores())
@@ -61,24 +62,127 @@ fishdat <- list(N_EBSm=nrow(EBSm),
                 Age= EBSm$Age,
                 fishID= as.numeric(factor(EBSm$FishID)),
                 prev=(EBSm$prev)^2
-)
+            )
 
-##Running the model
-rt <- stanc(file="Stan code.stan")
-rt <- stanc(file="stan code(with less variation).stan")
+#####The models####
+#1. Simple no threshold model. -no threshold and a fixed intercept.
+#2. Simple no threshold varying intercept model. -no threshold but with varying intercepts via fish individual
+#3. Unhinged fixed threshold + intercept. -The discontinuous piecewise linear regression
+#4. Unhinged fixed threshold, varying intercept.
+#5. Unhinged fixed intercept varying threshold.
+#6. Unhinged varying threshold and intercept.
+#7. Hinged fixed threshold and intercept. -The continuous piecewise linear regression
+#8. Hinged varying intercept fixed threshold.
+#9. Hinged varying threshold fixed intercept.
+#10. Hinged varying threshold and intercept.
+
+##Running the model. 1. Simple no threshold model####
+rt <- stanc(file="The Stan models/Simple no threshold model.stan")
 sm <- stan_model(stanc_ret = rt, verbose=FALSE)
-system.time(fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=15, adapt_delta=0.9)))
+system.time(fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10, adapt_delta=0.8)))
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
+pairs(fit, pars=c("intercept","beta","error","lp__", "sigma_int", "yhat[110]"))
+##Plot 8 examples of the predictive models compared with the original data
+simulated_data <- rstan::extract(fit)$sim_oto_size
+simulated_data <- simulated_data[sample(1:4000, 8), ]
 
-pairs(fit, pars=c("intercept[110]", "bp[110]", "mu_bp", "sigma_bp","beta[110,1]", "beta[110,2]", "error","lp__", "sigma_int"))
+simulated_yhat <- rstan::extract(fit)$yhat
+simulated_yhat <- simulated_yhat[sample(1:4000, 8), ] 
+  
+ggplot(fishdat, aes(x=prev, y=oto_size))+
+  geom_point()+
+  geom_line(sim_yhats, aes(y=yhat))
+
+par(mfrow = c(3, 3))
+rstan::plot(fishdat$prev, fishdat$oto_size)
+
+for (i in 1:8){
+  rstan::plot(fishdat$prev, simulated_data[i, ])
+}
+
+#Make some predictive plots for general trend over original data
+plot(fishdat$prev, fishdat$oto_size)
+
+
+sim_yhats <- rstan::extract(fit)$yhat
+yhats <- as.data.frame(sim_yhats)
+
+
+df_sim_yhats <- data.frame(
+  prev = fishdat$prev,
+  meanGJT = apply(sim_yhats, 2, mean),
+  lo80GJT = apply(sim_yhats, 2, quantile, 0.10),
+  hi80GJT = apply(sim_yhats, 2, quantile, 0.90),
+  lo95GJT = apply(sim_yhats, 2, quantile, 0.025),
+  hi95GJT = apply(sim_yhats, 2, quantile, 0.975)
+)
+head(df_sim_yhats)
+
+ggplot(df_sim_yhats,
+       aes(x = prev,
+           y = meanGJT)) +
+  geom_ribbon(aes(ymin = lo95GJT,
+                  ymax = hi95GJT),
+              fill = "lightgrey") +
+  geom_ribbon(aes(ymin = lo80GJT,
+                  ymax = hi80GJT),
+              fill = "darkgrey") +
+  geom_line()
+
+mcmc = as.matrix(fit)
+
+## Calculate the fitted values
+newdata = data.frame(x = seq(min(fishdat$prev, na.rm = TRUE), max(fishdat$prev, na.rm = TRUE),
+                             len = 1000))
+Xmat = model.matrix(~fishdat$prev, newdata)
+coefs = mcmc[, c("beta0", "beta[1]")]
+fit = coefs %*% t(Xmat)
+newdata = newdata %>% cbind(tidyMCMC(fit, conf.int = TRUE, conf.method = "HPDinterval"))
+
+
+post <- As.mcmc.list(fit, pars = "oto_size[110]")
+plot(post)
+
+plot(fit, pars=c("beta", "error", "yhat[110]"))
+
+new_y <- rstan::extract(fit, pars="yhat[1]")
+
+ggplot(EBSm, aes(x = prev, y = oto_size)) +
+  geom_point()+
+  geom_line(aes(y = yhats[1]), alpha = .1) 
+  scale_color_brewer(palette = "Dark2")
+
+
+#check diagnostics
+check_hmc_diagnostics(fit)
 
 ##Extracting and plotting
-post <- rstan::extract(fit) 
+post <- rstan::extract(fit)
+
+EBSm %>%
+  data_grid(prev = seq_range(prev, n = 101)) %>%
+  add_fitted_draws(post, n = 100) %>%
+  ggplot(aes(x = prev, y = oto_size)) +
+  geom_line(aes(y = .value), alpha = .1) +
+  geom_point(data = EBSm) +
+  scale_color_brewer(palette = "Dark2")
 
 plot(fishdat$prev, fishdat$oto_size, 
-       xlab = 's', ylab = 's following')
+     xlab = "s", ylab = "s'")
+for (i in seq_along(post$lp__)) {
+  segments(x0 = min(fishdat$prev), x1 = max(fishdat$prev), 
+           y0 = post$intercept + post$beta * min(fishdat$prev), 
+           y1 = post$intercept + post$beta * max(fishdat$prev), 
+           col = alpha(3, .1))
+}
+
+ggplot(EBSm, aes(x=prev, y=oto_size))+
+        geom_point()+
+         xlab("s") + ylab("s'")+
+        geom_line(data = post)
+
 for (i in seq_along(post$lp__)) {
   segments(x0 = min(fishdat$prev), x1 = post$bp[i], 
            y0 = post$intercept[i] + post$beta[i, 1] * min(fishdat$prev), 
@@ -154,18 +258,25 @@ mcmc_neff(ratios_fit, size = 2)
 ##Again after I re-did the model it was fine
 
 ###########################################
-####Running the unhinged varying slopes model#####
+##Running the model. 2. Simple no threshold varying intercept model####
 
-vs_rt <- stanc(file="unhinged varying slopes(inspired by Mendenhall).stan")
-vs_sm <- stan_model(stanc_ret = vs_rt, verbose=FALSE)
-system.time(vs_fit <- sampling(vs_sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10)))
+rt <- stanc(file="The Stan models/Simple no threshold varying intercept model.stan")
+sm <- stan_model(stanc_ret = rt, verbose=FALSE)
+system.time(two_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=12, adapt_delta=0.8)))
 
-
+#fit <- stan(file="The Stan models/Simple no threshold model.stan", data = fishdat, pars = c("beta", "intercept", "error", "sigma_int","yhat"))
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(vs_fit, pars=c("intercept[110]", "bp[110]", "mu_bp", "sigma_bp","beta", "error","lp__", "sigma_int"))
 
-vs_post <- rstan::extract(vs_fit) 
+pairs(two_fit, pars=c("intercept[110]","beta","error","lp__", "sigma_int", "yhat[110]"))
+post <- As.mcmc.list(two_fit, pars = "yhat[110]")
+plot(post)
+
+plot(fit, pars=c("beta", "error", "yhat[110]"))
+
+new_y <- rstan::extract(fit, pars="yhat")
+
+
 
 plot(fishdat$prev, fishdat$oto_size, 
      xlab = 's', ylab = 's following')
@@ -228,37 +339,29 @@ print(ratios_vs_fit)
 mcmc_neff(ratios_vs_fit, size = 2)
 
 ###########################################################################
-###############Running the common slope varying intercept model###########
+##Running the model. 3. Unhinged fixed threshold + intercept####
 
-cs_rt <- stanc(file="unhinged common slope.stan")
-cs_rt <- stanc(file="The other stan(unhinged simple).stan")
-cs_sm <- stan_model(stanc_ret = cs_rt, verbose=FALSE)
-system.time(cs_fit <- sampling(cs_sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10)))
+rt <- stanc(file="The Stan models/Unhinged fixed threshold + intercept.stan")
+sm <- stan_model(stanc_ret = rt, verbose=FALSE)
+system.time(three_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=12, adapt_delta=0.85)))
 
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(cs_fit, pars=c("intercept", "bp[110]", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int"))
-pairs(cs_fit, pars=c("intercept[110]", "bp[110]", "mu_bp", "sigma_bp","beta[110, 1]", "beta[110, 2]", "error","lp__", "sigma_int"))
-pairs(cs_fit, pars=c("interceptbefore", "interceptafter", "bp[110]", "mu_bp", "sigma_bp","beta", "error","lp__", "sigma_int_bef", "sigma_int_after"))
+pairs(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+print(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+three_post <- rstan::extract(three_fit) 
 
-cs_post <- rstan::extract(cs_fit) 
-
-plot(fishdat$prev, fishdat$oto_size, 
+rstan::plot(fishdat$prev, fishdat$oto_size, 
      xlab = 's', ylab = 's following')
-for (i in seq_along(cs_post$lp__)) {
-  segments(x0 = min(fishdat$prev), x1 = cs_post$bp[i], 
-           y0 = cs_post$intercept[i] + cs_post$beta[i, 1] * min(fishdat$prev), 
-           y1 = cs_post$intercept[i] + cs_post$beta[i, 1] * cs_post$bp[i], 
-           col = alpha(3, .1))
-  segments(x1 = max(fishdat$prev), x0 = cs_post$bp[i], 
-           y1 = cs_post$intercept[i] + 
-             cs_post$beta[i, 2] * (max(fishdat$prev) - cs_post$bp[i]) + 
-             cs_post$beta[i, 1] * max(fishdat$prev), 
-           y0 = cs_post$intercept[i] + cs_post$beta[i, 1] * cs_post$bp[i], 
-           col = alpha(2, .1))
-}
-
+ segments(x0 = min(fishdat$prev), x1 = three_post$bp, 
+           y0 = three_post$intercept1 + three_post$beta[1] * min(fishdat$prev), 
+           y1 = three_post$intercept1 + three_post$beta[1] * three_post$bp,
+          col=4)
+ segments(x1 = max(fishdat$prev), x0 = three_post$bp, 
+           y1 = three_post$intercept2 + three_post$beta[2] * (max(fishdat$prev)), 
+           y0 = three_post$intercept2 + three_post$beta[2] * three_post$bp,
+          col = 5)
 
 
 ##Check the output
@@ -303,4 +406,94 @@ ratios_cs_fit <- neff_ratio(cs_fit)
 print(ratios_cs_fit)
 
 mcmc_neff(ratios_cs_fit, size = 2)
+
+#######################################################################
+##Running the model. 4. Unhinged fixed threshold, varying intercept####
+
+rt <- stanc(file="The Stan models/Unhinged fixed threshold, varying intercept.stan")
+sm <- stan_model(stanc_ret = rt, verbose=FALSE)
+system.time(four_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10, adapt_delta=0.875)))
+
+
+##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
+##values (to understand which parameters should be altered)
+pairs(four_fit, pars=c("intercept1[110]", "intercept2[110]", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+
+
+#######################################################################
+##Running the model. 5. Unhinged fixed intercept varying threshold####
+
+rt <- stanc(file="The Stan models/Unhinged fixed intercept varying threshold.stan")
+sm <- stan_model(stanc_ret = rt, verbose=FALSE)
+system.time(five_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=15)))
+
+
+##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
+##values (to understand which parameters should be altered)
+pairs(five_fit, pars=c("intercept1", "intercept2", "bp[110]", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+
+
+#######################################################################
+##Running the model. 6. Unhinged varying threshold and intercept####
+
+rt <- stanc(file="The Stan models/Unhinged varying threshold and intercept.stan")
+sm <- stan_model(stanc_ret = rt, verbose=FALSE)
+system.time(six_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10)))
+
+
+##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
+##values (to understand which parameters should be altered)
+pairs(six_fit, pars=c("intercept1[110]", "intercept2[110]", "bp[110]", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+
+
+#######################################################################
+##Running the model. 7. Hinged fixed threshold and intercept####
+
+rt <- stanc(file="The Stan models/Hinged fixed threshold and intercept.stan")
+sm <- stan_model(stanc_ret = rt, verbose=FALSE)
+system.time(seven_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10)))
+
+
+##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
+##values (to understand which parameters should be altered)
+pairs(seven_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int", "yhat[110]"))
+
+
+#######################################################################
+##Running the model. 8. Hinged varying intercept fixed threshold####
+
+rt <- stanc(file="The Stan models/Hinged varying intercept fixed threshold.stan")
+sm <- stan_model(stanc_ret = rt, verbose=FALSE)
+system.time(eight_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10)))
+
+
+##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
+##values (to understand which parameters should be altered)
+pairs(eight_fit, pars=c("intercept1[110]", "intercept2[110]", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int", "yhat[110]"))
+
+
+#######################################################################
+##Running the model. 9. Hinged varying threshold fixed intercept####
+
+rt <- stanc(file="The Stan models/Hinged varying threshold fixed intercept.stan")
+sm <- stan_model(stanc_ret = rt, verbose=FALSE)
+system.time(nine_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10)))
+
+
+##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
+##values (to understand which parameters should be altered)
+pairs(nine_fit, pars=c("intercept1", "intercept2", "bp[110]", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int", "yhat[110]"))
+
+
+#######################################################################
+##Running the model. 10. Hinged varying threshold and intercept####
+
+rt <- stanc(file="The Stan models/Hinged varying threshold and intercept.stan")
+sm <- stan_model(stanc_ret = rt, verbose=FALSE)
+system.time(ten_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10)))
+
+
+##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
+##values (to understand which parameters should be altered)
+pairs(ten_fit, pars=c("intercept1[110]", "intercept2[110]", "bp[110]", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int", "yhat[110]"))
 

@@ -29,3 +29,15 @@ model {
 
     oto_size ~ normal(yhat, error);
 }
+
+generated quantities {
+    vector[N_EBSm] sim_oto_size;
+    vector[50] sim_yhat;
+
+    for (i in 1:N_EBSm){
+    sim_oto_size[i] = normal_rng(yhat[i], error);
+}
+    for (i in 1:50){
+        sim_yhat[i] = intercept + beta * prev[i];
+    }
+}

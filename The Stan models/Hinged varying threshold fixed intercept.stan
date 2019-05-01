@@ -38,10 +38,10 @@ transformed parameters {
 
 model {///make sure you have a distribution for each parameter defined
     mu_bp ~ normal(0, 5);
-    sigma_bp ~ cauchy(0, 10);
+    sigma_bp ~ uniform(0, 10);
     bp ~ normal(mu_bp, sigma_bp);
 
-    sigma_int ~ cauchy(0, 10);
+    sigma_int ~ uniform(0, 10);
     intercept ~ normal(0, sigma_int);
 
     beta1 ~ normal(0, 5);
