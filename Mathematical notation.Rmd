@@ -1,0 +1,79 @@
+---
+title: "Mathematical notation"
+output: html_document
+---
+
+**model 1**
+
+
+$y_{i} = \alpha + \beta x_{i} + \epsilon$ 
+
+***************
+**model 2**
+
+
+$y_{i} = \alpha_{j \left[{i}\right]} + \beta x_{i} + \epsilon$
+
+***************
+**model 3**
+
+
+$y_{i} = \{^{\alpha_{1} +  \beta_{1} x_{i} + \epsilon\;\;  if\;x_{i} \le \eta} _{\alpha_{2} +  \beta_{2} x_{i} + \epsilon\;\;  if\;not}$
+
+
+***************
+**model 4**
+
+
+$y_{i} = \{^{\alpha_{1 _{{j} \left[{i}\right]}} +  \beta_{1} x_{i} + \epsilon\;\;\;  if \;x_{i} \le \eta} _{\alpha_{2_{{j} \left[{i}\right]}} +  \beta_{2} x_{i} + \epsilon\;\;\;  if \;not}$
+
+**************
+**model 5**
+
+$y_{i} = \{^{\alpha_{1} +  \beta_{1} x_{i} + \epsilon\;\;\;  if \;x_{i} \le \eta_{j \left[{i}\right]}} _{\alpha_{2} +  \beta_{2} x_{i} + \epsilon\;\;\;  if \;not}$
+
+**************
+**model 6**
+
+
+$y_{i} = \{^{\alpha_{1 _{{j} \left[{i}\right]}} +  \beta_{1} x_{i} + \epsilon\;\;\;  if\; x_{i} \le \eta_{j \left[{i}\right]}} _{\alpha_{2_{{j} \left[{i}\right]}} +  \beta_{2} x_{i} + \epsilon\;\;\;  if \;not}$
+
+***************
+**model 7**
+
+$y_{i} = \alpha + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - \eta\right) \tau_{i} + \epsilon$
+
+
+
+$\tau_{i} = \{^{0\;\;\;if \;x_{i} \le \eta} _{1 \;\;\;if \;not}$
+
+
+***************
+**model 8**
+
+
+$y_{i} = \alpha_{j \left[{i}\right]} + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - \eta\right) \tau_{i} + \epsilon$
+
+
+
+$\tau_{i} = \{^{0\;\;\;  if \;x_{i} \le \eta} _{1\;\;\; if \;not}$
+
+****************
+**model 9**
+
+
+$y_{i} = \alpha + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - \eta_{j \left[{i}\right]}\right) \tau_{i} + \epsilon$
+
+
+
+$\tau_{i} = \{^{0\;\;\;  if \;x_{i} \le \eta_{j \left[{i}\right]}} _{1 \;\;\;if \;not}$
+
+
+*****************
+**model 10**
+
+$y_{i} = \alpha_{j\left[{i}\right]} + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - \eta_{j \left[{i}\right]}\right) \tau_{i} + \epsilon$
+
+
+
+$\tau_{i} = \{^{0\;\;\;  if \;x_{i} \le eta_{j \left[{i}\right]}} _{1 \;\;\;if\; not}$
