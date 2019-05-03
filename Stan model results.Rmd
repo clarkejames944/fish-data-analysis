@@ -1,0 +1,318 @@
+---
+title: "Stan model results"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+I have created a total of 10 Stan models with differing levels of complexity. These models are as follows:
+
+1. Simple no threshold model. -no threshold and a fixed intercept.
+2. Simple no threshold varying intercept model. -no threshold but with varying intercepts via fish individual
+3. Unhinged fixed threshold and intercept. -The discontinuous piecewise linear regression
+4. Unhinged fixed threshold, varying intercept.
+5. Unhinged fixed intercept varying threshold.
+6. Unhinged varying threshold and intercept.
+7. Hinged fixed threshold and intercept. -The continuous piecewise linear regression
+8. Hinged varying intercept fixed threshold.
+9. Hinged varying threshold fixed intercept.
+10. Hinged varying threshold and intercept.
+
+
+##1. Simple no threshold model##
+Notation:
+$y_{i} = \alpha + \beta x_{i} + \epsilon$ 
+
+(Good)
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~30s
+- Max. Treedepth exceeded=0
+- low BFMI=0
+- Divergences=0
+
+#Pairs plot#
+```{r}
+pairs(fit, pars=c("intercept","beta", "error","lp__", "sigma_int"))
+```
+
+#Extracted#
+
+
+##2. Simple no threshold varying intercept model##
+Notation:
+$y_{i} = \alpha_{j \left[{i}\right]} + \beta x_{i} + \epsilon$
+
+Max treedepth=10
+Adapt Delta=0.8
+- run time= ~3min
+- Max. Treedepth exceeded= 499
+- low BFMI=0
+- Divergences=0
+
+#Pairs plot#
+```{r}
+pairs(fit, pars=c("intercept[110]","beta", "error","lp__", "sigma_int"))
+```
+
+Worked well with a Max treedepth of 12:
+(Good)
+Max treedepth=12
+Adapt Delta=0.8
+- run time= ~40s
+- Max. Treedepth exceeded= 0
+- low BFMI=0
+- Divergences=0
+```{r}
+pairs(two_fit, pars=c("intercept[110]","beta","error","lp__", "sigma_int", "yhat[110]"))
+```
+
+#Extracted#
+
+
+
+##3. Unhinged fixed threshold + intercept##
+Notation:
+$y_{i} = \{^{\alpha_{1} +  \beta_{1} x_{i} + \epsilon\;\;  if\;x_{i} \le \eta} _{\alpha_{2} +  \beta_{2} x_{i} + \epsilon\;\;  if\;not}$
+
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~4min
+- Max. Treedepth exceeded= 0 
+- low BFMI=0
+- Divergences= 1367
+
+
+Max treedepth= 10
+Adapt Delta= 0.99
+- run time= ~4min
+- Max. Treedepth exceeded= 0 
+- low BFMI=0
+- Divergences= 1367
+
+
+#Pairs plot#
+```{r}
+pairs(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+```
+
+#Extracted#
+
+
+
+####4. Unhinged fixed threshold, varying intercept###
+Notation:
+$y_{i} = \{^{\alpha_{1 _{{j} \left[{i}\right]}} +  \beta_{1} x_{i} + \epsilon\;\;\;  if \;x_{i} \le \eta} _{\alpha_{2_{{j} \left[{i}\right]}} +  \beta_{2} x_{i} + \epsilon\;\;\;  if \;not}$
+
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~12min
+- Max. Treedepth exceeded= 0 
+- low BFMI=4
+- Divergences= 2054
+
+
+Max treedepth= 10
+Adapt Delta= 0.85
+- run time= ~10min
+- Max. Treedepth exceeded= 0 
+- low BFMI=4
+- Divergences= 1813
+
+Max treedepth= 10
+Adapt Delta= 0.875
+- run time= ~27min
+- Max. Treedepth exceeded= 966
+- low BFMI=4
+- Divergences= 1688
+
+#Pairs plot#
+```{r}
+pairs(four_fit, pars=c("intercept1[110]", "intercept2[110]", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+```
+
+#Extracted#
+
+
+####5. Unhinged fixed intercept varying threshold###
+Notation:
+$y_{i} = \{^{\alpha_{1} +  \beta_{1} x_{i} + \epsilon\;\;\;  if \;x_{i} \le \eta_{j \left[{i}\right]}} _{\alpha_{2} +  \beta_{2} x_{i} + \epsilon\;\;\;  if \;not}$
+
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~62min
+- Max. Treedepth exceeded= 4000 
+- low BFMI=0
+- Divergences= 0
+
+Max treedepth= 15
+Adapt Delta= 0.8
+- run time= ~62min
+- Max. Treedepth exceeded= 4000 
+- low BFMI=0
+- Divergences= 0
+
+
+#Pairs plot#
+```{r}
+pairs(five_fit, pars=c("intercept1", "intercept2", "bp[110]", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+```
+
+#Extracted#
+
+
+####6. Unhinged varying threshold and intercept###
+Notation:
+
+$y_{i} = \{^{\alpha_{1 _{{j} \left[{i}\right]}} +  \beta_{1} x_{i} + \epsilon\;\;\;  if\; x_{i} \le \eta_{j \left[{i}\right]}} _{\alpha_{2_{{j} \left[{i}\right]}} +  \beta_{2} x_{i} + \epsilon\;\;\;  if \;not}$
+
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~64min
+- Max. Treedepth exceeded= 4000 
+- low BFMI=0
+- Divergences= 0
+
+#Pairs plot#
+```{r}
+pairs(six_fit, pars=c("intercept1[110]", "intercept2[110]", "bp[110]", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+```
+
+#Extracted#
+
+
+
+####7. Hinged fixed threshold and intercept###
+Notation:
+$y_{i} = \alpha + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - \eta\right) \tau_{i} + \epsilon$
+
+
+
+$\tau_{i} = \{^{0\;\;\;if \;x_{i} \le \eta} _{1 \;\;\;if \;not}$
+
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~8min
+- Max. Treedepth exceeded= 3 
+- low BFMI=0
+- Divergences= 343
+
+Max treedepth= 11
+Adapt Delta= 0.8
+- run time= ~10min
+- Max. Treedepth exceeded= 0 
+- low BFMI=0
+- Divergences= 360
+
+Max treedepth= 11
+Adapt Delta= 0.825
+- run time= ~10min
+- Max. Treedepth exceeded= 544 
+- low BFMI=0
+- Divergences= 235
+
+#Pairs plot#
+```{r}
+pairs(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+```
+
+#Extracted#
+
+
+
+####8. Hinged varying intercept fixed threshold###
+Notation:
+$y_{i} = \alpha_{j \left[{i}\right]} + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - \eta\right) \tau_{i} + \epsilon$
+
+
+
+$\tau_{i} = \{^{0\;\;\;  if \;x_{i} \le \eta} _{1\;\;\; if \;not}$
+
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~9min
+- Max. Treedepth exceeded= 0 
+- low BFMI=0
+- Divergences= 1005
+
+#Pairs plot#
+```{r}
+pairs(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+```
+
+#Extracted#
+
+
+
+####9. Hinged varying threshold fixed intercept###
+Notation:
+$y_{i} = \alpha + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - \eta_{j \left[{i}\right]}\right) \tau_{i} + \epsilon$
+
+
+
+$\tau_{i} = \{^{0\;\;\;  if \;x_{i} \le \eta_{j \left[{i}\right]}} _{1 \;\;\;if \;not}$
+
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~14min
+- Max. Treedepth exceeded= 0 
+- low BFMI=1
+- Divergences= 0
+
+#Pairs plot#
+```{r}
+pairs(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+```
+
+#Extracted#
+
+
+
+
+####10. Hinged varying threshold and intercept###
+Notation:
+$y_{i} = \alpha_{j\left[{i}\right]} + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - \eta_{j \left[{i}\right]}\right) \tau_{i} + \epsilon$
+
+
+
+$\tau_{i} = \{^{0\;\;\;  if \;x_{i} \le \eta_{j \left[{i}\right]}} _{1 \;\;\;if\; not}$
+
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~23min
+- Max. Treedepth exceeded= 292
+- low BFMI=4
+- Divergences= 0
+
+(Good)
+Max treedepth= 12
+Adapt Delta= 0.8
+- run time= ~23min
+- Max. Treedepth exceeded= 0
+- low BFMI=4
+- Divergences= 0
+
+#Pairs plot#
+```{r}
+pairs(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+```
+
+#Extracted#
+
+```{r}
+for (i in seq_along(ten_post$lp__)) {
+  segments(x0 = min(fishdat$prev), x1 = ten_post$bp[i], 
+           y0 = ten_post$intercept[i] + ten_post$beta1* min(fishdat$prev), 
+           y1 = ten_post$intercept[i] + ten_post$beta1 * ten_post$bp[i], 
+           col = alpha(3, .1))
+  segments(x1 = max(fishdat$prev), x0 = ten_post$bp[i], 
+           y1 = ten_post$intercept[i] + 
+             ten_post$beta2[i] * (max(fishdat$prev) - ten_post$bp[i]) + 
+             ten_post$beta1[i] * max(fishdat$prev), 
+           y0 = ten_post$intercept[i] + ten_post$slope_after * ten_post$bp[i], 
+           col = alpha(2, .1))
+}
+```
+

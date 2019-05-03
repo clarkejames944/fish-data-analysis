@@ -10,11 +10,11 @@ parameters {
     real<lower=0> bp; //Do I want this to be a vector? or a real number across the groups (like intercept)
     
     real<lower=0> mu_bp;
-    real<lower=0> sigma_bp;
+    real<lower=0, upper=100> sigma_bp;
 
-    real<lower=0> error;    ///Leave a constant variance across fish individuals for now
+    real<lower=0, upper=100> error;    ///Leave a constant variance across fish individuals for now
     
-    real<lower=0> sigma_int;
+    real<lower=0, upper=100> sigma_int;
     real intercept; // one intercept per group
     real beta1;
     real beta2;
@@ -37,17 +37,26 @@ transformed parameters {
 }
 
 model {///make sure you have a distribution for each parameter defined
-    mu_bp ~ normal(0, 5);
-    sigma_bp ~ uniform(0, 10);
+    mu_bp ~ normal(0, 10);
+    sigma_bp ~ cauchy(0, 5);
     bp ~ normal(mu_bp, sigma_bp);
 
-    sigma_int ~ uniform(0, 10);
+    sigma_int ~ cauchy(0, 5);
     intercept ~ normal(0, sigma_int);
 
-    beta1 ~ normal(0, 5);
-    beta2 ~ normal(0, 5);
+    beta1 ~ normal(0, 10);
+    beta2 ~ normal(0, 10);
 
     error ~ cauchy(0, 10);
 
     oto_size ~ normal(yhat, error);
+}
+
+generated quantities {
+    real intercept_after;
+    real slope_after;
+
+        intercept_after = intercept - (bp)*beta2;
+
+        slope_after = beta1 + beta2;
 }

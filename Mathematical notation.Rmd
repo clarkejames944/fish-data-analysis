@@ -76,4 +76,4 @@ $y_{i} = \alpha_{j\left[{i}\right]} + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - 
 
 
 
-$\tau_{i} = \{^{0\;\;\;  if \;x_{i} \le eta_{j \left[{i}\right]}} _{1 \;\;\;if\; not}$
+$\tau_{i} = \{^{0\;\;\;  if \;x_{i} \le \eta_{j \left[{i}\right]}} _{1 \;\;\;if\; not}$

@@ -37,17 +37,29 @@ transformed parameters {
 }
 
 model {///make sure you have a distribution for each parameter defined
-    mu_bp ~ normal(0, 5);
-    sigma_bp ~ uniform(0, 10);
+    mu_bp ~ normal(0, 10);
+    sigma_bp ~ cauchy(0, 5);
     bp ~ normal(mu_bp, sigma_bp);
 
-    sigma_int ~ uniform(0, 10);
+    sigma_int ~ cauchy(0, 5);
     intercept ~ normal(0, sigma_int);
 
-    beta1 ~ normal(0, 5);
-    beta2 ~ normal(0, 5);
+    beta1 ~ normal(0, 10);
+    beta2 ~ normal(0, 10);
 
     error ~ cauchy(0, 10);
 
     oto_size ~ normal(yhat, error);
+}
+
+generated quantities {
+    vector[Ngroups] intercept_after;
+    real slope_after;
+    
+        for (i in 1:Ngroups){
+            intercept_after[i] = intercept[i] - (bp[i])*beta2;
+        }
+        
+
+        slope_after = beta1 + beta2;
 }

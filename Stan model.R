@@ -84,119 +84,40 @@ system.time(fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, contr
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
 pairs(fit, pars=c("intercept","beta","error","lp__", "sigma_int", "yhat[110]"))
+
+
+##The extracted plot
+fitted_curves <- rstan::extract(fit)
+error_hat <- median(fitted_curves$error)
+yhat_hat <- rep(NA, fishdat$N_EBSm)
+for (i in 1:fishdat$N_EBSm) {
+  yhat_hat[i] <- median(fitted_curves$yhat[,i])
+}
+df_post <- data.frame(list(prev=fishdat$prev,
+                           oto_size=fishdat$oto_size,
+                           yhat_hat=yhat_hat))
+
+ggplot(df_post, aes(x=prev)) +
+  geom_ribbon(aes(ymin = yhat_hat - 1.96 * error_hat,
+                  ymax = yhat_hat + 1.96 * error_hat),
+              fill = "lightyellow") + 
+  geom_line(aes(y=yhat_hat), colour = "darkred") +
+  geom_point(aes(y=oto_size), colour = "darkblue", alpha=0.1)
+
+
+
 ##Plot 8 examples of the predictive models compared with the original data
 simulated_data <- rstan::extract(fit)$sim_oto_size
 simulated_data <- simulated_data[sample(1:4000, 8), ]
 
 simulated_yhat <- rstan::extract(fit)$yhat
 simulated_yhat <- simulated_yhat[sample(1:4000, 8), ] 
-  
-ggplot(fishdat, aes(x=prev, y=oto_size))+
-  geom_point()+
-  geom_line(sim_yhats, aes(y=yhat))
 
 par(mfrow = c(3, 3))
 rstan::plot(fishdat$prev, fishdat$oto_size)
-
 for (i in 1:8){
   rstan::plot(fishdat$prev, simulated_data[i, ])
 }
-
-#Make some predictive plots for general trend over original data
-plot(fishdat$prev, fishdat$oto_size)
-
-
-sim_yhats <- rstan::extract(fit)$yhat
-yhats <- as.data.frame(sim_yhats)
-
-
-df_sim_yhats <- data.frame(
-  prev = fishdat$prev,
-  meanGJT = apply(sim_yhats, 2, mean),
-  lo80GJT = apply(sim_yhats, 2, quantile, 0.10),
-  hi80GJT = apply(sim_yhats, 2, quantile, 0.90),
-  lo95GJT = apply(sim_yhats, 2, quantile, 0.025),
-  hi95GJT = apply(sim_yhats, 2, quantile, 0.975)
-)
-head(df_sim_yhats)
-
-ggplot(df_sim_yhats,
-       aes(x = prev,
-           y = meanGJT)) +
-  geom_ribbon(aes(ymin = lo95GJT,
-                  ymax = hi95GJT),
-              fill = "lightgrey") +
-  geom_ribbon(aes(ymin = lo80GJT,
-                  ymax = hi80GJT),
-              fill = "darkgrey") +
-  geom_line()
-
-mcmc = as.matrix(fit)
-
-## Calculate the fitted values
-newdata = data.frame(x = seq(min(fishdat$prev, na.rm = TRUE), max(fishdat$prev, na.rm = TRUE),
-                             len = 1000))
-Xmat = model.matrix(~fishdat$prev, newdata)
-coefs = mcmc[, c("beta0", "beta[1]")]
-fit = coefs %*% t(Xmat)
-newdata = newdata %>% cbind(tidyMCMC(fit, conf.int = TRUE, conf.method = "HPDinterval"))
-
-
-post <- As.mcmc.list(fit, pars = "oto_size[110]")
-plot(post)
-
-plot(fit, pars=c("beta", "error", "yhat[110]"))
-
-new_y <- rstan::extract(fit, pars="yhat[1]")
-
-ggplot(EBSm, aes(x = prev, y = oto_size)) +
-  geom_point()+
-  geom_line(aes(y = yhats[1]), alpha = .1) 
-  scale_color_brewer(palette = "Dark2")
-
-
-#check diagnostics
-check_hmc_diagnostics(fit)
-
-##Extracting and plotting
-post <- rstan::extract(fit)
-
-EBSm %>%
-  data_grid(prev = seq_range(prev, n = 101)) %>%
-  add_fitted_draws(post, n = 100) %>%
-  ggplot(aes(x = prev, y = oto_size)) +
-  geom_line(aes(y = .value), alpha = .1) +
-  geom_point(data = EBSm) +
-  scale_color_brewer(palette = "Dark2")
-
-plot(fishdat$prev, fishdat$oto_size, 
-     xlab = "s", ylab = "s'")
-for (i in seq_along(post$lp__)) {
-  segments(x0 = min(fishdat$prev), x1 = max(fishdat$prev), 
-           y0 = post$intercept + post$beta * min(fishdat$prev), 
-           y1 = post$intercept + post$beta * max(fishdat$prev), 
-           col = alpha(3, .1))
-}
-
-ggplot(EBSm, aes(x=prev, y=oto_size))+
-        geom_point()+
-         xlab("s") + ylab("s'")+
-        geom_line(data = post)
-
-for (i in seq_along(post$lp__)) {
-  segments(x0 = min(fishdat$prev), x1 = post$bp[i], 
-           y0 = post$intercept[i] + post$beta[i, 1] * min(fishdat$prev), 
-           y1 = post$intercept[i] + post$beta[i, 1] * post$bp[i], 
-           col = alpha(3, .1))
-  segments(x1 = max(fishdat$prev), x0 = post$bp[i], 
-           y1 = post$intercept[i] + 
-             post$beta[i, 2] * (max(fishdat$prev) - post$bp[i]) + 
-             post$beta[i, 1] * max(fishdat$prev), 
-           y0 = post$intercept[i] + post$beta[i, 1] * post$bp[i], 
-           col = alpha(2, .1))
-}
-
-
 
 ##Check the output
 print(fit)
@@ -264,7 +185,6 @@ rt <- stanc(file="The Stan models/Simple no threshold varying intercept model.st
 sm <- stan_model(stanc_ret = rt, verbose=FALSE)
 system.time(two_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=12, adapt_delta=0.8)))
 
-#fit <- stan(file="The Stan models/Simple no threshold model.stan", data = fishdat, pars = c("beta", "intercept", "error", "sigma_int","yhat"))
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
 
@@ -274,24 +194,26 @@ plot(post)
 
 plot(fit, pars=c("beta", "error", "yhat[110]"))
 
-new_y <- rstan::extract(fit, pars="yhat")
+##The extracted plots
 
-
-
-plot(fishdat$prev, fishdat$oto_size, 
-     xlab = 's', ylab = 's following')
-for (i in seq_along(vs_post$lp__)) {
-  segments(x0 = min(fishdat$prev), x1 = vs_post$bp[i], 
-           y0 = vs_post$intercept[i] + vs_post$beta[i, 1] * min(fishdat$prev), 
-           y1 = vs_post$intercept[i] + vs_post$beta[i, 1] * vs_post$bp[i], 
-           col = alpha(3, .1))
-  segments(x1 = max(fishdat$prev), x0 = vs_post$bp[i], 
-           y1 = vs_post$intercept[i] + 
-             vs_post$beta[i, 2] * (max(fishdat$prev) - vs_post$bp[i]) + 
-             vs_post$beta[i, 1] * max(fishdat$prev), 
-           y0 = vs_post$intercept[i] + vs_post$beta[i, 1] * vs_post$bp[i], 
-           col = alpha(2, .1))
+two_fitted_curves <- rstan::extract(two_fit)
+two_error_hat <- median(two_fitted_curves$error)
+two_yhat_hat <- rep(NA, fishdat$N_EBSm)
+for (i in 1:fishdat$N_EBSm) {
+  two_yhat_hat[i] <- median(two_fitted_curves$yhat[,i])
 }
+two_df_post <- data.frame(list(prev=fishdat$prev,
+                           oto_size=fishdat$oto_size,
+                           two_yhat_hat=two_yhat_hat,
+                           slope=beta,
+                           intercept=))
+
+ggplot(two_df_post, aes(x=prev)) +
+  geom_ribbon(aes(ymin = two_yhat_hat - 1.96 * two_error_hat,
+                  ymax = two_yhat_hat + 1.96 * two_error_hat),
+              fill = "lightyellow") + 
+  geom_line(aes(y=two_yhat_hat), colour = "darkred") +
+  geom_point(aes(y=oto_size), colour = "darkblue", alpha=0.1)
 
 
 
@@ -343,25 +265,31 @@ mcmc_neff(ratios_vs_fit, size = 2)
 
 rt <- stanc(file="The Stan models/Unhinged fixed threshold + intercept.stan")
 sm <- stan_model(stanc_ret = rt, verbose=FALSE)
-system.time(three_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=12, adapt_delta=0.85)))
+system.time(three_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=17, adapt_delta=0.85)))
 
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
 pairs(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
-print(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
-three_post <- rstan::extract(three_fit) 
 
-rstan::plot(fishdat$prev, fishdat$oto_size, 
-     xlab = 's', ylab = 's following')
- segments(x0 = min(fishdat$prev), x1 = three_post$bp, 
-           y0 = three_post$intercept1 + three_post$beta[1] * min(fishdat$prev), 
-           y1 = three_post$intercept1 + three_post$beta[1] * three_post$bp,
-          col=4)
- segments(x1 = max(fishdat$prev), x0 = three_post$bp, 
-           y1 = three_post$intercept2 + three_post$beta[2] * (max(fishdat$prev)), 
-           y0 = three_post$intercept2 + three_post$beta[2] * three_post$bp,
-          col = 5)
+##The extracted plots
+
+three_fitted_curves <- rstan::extract(three_fit)
+three_error_hat <- median(three_fitted_curves$error)
+three_yhat_hat <- rep(NA, fishdat$N_EBSm)
+for (i in 1:fishdat$N_EBSm) {
+  three_yhat_hat[i] <- median(three_fitted_curves$yhat[,i])
+}
+three_df_post <- data.frame(list(prev=fishdat$prev,
+                               oto_size=fishdat$oto_size,
+                               three_yhat_hat=three_yhat_hat))
+
+ggplot(three_df_post, aes(x=prev)) +
+  geom_ribbon(aes(ymin = three_yhat_hat - 1.96 * three_error_hat,
+                  ymax = three_yhat_hat + 1.96 * three_error_hat),
+              fill = "lightyellow") + 
+  geom_line(aes(y=three_yhat_hat), colour = "darkred") +
+  geom_point(aes(y=oto_size), colour = "darkblue", alpha=0.05)
 
 
 ##Check the output
@@ -419,6 +347,24 @@ system.time(four_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, 
 ##values (to understand which parameters should be altered)
 pairs(four_fit, pars=c("intercept1[110]", "intercept2[110]", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
 
+##The extracted plots
+
+four_fitted_curves <- rstan::extract(four_fit)
+four_error_hat <- median(four_fitted_curves$error)
+four_yhat_hat <- rep(NA, fishdat$N_EBSm)
+for (i in 1:fishdat$N_EBSm) {
+  four_yhat_hat[i] <- median(four_fitted_curves$yhat[,i])
+}
+four_df_post <- data.frame(list(prev=fishdat$prev,
+                                 oto_size=fishdat$oto_size,
+                                 four_yhat_hat=four_yhat_hat))
+
+ggplot(four_df_post, aes(x=prev)) +
+  geom_ribbon(aes(ymin = four_yhat_hat - 1.96 * four_error_hat,
+                  ymax = four_yhat_hat + 1.96 * four_error_hat),
+              fill = "lightyellow") + 
+  geom_line(aes(y=four_yhat_hat), colour = "darkred") +
+  geom_point(aes(y=oto_size), colour = "darkblue", alpha=0.05)
 
 #######################################################################
 ##Running the model. 5. Unhinged fixed intercept varying threshold####
@@ -445,18 +391,54 @@ system.time(six_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, c
 ##values (to understand which parameters should be altered)
 pairs(six_fit, pars=c("intercept1[110]", "intercept2[110]", "bp[110]", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
 
+##The extracted data plot
+six_post <- rstan::extract(six_fit)
 
+plot(fishdat$prev, fishdat$oto_size, 
+     xlab = "s", ylab = "s'")
+for (i in seq_along(six_post$lp__)) {
+  segments(x0 = min(fishdat$prev), x1 = six_post$bp[i], 
+           y0 = six_post$intercept[i] + six_post$beta1* min(fishdat$prev), 
+           y1 = six_post$intercept[i] + six_post$beta1 * six_post$bp[i], 
+           col = alpha(3, .1))
+  segments(x1 = max(fishdat$prev), x0 = six_post$bp[i], 
+           y1 = six_post$intercept[i] + 
+             six_post$beta2[i] * (max(fishdat$prev) - six_post$bp[i]) + 
+             seven_post$beta1[i] * max(fishdat$prev), 
+           y0 = seven_post$intercept[i] + seven_post$slope_after * seven_post$bp[i], 
+           col = alpha(2, .1))
+}
+points(fishdat$prev, fishdat$oto_size, pch = 19)
 #######################################################################
 ##Running the model. 7. Hinged fixed threshold and intercept####
 
 rt <- stanc(file="The Stan models/Hinged fixed threshold and intercept.stan")
 sm <- stan_model(stanc_ret = rt, verbose=FALSE)
-system.time(seven_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10)))
+system.time(seven_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.825)))
 
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(seven_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int", "yhat[110]"))
+pairs(seven_fit, pars=c("intercept", "bp", "mu_bp", "sigma_bp","beta1", "beta2", "error","lp__", "sigma_int", "yhat[110]", "slope_after", "intercept_after"))
+
+##The extracted data plot
+seven_post <- rstan::extract(seven_fit)
+
+plot(fishdat$prev, fishdat$oto_size, 
+     xlab = "s", ylab = "s'")
+for (i in seq_along(seven_post$lp__)) {
+  segments(x0 = min(fishdat$prev), x1 = seven_post$bp[i], 
+           y0 = seven_post$intercept[i] + seven_post$beta1* min(fishdat$prev), 
+           y1 = seven_post$intercept[i] + seven_post$beta1 * seven_post$bp[i], 
+           col = alpha(3, .1))
+  segments(x1 = max(fishdat$prev), x0 = seven_post$bp[i], 
+           y1 = seven_post$intercept[i] + 
+             seven_post$beta2[i] * (max(fishdat$prev) - seven_post$bp[i]) + 
+             seven_post$beta1[i] * max(fishdat$prev), 
+           y0 = seven_post$intercept[i] + seven_post$slope_after * seven_post$bp[i], 
+           col = alpha(2, .1))
+}
+points(fishdat$prev, fishdat$oto_size, pch = 19)
 
 
 #######################################################################
@@ -469,8 +451,26 @@ system.time(eight_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4,
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(eight_fit, pars=c("intercept1[110]", "intercept2[110]", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int", "yhat[110]"))
+pairs(eight_fit, pars=c("intercept[110]", "bp", "mu_bp", "sigma_bp","beta1", "beta2", "error","lp__", "sigma_int", "yhat[110]", "slope_after", "intercept_after[110]"))
 
+##The extracted data plot
+eight_post <- rstan::extract(eight_fit)
+
+plot(fishdat$prev, fishdat$oto_size, 
+     xlab = "s", ylab = "s'")
+for (i in seq_along(eight_post$lp__)) {
+  segments(x0 = min(fishdat$prev), x1 = eight_post$bp[i], 
+           y0 = eight_post$intercept[i] + eight_post$beta1* min(fishdat$prev), 
+           y1 = eight_post$intercept[i] + eight_post$beta1 * eight_post$bp[i], 
+           col = alpha(3, .1))
+  segments(x1 = max(fishdat$prev), x0 = eight_post$bp[i], 
+           y1 = eight_post$intercept[i] + 
+             eight_post$beta2[i] * (max(fishdat$prev) - eight_post$bp[i]) + 
+             eight_post$beta1[i] * max(fishdat$prev), 
+           y0 = eight_post$intercept[i] + eight_post$slope_after * eight_post$bp[i], 
+           col = alpha(2, .1))
+}
+points(fishdat$prev, fishdat$oto_size, pch = 19)
 
 #######################################################################
 ##Running the model. 9. Hinged varying threshold fixed intercept####
@@ -482,18 +482,55 @@ system.time(nine_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, 
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(nine_fit, pars=c("intercept1", "intercept2", "bp[110]", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int", "yhat[110]"))
+pairs(nine_fit, pars=c("intercept", "bp[110]", "mu_bp", "sigma_bp","beta1", "beta2", "error","lp__", "sigma_int", "yhat[110]","slope_after", "intercept_after[110]"))
 
+##The extracted data plot
+nine_post <- rstan::extract(nine_fit)
+
+plot(fishdat$prev, fishdat$oto_size, 
+     xlab = "s", ylab = "s'")
+for (i in seq_along(nine_post$lp__)) {
+  segments(x0 = min(fishdat$prev), x1 = nine_post$bp[i], 
+           y0 = nine_post$intercept[i] + nine_post$beta1* min(fishdat$prev), 
+           y1 = nine_post$intercept[i] + nine_post$beta1 * nine_post$bp[i], 
+           col = alpha(3, .1))
+  segments(x1 = max(fishdat$prev), x0 = nine_post$bp[i], 
+           y1 = nine_post$intercept[i] + 
+             nine_post$beta2[i] * (max(fishdat$prev) - nine_post$bp[i]) + 
+             nine_post$beta1[i] * max(fishdat$prev), 
+           y0 = nine_post$intercept[i] + nine_post$slope_after * nine_post$bp[i], 
+           col = alpha(2, .1))
+}
+points(fishdat$prev, fishdat$oto_size, pch = 19)
 
 #######################################################################
 ##Running the model. 10. Hinged varying threshold and intercept####
 
 rt <- stanc(file="The Stan models/Hinged varying threshold and intercept.stan")
 sm <- stan_model(stanc_ret = rt, verbose=FALSE)
-system.time(ten_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10)))
+system.time(ten_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=12)))
 
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(ten_fit, pars=c("intercept1[110]", "intercept2[110]", "bp[110]", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int", "yhat[110]"))
+pairs(ten_fit, pars=c("intercept[110]", "bp[110]", "mu_bp", "sigma_bp","beta1", "beta2", "error","lp__", "sigma_int", "yhat[110]", "slope_after", "intercept_after[110]"))
 
+
+ten_post <- rstan::extract(ten_fit)
+
+
+plot(fishdat$prev, fishdat$oto_size, 
+     xlab = "s", ylab = "s'")
+for (i in seq_along(ten_post$lp__)) {
+  segments(x0 = min(fishdat$prev), x1 = ten_post$bp[i], 
+           y0 = ten_post$intercept[i] + ten_post$median(beta1)* min(fishdat$prev), 
+           y1 = ten_post$intercept[i] + ten_post$median(beta1) * ten_post$bp[i], 
+           col = alpha(3, .1))
+  segments(x1 = max(fishdat$prev), x0 = ten_post$bp[i], 
+           y1 = ten_post$intercept[i] + 
+             ten_post$median(beta2) * (max(fishdat$prev) - ten_post$bp[i]) + 
+             ten_post$median(beta1) * max(fishdat$prev), 
+           y0 = ten_post$intercept[i] + ten_post$median(slope_after) * ten_post$bp[i], 
+           col = alpha(2, .1))
+}
+points(fishdat$prev, fishdat$oto_size, pch = 19)

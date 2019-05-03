@@ -23,7 +23,7 @@ transformed parameters {
 }
 
 model {
-    sigma_int ~ cauchy(0,10);
+    sigma_int ~ cauchy(0, 10);
     intercept ~ normal(0, sigma_int);
     beta ~ normal(0, 10);
     
