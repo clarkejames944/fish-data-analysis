@@ -88,7 +88,14 @@ pairs(fit, pars=c("intercept","beta","error","lp__", "sigma_int", "yhat[110]"))
 
 ##The extracted plot
 fitted_curves <- rstan::extract(fit)
+fitted_curves <- as_data_frame(fitted_curves)
+head(fitted_curves)
+
 error_hat <- median(fitted_curves$error)
+yhat_hat <- rep(NA, fishdat$N_EBSm)
+beta_hat <- median(fitted_curves$beta)
+intercept_hat <- median(fitted_curves$intercept)
+
 yhat_hat <- rep(NA, fishdat$N_EBSm)
 for (i in 1:fishdat$N_EBSm) {
   yhat_hat[i] <- median(fitted_curves$yhat[,i])
@@ -97,11 +104,13 @@ df_post <- data.frame(list(prev=fishdat$prev,
                            oto_size=fishdat$oto_size,
                            yhat_hat=yhat_hat))
 
+glimpse(df_post)
+
 ggplot(df_post, aes(x=prev)) +
   geom_ribbon(aes(ymin = yhat_hat - 1.96 * error_hat,
                   ymax = yhat_hat + 1.96 * error_hat),
               fill = "lightyellow") + 
-  geom_line(aes(y=yhat_hat), colour = "darkred") +
+  geom_abline(aes(y=yhat_hat, slope=beta_hat, intercept=intercept_hat), colour = "darkred") +
   geom_point(aes(y=oto_size), colour = "darkblue", alpha=0.1)
 
 
@@ -194,28 +203,44 @@ plot(post)
 
 plot(fit, pars=c("beta", "error", "yhat[110]"))
 
-##The extracted plots
-
+##The extracted plot
 two_fitted_curves <- rstan::extract(two_fit)
+two_fitted_curves <- as_data_frame(two_fitted_curves)
+head(two_fitted_curves)
+glimpse(two_fitted_curves)
+
 two_error_hat <- median(two_fitted_curves$error)
+two_beta_hat <- median(two_fitted_curves$beta)
+
+two_intercept_hat <- rep(NA, fishdat$Ngroups)
+for (j in 1:fishdat$Ngroups) {
+  two_intercept_hat[j] <- median(two_fitted_curves$intercept[,j])
+}
+
 two_yhat_hat <- rep(NA, fishdat$N_EBSm)
 for (i in 1:fishdat$N_EBSm) {
   two_yhat_hat[i] <- median(two_fitted_curves$yhat[,i])
 }
+
 two_df_post <- data.frame(list(prev=fishdat$prev,
                            oto_size=fishdat$oto_size,
-                           two_yhat_hat=two_yhat_hat,
-                           slope=beta,
-                           intercept=))
+                           two_yhat_hat=two_yhat_hat))
+
+glimpse(two_df_post)
 
 ggplot(two_df_post, aes(x=prev)) +
   geom_ribbon(aes(ymin = two_yhat_hat - 1.96 * two_error_hat,
                   ymax = two_yhat_hat + 1.96 * two_error_hat),
               fill = "lightyellow") + 
-  geom_line(aes(y=two_yhat_hat), colour = "darkred") +
+  geom_abline(aes(y=two_yhat_hat, slope=two_beta_hat, intercept=two_intercept_hat[1]), colour = "darkred") +
+  geom_abline(aes(y=two_yhat_hat, slope=two_beta_hat, intercept=two_intercept_hat[2]), colour = "darkred") +
+  geom_abline(aes(y=two_yhat_hat, slope=two_beta_hat, intercept=two_intercept_hat[3]), colour = "darkred") +
+  geom_abline(aes(y=two_yhat_hat, slope=two_beta_hat, intercept=two_intercept_hat[4]), colour = "darkred") +
+  geom_abline(aes(y=two_yhat_hat, slope=two_beta_hat, intercept=two_intercept_hat[5]), colour = "darkred") +
+  geom_abline(aes(y=two_yhat_hat, slope=two_beta_hat, intercept=two_intercept_hat[6]), colour = "darkred") +
+  geom_abline(aes(y=two_yhat_hat, slope=two_beta_hat, intercept=two_intercept_hat[7]), colour = "darkred") +
+  geom_abline(aes(y=two_yhat_hat, slope=two_beta_hat, intercept=two_intercept_hat[8]), colour = "darkred") +
   geom_point(aes(y=oto_size), colour = "darkblue", alpha=0.1)
-
-
 
 ##Check the output
 print(vs_fit)
@@ -274,22 +299,40 @@ pairs(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","b
 
 ##The extracted plots
 
+##The extracted plot
 three_fitted_curves <- rstan::extract(three_fit)
+three_fitted_curves <- as_data_frame(three_fitted_curves)
+head(three_fitted_curves)
+glimpse(three_fitted_curves)
+
 three_error_hat <- median(three_fitted_curves$error)
+three_beta1_hat <- median(three_fitted_curves$beta[1])
+three_beta2_hat <- median(three_fitted_curves$beta[2])
+three_intercept1_hat <- median(three_fitted_curves$intercept1)
+three_intercept2_hat <- median(three_fitted_curves$intercept2)
+three_bp_hat <- median(three_fitted_curves$bp)
+
 three_yhat_hat <- rep(NA, fishdat$N_EBSm)
 for (i in 1:fishdat$N_EBSm) {
   three_yhat_hat[i] <- median(three_fitted_curves$yhat[,i])
 }
+
 three_df_post <- data.frame(list(prev=fishdat$prev,
                                oto_size=fishdat$oto_size,
                                three_yhat_hat=three_yhat_hat))
+
+glimpse(three_df_post)
 
 ggplot(three_df_post, aes(x=prev)) +
   geom_ribbon(aes(ymin = three_yhat_hat - 1.96 * three_error_hat,
                   ymax = three_yhat_hat + 1.96 * three_error_hat),
               fill = "lightyellow") + 
-  geom_line(aes(y=three_yhat_hat), colour = "darkred") +
-  geom_point(aes(y=oto_size), colour = "darkblue", alpha=0.05)
+  geom_segment(aes(x = min(fishdat$prev) , xend = three_bp_hat
+                     , y = three_intercept1_hat + three_beta1_hat*min(fishdat$prev), yend = three_intercept1_hat + three_beta1_hat*three_bp_hat))+
+  geom_segment(aes(x = three_bp_hat , xend = max(fishdat$prev)
+                   , y = three_intercept2_hat + three_beta2_hat*three_bp_hat, yend = three_intercept2_hat + three_beta2_hat*max(fishdat$prev)))+
+  geom_point(aes(y=oto_size), colour = "darkblue", alpha=0.1)
+ 
 
 
 ##Check the output
@@ -378,7 +421,24 @@ system.time(five_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, 
 ##values (to understand which parameters should be altered)
 pairs(five_fit, pars=c("intercept1", "intercept2", "bp[110]", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
 
+##The extracted plots
 
+five_fitted_curves <- rstan::extract(five_fit)
+five_error_hat <- median(five_fitted_curves$error)
+five_yhat_hat <- rep(NA, fishdat$N_EBSm)
+for (i in 1:fishdat$N_EBSm) {
+  five_yhat_hat[i] <- median(five_fitted_curves$yhat[,i])
+}
+five_df_post <- data.frame(list(prev=fishdat$prev,
+                                 oto_size=fishdat$oto_size,
+                                 five_yhat_hat=five_yhat_hat))
+
+ggplot(five_df_post, aes(x=prev)) +
+  geom_ribbon(aes(ymin = five_yhat_hat - 1.96 * five_error_hat,
+                  ymax = five_yhat_hat + 1.96 * five_error_hat),
+              fill = "lightyellow") + 
+  geom_line(aes(y=five_yhat_hat), colour = "darkred") +
+  geom_point(aes(y=oto_size), colour = "darkblue", alpha=0.05)
 #######################################################################
 ##Running the model. 6. Unhinged varying threshold and intercept####
 
@@ -392,23 +452,23 @@ system.time(six_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, c
 pairs(six_fit, pars=c("intercept1[110]", "intercept2[110]", "bp[110]", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
 
 ##The extracted data plot
-six_post <- rstan::extract(six_fit)
 
-plot(fishdat$prev, fishdat$oto_size, 
-     xlab = "s", ylab = "s'")
-for (i in seq_along(six_post$lp__)) {
-  segments(x0 = min(fishdat$prev), x1 = six_post$bp[i], 
-           y0 = six_post$intercept[i] + six_post$beta1* min(fishdat$prev), 
-           y1 = six_post$intercept[i] + six_post$beta1 * six_post$bp[i], 
-           col = alpha(3, .1))
-  segments(x1 = max(fishdat$prev), x0 = six_post$bp[i], 
-           y1 = six_post$intercept[i] + 
-             six_post$beta2[i] * (max(fishdat$prev) - six_post$bp[i]) + 
-             seven_post$beta1[i] * max(fishdat$prev), 
-           y0 = seven_post$intercept[i] + seven_post$slope_after * seven_post$bp[i], 
-           col = alpha(2, .1))
+six_fitted_curves <- rstan::extract(six_fit)
+six_error_hat <- median(six_fitted_curves$error)
+six_yhat_hat <- rep(NA, fishdat$N_EBSm)
+for (i in 1:fishdat$N_EBSm) {
+  six_yhat_hat[i] <- median(six_fitted_curves$yhat[,i])
 }
-points(fishdat$prev, fishdat$oto_size, pch = 19)
+six_df_post <- data.frame(list(prev=fishdat$prev,
+                                 oto_size=fishdat$oto_size,
+                                 six_yhat_hat=six_yhat_hat))
+
+ggplot(six_df_post, aes(x=prev)) +
+  geom_ribbon(aes(ymin = six_yhat_hat - 1.96 * six_error_hat,
+                  ymax = six_yhat_hat + 1.96 * six_error_hat),
+              fill = "lightyellow") + 
+  geom_line(aes(y=six_yhat_hat), colour = "darkred") +
+  geom_point(aes(y=oto_size), colour = "darkblue", alpha=0.05)
 #######################################################################
 ##Running the model. 7. Hinged fixed threshold and intercept####
 
@@ -422,24 +482,23 @@ system.time(seven_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4,
 pairs(seven_fit, pars=c("intercept", "bp", "mu_bp", "sigma_bp","beta1", "beta2", "error","lp__", "sigma_int", "yhat[110]", "slope_after", "intercept_after"))
 
 ##The extracted data plot
-seven_post <- rstan::extract(seven_fit)
 
-plot(fishdat$prev, fishdat$oto_size, 
-     xlab = "s", ylab = "s'")
-for (i in seq_along(seven_post$lp__)) {
-  segments(x0 = min(fishdat$prev), x1 = seven_post$bp[i], 
-           y0 = seven_post$intercept[i] + seven_post$beta1* min(fishdat$prev), 
-           y1 = seven_post$intercept[i] + seven_post$beta1 * seven_post$bp[i], 
-           col = alpha(3, .1))
-  segments(x1 = max(fishdat$prev), x0 = seven_post$bp[i], 
-           y1 = seven_post$intercept[i] + 
-             seven_post$beta2[i] * (max(fishdat$prev) - seven_post$bp[i]) + 
-             seven_post$beta1[i] * max(fishdat$prev), 
-           y0 = seven_post$intercept[i] + seven_post$slope_after * seven_post$bp[i], 
-           col = alpha(2, .1))
+seven_fitted_curves <- rstan::extract(seven_fit)
+seven_error_hat <- median(seven_fitted_curves$error)
+seven_yhat_hat <- rep(NA, fishdat$N_EBSm)
+for (i in 1:fishdat$N_EBSm) {
+  seven_yhat_hat[i] <- median(seven_fitted_curves$yhat[,i])
 }
-points(fishdat$prev, fishdat$oto_size, pch = 19)
+seven_df_post <- data.frame(list(prev=fishdat$prev,
+                                 oto_size=fishdat$oto_size,
+                                 seven_yhat_hat=seven_yhat_hat))
 
+ggplot(seven_df_post, aes(x=prev)) +
+  geom_ribbon(aes(ymin = seven_yhat_hat - 1.96 * seven_error_hat,
+                  ymax = seven_yhat_hat + 1.96 * seven_error_hat),
+              fill = "lightyellow") + 
+  geom_line(aes(y=seven_yhat_hat), colour = "darkred") +
+  geom_point(aes(y=oto_size), colour = "darkblue", alpha=0.05)
 
 #######################################################################
 ##Running the model. 8. Hinged varying intercept fixed threshold####
@@ -453,25 +512,24 @@ system.time(eight_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4,
 ##values (to understand which parameters should be altered)
 pairs(eight_fit, pars=c("intercept[110]", "bp", "mu_bp", "sigma_bp","beta1", "beta2", "error","lp__", "sigma_int", "yhat[110]", "slope_after", "intercept_after[110]"))
 
-##The extracted data plot
-eight_post <- rstan::extract(eight_fit)
+##The extracted plots
 
-plot(fishdat$prev, fishdat$oto_size, 
-     xlab = "s", ylab = "s'")
-for (i in seq_along(eight_post$lp__)) {
-  segments(x0 = min(fishdat$prev), x1 = eight_post$bp[i], 
-           y0 = eight_post$intercept[i] + eight_post$beta1* min(fishdat$prev), 
-           y1 = eight_post$intercept[i] + eight_post$beta1 * eight_post$bp[i], 
-           col = alpha(3, .1))
-  segments(x1 = max(fishdat$prev), x0 = eight_post$bp[i], 
-           y1 = eight_post$intercept[i] + 
-             eight_post$beta2[i] * (max(fishdat$prev) - eight_post$bp[i]) + 
-             eight_post$beta1[i] * max(fishdat$prev), 
-           y0 = eight_post$intercept[i] + eight_post$slope_after * eight_post$bp[i], 
-           col = alpha(2, .1))
+eight_fitted_curves <- rstan::extract(eight_fit)
+eight_error_hat <- median(eight_fitted_curves$error)
+eight_yhat_hat <- rep(NA, fishdat$N_EBSm)
+for (i in 1:fishdat$N_EBSm) {
+  eight_yhat_hat[i] <- median(eight_fitted_curves$yhat[,i])
 }
-points(fishdat$prev, fishdat$oto_size, pch = 19)
+eight_df_post <- data.frame(list(prev=fishdat$prev,
+                                 oto_size=fishdat$oto_size,
+                                 eight_yhat_hat=eight_yhat_hat))
 
+ggplot(eight_df_post, aes(x=prev)) +
+  geom_ribbon(aes(ymin = eight_yhat_hat - 1.96 * eight_error_hat,
+                  ymax = eight_yhat_hat + 1.96 * eight_error_hat),
+              fill = "lightyellow") + 
+  geom_line(aes(y=eight_yhat_hat), colour = "darkred") +
+  geom_point(aes(y=oto_size), colour = "darkblue", alpha=0.05)
 #######################################################################
 ##Running the model. 9. Hinged varying threshold fixed intercept####
 
@@ -484,24 +542,24 @@ system.time(nine_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, 
 ##values (to understand which parameters should be altered)
 pairs(nine_fit, pars=c("intercept", "bp[110]", "mu_bp", "sigma_bp","beta1", "beta2", "error","lp__", "sigma_int", "yhat[110]","slope_after", "intercept_after[110]"))
 
-##The extracted data plot
-nine_post <- rstan::extract(nine_fit)
+##The extracted plots
 
-plot(fishdat$prev, fishdat$oto_size, 
-     xlab = "s", ylab = "s'")
-for (i in seq_along(nine_post$lp__)) {
-  segments(x0 = min(fishdat$prev), x1 = nine_post$bp[i], 
-           y0 = nine_post$intercept[i] + nine_post$beta1* min(fishdat$prev), 
-           y1 = nine_post$intercept[i] + nine_post$beta1 * nine_post$bp[i], 
-           col = alpha(3, .1))
-  segments(x1 = max(fishdat$prev), x0 = nine_post$bp[i], 
-           y1 = nine_post$intercept[i] + 
-             nine_post$beta2[i] * (max(fishdat$prev) - nine_post$bp[i]) + 
-             nine_post$beta1[i] * max(fishdat$prev), 
-           y0 = nine_post$intercept[i] + nine_post$slope_after * nine_post$bp[i], 
-           col = alpha(2, .1))
+nine_fitted_curves <- rstan::extract(nine_fit)
+nine_error_hat <- median(nine_fitted_curves$error)
+nine_yhat_hat <- rep(NA, fishdat$N_EBSm)
+for (i in 1:fishdat$N_EBSm) {
+  nine_yhat_hat[i] <- median(nine_fitted_curves$yhat[,i])
 }
-points(fishdat$prev, fishdat$oto_size, pch = 19)
+nine_df_post <- data.frame(list(prev=fishdat$prev,
+                                 oto_size=fishdat$oto_size,
+                                 nine_yhat_hat=nine_yhat_hat))
+
+ggplot(nine_df_post, aes(x=prev)) +
+  geom_ribbon(aes(ymin = nine_yhat_hat - 1.96 * nine_error_hat,
+                  ymax = nine_yhat_hat + 1.96 * nine_error_hat),
+              fill = "lightyellow") + 
+  geom_line(aes(y=nine_yhat_hat), colour = "darkred") +
+  geom_point(aes(y=oto_size), colour = "darkblue", alpha=0.05)
 
 #######################################################################
 ##Running the model. 10. Hinged varying threshold and intercept####
@@ -515,22 +573,20 @@ system.time(ten_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, c
 ##values (to understand which parameters should be altered)
 pairs(ten_fit, pars=c("intercept[110]", "bp[110]", "mu_bp", "sigma_bp","beta1", "beta2", "error","lp__", "sigma_int", "yhat[110]", "slope_after", "intercept_after[110]"))
 
-
-ten_post <- rstan::extract(ten_fit)
-
-
-plot(fishdat$prev, fishdat$oto_size, 
-     xlab = "s", ylab = "s'")
-for (i in seq_along(ten_post$lp__)) {
-  segments(x0 = min(fishdat$prev), x1 = ten_post$bp[i], 
-           y0 = ten_post$intercept[i] + ten_post$median(beta1)* min(fishdat$prev), 
-           y1 = ten_post$intercept[i] + ten_post$median(beta1) * ten_post$bp[i], 
-           col = alpha(3, .1))
-  segments(x1 = max(fishdat$prev), x0 = ten_post$bp[i], 
-           y1 = ten_post$intercept[i] + 
-             ten_post$median(beta2) * (max(fishdat$prev) - ten_post$bp[i]) + 
-             ten_post$median(beta1) * max(fishdat$prev), 
-           y0 = ten_post$intercept[i] + ten_post$median(slope_after) * ten_post$bp[i], 
-           col = alpha(2, .1))
+##The extracted plots
+ten_fitted_curves <- rstan::extract(ten_fit)
+ten_error_hat <- median(ten_fitted_curves$error)
+ten_yhat_hat <- rep(NA, fishdat$N_EBSm)
+for (i in 1:fishdat$N_EBSm) {
+  ten_yhat_hat[i] <- median(ten_fitted_curves$yhat[,i])
 }
-points(fishdat$prev, fishdat$oto_size, pch = 19)
+ten_df_post <- data.frame(list(prev=fishdat$prev,
+                                 oto_size=fishdat$oto_size,
+                                 ten_yhat_hat=ten_yhat_hat))
+
+ggplot(ten_df_post, aes(x=prev)) +
+  geom_ribbon(aes(ymin = ten_yhat_hat - 1.96 * ten_error_hat,
+                  ymax = ten_yhat_hat + 1.96 * ten_error_hat),
+              fill = "lightyellow") + 
+  geom_line(aes(y=ten_yhat_hat), colour = "darkred") +
+  geom_point(aes(y=oto_size), colour = "darkblue", alpha=0.05)
