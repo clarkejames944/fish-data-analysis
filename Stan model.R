@@ -10,6 +10,7 @@ library(ggmcmc)
 library(bayesplot)
 library(scales)
 library(coda)
+library(stringr)
 
 
 #Data required
@@ -81,9 +82,35 @@ rt <- stanc(file="The Stan models/Simple no threshold model.stan")
 sm <- stan_model(stanc_ret = rt, verbose=FALSE)
 system.time(fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10, adapt_delta=0.8)))
 
+
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
 pairs(fit, pars=c("intercept","beta","error","lp__", "sigma_int", "yhat[110]"))
+
+##Extract the summary from the fit to plot the predicted lines
+summary1 <- summary(fit)$summary %>% 
+  as.data.frame() %>% 
+  mutate(variable = rownames(.)) %>% 
+  select(variable, everything()) %>% 
+  as_data_frame()
+summary1
+head(summary1)
+
+new_oto_size <- summary1 %>% 
+  filter(str_detect(variable,'sim_oto_size') & !str_detect(variable,'log') & !str_detect(variable,'pp'))
+
+head(new_oto_size)
+
+fishdat1 <- EBSm %>% mutate(mean_oto_size = new_oto_size$mean,
+                               lower = new_oto_size$`2.5%`,
+                               upper = new_oto_size$`97.5%`)
+
+fishdat1 %>% 
+  ggplot() +
+  geom_point(aes(x = (prev)^2, y = (oto_size)^2), alpha=0.1) +
+  geom_line(aes(x = (prev)^2, y = mean_oto_size)) +
+  geom_ribbon(aes(x=(prev)^2, ymin = lower, ymax = upper), alpha = 0.25)
+
 
 
 ##The extracted plot
@@ -203,6 +230,43 @@ plot(post)
 
 plot(fit, pars=c("beta", "error", "yhat[110]"))
 
+
+##Extract the summary from the fit to plot the predicted lines
+summary2 <- summary(two_fit)$summary %>% 
+  as.data.frame() %>% 
+  mutate(variable = rownames(.)) %>% 
+  select(variable, everything()) %>% 
+  as_data_frame()
+
+head(summary2)
+
+new_oto_size2 <- summary2 %>% 
+  filter(str_detect(variable,'sim_oto_size') & !str_detect(variable,'log') & !str_detect(variable,'pp'))
+
+head(new_oto_size2)
+
+fishdat2 <- EBSm %>% mutate(mean_oto_size = new_oto_size2$mean,
+                            lower = new_oto_size2$`2.5%`,
+                            upper = new_oto_size2$`97.5%`,
+                            pred_dif = ((oto_size)^2 - new_oto_size2$mean)^2)
+
+fishdat2 %>% 
+  ggplot() +
+  geom_point(aes(x = (prev)^2, y = (oto_size)^2), alpha=0.1) +
+  geom_line(aes(x = (prev)^2, y = mean_oto_size)) +
+  geom_ribbon(aes(x=(prev)^2, ymin = lower, ymax = upper), alpha = 0.25)
+
+#Graph of observed against predicted values for each
+fishdat2 %>% 
+  ggplot() +
+  geom_point(aes(x = (oto_size)^2, y = mean_oto_size), alpha=0.1)
+  
+#Graph of oto-size against difference between predicted and observed data
+  fishdat2 %>% 
+    ggplot() +
+    geom_point(aes(x = (oto_size)^2, y = pred_dif), alpha=0.1)
+
+
 ##The extracted plot
 two_fitted_curves <- rstan::extract(two_fit)
 two_fitted_curves <- as_data_frame(two_fitted_curves)
@@ -289,15 +353,55 @@ mcmc_neff(ratios_vs_fit, size = 2)
 ##Running the model. 3. Unhinged fixed threshold + intercept####
 
 rt <- stanc(file="The Stan models/Unhinged fixed threshold + intercept.stan")
+rt <- stanc(file="The Stan models/Complicated model 3.stan")
+rt <- stanc(file="The Stan models/Another possible unhinged.stan")
 sm <- stan_model(stanc_ret = rt, verbose=FALSE)
-system.time(three_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=17, adapt_delta=0.85)))
+system.time(three_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10, adapt_delta=0.8)))
 
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+pairs(three_fit, pars=c("intercept1", "intercept2", "beta[1]", "beta[2]", "error","lp__", "yhat[110]", "bp"))
+pairs(three_fit, pars=c("intercept", "beta1", "beta2", "beta3", "error","lp__", "yhat[110]", "bp", "slope_after", "intercept_after"))
 
-##The extracted plots
+
+
+##Extract the summary from the fit to plot the predicted lines
+summary3 <- summary(three_fit)$summary %>% 
+  as.data.frame() %>% 
+  mutate(variable = rownames(.)) %>% 
+  select(variable, everything()) %>% 
+  as_data_frame()
+
+head(summary3)
+
+new_oto_size3 <- summary3 %>% 
+  filter(str_detect(variable,'sim_oto_size') & !str_detect(variable,'log') & !str_detect(variable,'pp'))
+
+head(new_oto_size3)
+
+fishdat3 <- EBSm %>% mutate(mean_oto_size = new_oto_size3$mean,
+                            lower = new_oto_size3$`2.5%`,
+                            upper = new_oto_size3$`97.5%`,
+                            pred_dif = ((oto_size)^2 - new_oto_size3$mean)^2)
+
+fishdat3 %>% 
+  ggplot() +
+  geom_point(aes(x = (prev)^2, y = (oto_size)^2), alpha=0.1) +
+  geom_line(aes(x = (prev)^2, y = mean_oto_size)) +
+  geom_ribbon(aes(x=(prev)^2, ymin = lower, ymax = upper), alpha = 0.25)
+
+#Graph of observed against predicted values for each
+fishdat3 %>% 
+  ggplot() +
+  geom_point(aes(x = (oto_size)^2, y = mean_oto_size), alpha=0.1)
+
+#Graph of oto-size against difference between predicted and observed data
+fishdat3 %>% 
+  ggplot() +
+  geom_point(aes(x = (oto_size)^2, y = pred_dif), alpha=0.1)
+  geom_line(aes(x=(oto_size)^2, y = pred_dif), alpha=0.3)
+
 
 ##The extracted plot
 three_fitted_curves <- rstan::extract(three_fit)
@@ -383,12 +487,12 @@ mcmc_neff(ratios_cs_fit, size = 2)
 
 rt <- stanc(file="The Stan models/Unhinged fixed threshold, varying intercept.stan")
 sm <- stan_model(stanc_ret = rt, verbose=FALSE)
-system.time(four_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10, adapt_delta=0.875)))
+system.time(four_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10, adapt_delta=0.8)))
 
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(four_fit, pars=c("intercept1[110]", "intercept2[110]", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+pairs(four_fit, pars=c("intercept1[110]", "intercept2[110]", "bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
 
 ##The extracted plots
 
@@ -414,12 +518,12 @@ ggplot(four_df_post, aes(x=prev)) +
 
 rt <- stanc(file="The Stan models/Unhinged fixed intercept varying threshold.stan")
 sm <- stan_model(stanc_ret = rt, verbose=FALSE)
-system.time(five_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=15)))
+system.time(five_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10)))
 
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(five_fit, pars=c("intercept1", "intercept2", "bp[110]", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+pairs(five_fit, pars=c("intercept1", "intercept2", "bp[110]", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "yhat[110]"))
 
 ##The extracted plots
 
@@ -474,12 +578,48 @@ ggplot(six_df_post, aes(x=prev)) +
 
 rt <- stanc(file="The Stan models/Hinged fixed threshold and intercept.stan")
 sm <- stan_model(stanc_ret = rt, verbose=FALSE)
-system.time(seven_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.825)))
+system.time(seven_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10, adapt_delta=0.8)))
 
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(seven_fit, pars=c("intercept", "bp", "mu_bp", "sigma_bp","beta1", "beta2", "error","lp__", "sigma_int", "yhat[110]", "slope_after", "intercept_after"))
+pairs(seven_fit, pars=c("intercept", "bp","beta1", "beta2", "error","lp__", "yhat[110]", "slope_after", "intercept_after"))
+
+
+
+summary7 <- summary(seven_fit)$summary %>% 
+  as.data.frame() %>% 
+  mutate(variable = rownames(.)) %>% 
+  select(variable, everything()) %>% 
+  as_data_frame()
+
+head(summary7)
+
+new_oto_size7 <- summary7 %>% 
+  filter(str_detect(variable,'sim_oto_size') & !str_detect(variable,'log') & !str_detect(variable,'pp'))
+
+head(new_oto_size7)
+
+fishdat7 <- EBSm %>% mutate(mean_oto_size = new_oto_size7$mean,
+                            lower = new_oto_size7$`2.5%`,
+                            upper = new_oto_size7$`97.5%`,
+                            pred_dif = ((oto_size)^2 - new_oto_size2$mean)^2)
+
+fishdat7 %>% 
+  ggplot() +
+  geom_point(aes(x = (prev)^2, y = (oto_size)^2), alpha=0.1) +
+  geom_line(aes(x = (prev)^2, y = mean_oto_size)) +
+  geom_ribbon(aes(x=(prev)^2, ymin = lower, ymax = upper), alpha = 0.25)
+
+#Graph of observed against predicted values for each
+fishdat7 %>% 
+  ggplot() +
+  geom_point(aes(x = (oto_size)^2, y = mean_oto_size), alpha=0.1)
+
+#Graph of oto-size against difference between predicted and observed data
+fishdat7 %>% 
+  ggplot() +
+  geom_point(aes(x = (oto_size)^2, y = pred_dif), alpha=0.1)
 
 ##The extracted data plot
 
@@ -510,7 +650,7 @@ system.time(eight_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4,
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(eight_fit, pars=c("intercept[110]", "bp", "mu_bp", "sigma_bp","beta1", "beta2", "error","lp__", "sigma_int", "yhat[110]", "slope_after", "intercept_after[110]"))
+pairs(eight_fit, pars=c("intercept[110]", "bp","beta1", "beta2", "error","lp__", "sigma_int", "yhat[110]", "slope_after", "intercept_after[110]"))
 
 ##The extracted plots
 
@@ -540,7 +680,7 @@ system.time(nine_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, 
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(nine_fit, pars=c("intercept", "bp[110]", "mu_bp", "sigma_bp","beta1", "beta2", "error","lp__", "sigma_int", "yhat[110]","slope_after", "intercept_after[110]"))
+pairs(nine_fit, pars=c("intercept", "bp[110]", "mu_bp", "sigma_bp","beta1", "beta2", "error","lp__", "yhat[110]","slope_after", "intercept_after[110]"))
 
 ##The extracted plots
 

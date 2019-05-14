@@ -77,20 +77,53 @@ pairs(two_fit, pars=c("intercept[110]","beta","error","lp__", "sigma_int", "yhat
 Notation:
 $y_{i} = \{^{\alpha_{1} +  \beta_{1} x_{i} + \epsilon\;\;  if\;x_{i} \le \eta} _{\alpha_{2} +  \beta_{2} x_{i} + \epsilon\;\;  if\;not}$
 
+constraint on bp. upper limit is 4
 Max treedepth= 10
 Adapt Delta= 0.8
-- run time= ~4min
-- Max. Treedepth exceeded= 0 
-- low BFMI=0
-- Divergences= 1367
+- run time= ~42min
+- Max. Treedepth exceeded= 3935 
+- low BFMI=1
+- Divergences= 0
 
-
+with bp normal but no upper constraint
 Max treedepth= 10
-Adapt Delta= 0.99
-- run time= ~4min
-- Max. Treedepth exceeded= 0 
+Adapt Delta= 0.8
+- run time= ~49min
+- Max. Treedepth exceeded= 3986
 - low BFMI=0
-- Divergences= 1367
+- Divergences= 0
+
+with bp as uniform
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~18min
+- Max. Treedepth exceeded= 1000 
+- low BFMI=1
+- Divergences= 2403
+
+using the complicated 3 model
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~46min
+- Max. Treedepth exceeded= 3253 
+- low BFMI=1
+- Divergences= 0
+
+using the 'Another possible unhinged' model
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~7min
+- Max. Treedepth exceeded= 3986
+- low BFMI=0
+- Divergences= 0
+
+using the 'Another possible unhinged' model
+Max treedepth= 15
+Adapt Delta= 0.8
+- run time= ~264min
+- Max. Treedepth exceeded= 3797
+- low BFMI=0
+- Divergences= 0
 
 
 #Pairs plot#
@@ -108,10 +141,19 @@ $y_{i} = \{^{\alpha_{1 _{{j} \left[{i}\right]}} +  \beta_{1} x_{i} + \epsilon\;\
 
 Max treedepth= 10
 Adapt Delta= 0.8
-- run time= ~12min
-- Max. Treedepth exceeded= 0 
-- low BFMI=4
-- Divergences= 2054
+- run time= ~60min
+- Max. Treedepth exceeded=3905 
+- low BFMI=2
+- Divergences= 95
+
+Upper bound of 4 for the bp.
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~92min
+- Max. Treedepth exceeded= 3961 
+- low BFMI=3
+- Divergences= 39
+
 
 
 Max treedepth= 10
@@ -142,7 +184,7 @@ $y_{i} = \{^{\alpha_{1} +  \beta_{1} x_{i} + \epsilon\;\;\;  if \;x_{i} \le \eta
 
 Max treedepth= 10
 Adapt Delta= 0.8
-- run time= ~62min
+- run time= ~77min
 - Max. Treedepth exceeded= 4000 
 - low BFMI=0
 - Divergences= 0
@@ -194,28 +236,25 @@ $\tau_{i} = \{^{0\;\;\;if \;x_{i} \le \eta} _{1 \;\;\;if \;not}$
 
 Max treedepth= 10
 Adapt Delta= 0.8
-- run time= ~8min
-- Max. Treedepth exceeded= 3 
-- low BFMI=0
-- Divergences= 343
-
-Max treedepth= 11
-Adapt Delta= 0.8
-- run time= ~10min
+- run time= ~5min
 - Max. Treedepth exceeded= 0 
 - low BFMI=0
-- Divergences= 360
+- Divergences= 272
 
-Max treedepth= 11
-Adapt Delta= 0.825
-- run time= ~10min
-- Max. Treedepth exceeded= 544 
+Constrain bp's upper limit to 4
+(Good model)
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~8min
+- Max. Treedepth exceeded= 0 
 - low BFMI=0
-- Divergences= 235
+- Divergences= 0
+
+
 
 #Pairs plot#
 ```{r}
-pairs(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+pairs(seven_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
 ```
 
 #Extracted#
@@ -237,9 +276,19 @@ Adapt Delta= 0.8
 - low BFMI=0
 - Divergences= 1005
 
+Contrain bp upper limit to 4
+(Good model)
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~17min
+- Max. Treedepth exceeded= 0 
+- low BFMI=0
+- Divergences= 0
+
+
 #Pairs plot#
 ```{r}
-pairs(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+pairs(eight_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
 ```
 
 #Extracted#
@@ -261,9 +310,25 @@ Adapt Delta= 0.8
 - low BFMI=1
 - Divergences= 0
 
+Constrain upper limit of bp at 4
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~16min
+- Max. Treedepth exceeded= 0 
+- low BFMI=1
+- Divergences= 0
+
+Constrain upper limit of mu_bp at 4
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~14min
+- Max. Treedepth exceeded= 0 
+- low BFMI=2
+- Divergences= 0
+
 #Pairs plot#
 ```{r}
-pairs(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+pairs(nine_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
 ```
 
 #Extracted#
@@ -296,7 +361,7 @@ Adapt Delta= 0.8
 
 #Pairs plot#
 ```{r}
-pairs(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+pairs(ten_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
 ```
 
 #Extracted#
