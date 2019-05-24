@@ -5,50 +5,44 @@ data {
 }
 
 parameters {
-    real<lower=0> bp; //Do I want this to be a vector? or a real number across the groups (like intercept)
-
-    real<lower=0> mu_bp; //allow to find the mean value for the breakpoint
-    real<lower=0, upper=100> sigma_bp; //allow to find the value of sd for the breakpoint
+    real<lower=0.25, upper=4> eta; 
     
-    real<lower=0, upper=100> error;    ///Leave a constant variance across fish individuals for now
+    real<lower=0, upper=100> epsilon;    
     
-    real<lower=0, upper=100> sigma_int1;
-    real<lower=0, upper=150> sigma_int2;
-    real intercept1; // two intercepts per fishID
-    real intercept2;
-    vector[2] beta;///two different beta values for each fish ID
+    real alpha1; 
+    real alpha2;
+    real beta;
 }
 
 transformed parameters {
-    vector[N_EBSm] x2; //indicator variable
     vector[N_EBSm] yhat;
     
     for (i in 1:N_EBSm) {
-        if (prev[i] < bp) {
-            x2[i] = 0;
+        if (prev[i] < eta) {
+            yhat[i] = alpha1 + beta * prev[i];
         } else {
-            x2[i] = 1;
+            yhat[i] = alpha2 + beta * prev[i];
         }
     }
-    
-    for (i in 1:N_EBSm){
-         yhat[i] = ((intercept1 + beta[1] * prev[i]) * (1-x2[i])) + ((intercept2 + beta[2]) * x2[i]);
-        }
 }
 
 model {///make sure you have a distribution for each parameter defined 
-    mu_bp ~ normal(0, 10);
-    sigma_bp ~ cauchy(0, 5);
-    bp ~ normal(mu_bp, sigma_bp);
+    eta ~ normal(0, 10);
     
-    sigma_int1 ~ cauchy(0, 5);
-    sigma_int2 ~ cauchy(0, 5);
-    intercept1 ~ normal(0, sigma_int1);
-    intercept2 ~ normal(0, sigma_int2);
+    alpha1 ~ normal(0, 10);
+    alpha2 ~ normal(0, 10);
 
     beta ~ normal(0, 10);
     
-    error ~ cauchy(0, 10);
+    epsilon ~ cauchy(0, 10);
 
-    oto_size ~ normal(yhat, error);
+    oto_size ~ normal(yhat, epsilon);
+}
+
+generated quantities {
+    vector[N_EBSm] sim_oto_size;
+
+    for (i in 1:N_EBSm){
+    sim_oto_size[i] = normal_rng(yhat[i], epsilon);
+    }
 }

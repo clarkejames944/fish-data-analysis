@@ -35,11 +35,18 @@ Adapt Delta= 0.8
 
 #Pairs plot#
 ```{r}
-pairs(fit, pars=c("intercept","beta", "error","lp__", "sigma_int"))
+pairs(fit, pars=c("alpha","beta","epsilon","lp__", "yhat[110]"))
 ```
 
 #Extracted#
-
+```{r}
+fishdat1 %>% 
+  ggplot() +
+  geom_point(aes(x = (prev)^2, y = (oto_size)^2, colour=maturity), alpha=0.1) +
+  geom_point(aes(x = (prev)^2, y = mean_oto_size), colour="gold2", alpha=0.25, size=0.25) +
+  geom_ribbon(aes(x=(prev)^2, ymin = lower, ymax = upper), alpha = 0.25)+
+  theme_classic()
+```
 
 ##2. Simple no threshold varying intercept model##
 Notation:
@@ -52,11 +59,6 @@ Adapt Delta=0.8
 - low BFMI=0
 - Divergences=0
 
-#Pairs plot#
-```{r}
-pairs(fit, pars=c("intercept[110]","beta", "error","lp__", "sigma_int"))
-```
-
 Worked well with a Max treedepth of 12:
 (Good)
 Max treedepth=12
@@ -66,7 +68,7 @@ Adapt Delta=0.8
 - low BFMI=0
 - Divergences=0
 ```{r}
-pairs(two_fit, pars=c("intercept[110]","beta","error","lp__", "sigma_int", "yhat[110]"))
+pairs(two_fit, pars=c("alpha[110]","beta","epsilon","lp__", "sigma_alpha", "yhat[110]"))
 ```
 
 #Extracted#
@@ -172,7 +174,7 @@ Adapt Delta= 0.875
 
 #Pairs plot#
 ```{r}
-pairs(four_fit, pars=c("intercept1[110]", "intercept2[110]", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+pairs(four_fit, pars=c("alpha1[110]", "alpha2[110]", "eta","beta[1]", "beta[2]", "epsilon","lp__", "sigma_alpha1", "sigma_alpha2", "yhat[110]"))
 ```
 
 #Extracted#
@@ -199,7 +201,7 @@ Adapt Delta= 0.8
 
 #Pairs plot#
 ```{r}
-pairs(five_fit, pars=c("intercept1", "intercept2", "bp[110]", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+pairs(five_fit, pars=c("alpha1", "alpha2", "eta[110]", "mu_eta", "sigma_eta","beta[1]", "beta[2]", "epsilon","lp__", "yhat[110]"))
 ```
 
 #Extracted#
@@ -219,7 +221,7 @@ Adapt Delta= 0.8
 
 #Pairs plot#
 ```{r}
-pairs(six_fit, pars=c("intercept1[110]", "intercept2[110]", "bp[110]", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+pairs(six_fit, pars=c("alpha1[110]", "alpha2[110]", "eta[110]", "mu_eta", "sigma_eta","beta[1]", "beta[2]", "epsilon","lp__", "sigma_alpha1", "sigma_alpha2", "yhat[110]"))
 ```
 
 #Extracted#
@@ -242,7 +244,7 @@ Adapt Delta= 0.8
 - Divergences= 272
 
 Constrain bp's upper limit to 4
-(Good model)
+(Good model)-but wrong eta value
 Max treedepth= 10
 Adapt Delta= 0.8
 - run time= ~8min
@@ -250,11 +252,39 @@ Adapt Delta= 0.8
 - low BFMI=0
 - Divergences= 0
 
+After cutting the data to above the wrong breakpoint being discovered
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~7min
+- Max. Treedepth exceeded= 583
+- low BFMI=0
+- Divergences= 519
 
+Max treedepth= 10
+Adapt Delta= 0.85
+- run time= ~6min
+- Max. Treedepth exceeded= 0
+- low BFMI=0
+- Divergences= 684
+
+Max treedepth= 10
+Adapt Delta= 0.9
+- run time= ~4min
+- Max. Treedepth exceeded= 9
+- low BFMI=0
+- Divergences= 62
+
+Specified that the minimum value of the breakpoint was 0.15
+Max treedepth= 10
+Adapt Delta= 0.9
+- run time= ~4min
+- Max. Treedepth exceeded= 5
+- low BFMI=0
+- Divergences= 88
 
 #Pairs plot#
 ```{r}
-pairs(seven_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+pairs(seven_fit, pars=c("alpha", "eta","beta1", "beta2", "epsilon","lp__", "yhat[110]", "slope_after", "intercept_after"))
 ```
 
 #Extracted#
@@ -288,7 +318,7 @@ Adapt Delta= 0.8
 
 #Pairs plot#
 ```{r}
-pairs(eight_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+pairs(eight_fit, pars=c("alpha[110]", "eta","beta1", "beta2", "epsilon","lp__", "sigma_alpha", "yhat[110]", "slope_after", "intercept_after[110]"))
 ```
 
 #Extracted#
@@ -328,7 +358,7 @@ Adapt Delta= 0.8
 
 #Pairs plot#
 ```{r}
-pairs(nine_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+pairs(nine_fit, pars=c("alpha", "eta[110]", "mu_eta", "sigma_eta","beta1", "beta2", "epsilon","lp__", "yhat[110]","slope_after", "intercept_after[110]"))
 ```
 
 #Extracted#
@@ -361,7 +391,7 @@ Adapt Delta= 0.8
 
 #Pairs plot#
 ```{r}
-pairs(ten_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+pairs(ten_fit, pars=c("alpha[110]", "eta[110]", "mu_eta", "sigma_eta","beta1", "beta2", "epsilon","lp__", "sigma_alpha", "yhat[110]", "slope_after", "intercept_after[110]"))
 ```
 
 #Extracted#

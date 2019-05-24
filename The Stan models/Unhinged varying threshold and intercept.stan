@@ -7,50 +7,52 @@ data {
 }
 
 parameters {
-    vector<lower=0>[Ngroups] bp; //Do I want this to be a vector? or a real number across the groups (like intercept)
+    vector<lower=0>[Ngroups] eta; 
 
-    real<lower=0> mu_bp; //allow to find the mean value for the breakpoint
-    real<lower=0, upper=100> sigma_bp; //allow to find the value of sd for the breakpoint
+    real<lower=0.25, upper=4> mu_eta; //allow to find the mean value for the breakpoint
+    real<lower=0, upper=100> sigma_eta; //allow to find the value of sd for the breakpoint
     
-    real<lower=0, upper=100> error;    ///Leave a constant variance across fish individuals for now
+    real<lower=0, upper=100> epsilon;    
     
-    real<lower=0, upper=100> sigma_int1;
-    real<lower=0, upper=150> sigma_int2;
-    vector[Ngroups] intercept1; // two intercepts per fishID
-    vector[Ngroups] intercept2; // two intercepts per fishID
-    vector[2] beta;///two different beta values for each fish ID
+    real<lower=0, upper=100> sigma_alpha1;
+    real<lower=0, upper=150> sigma_alpha2;
+    vector[Ngroups] alpha1; 
+    vector[Ngroups] alpha2; 
+    real beta;
 }
 
 transformed parameters {
-    vector[N_EBSm] x2; //indicator variable
     vector[N_EBSm] yhat;
     
     for (i in 1:N_EBSm) {
-        if (prev[i] < bp[fishID[i]]) {
-            x2[i] = 0;
+        if (prev[i] < eta[fishID[i]]) {
+            yhat[i] = alpha1[fishID[i]] + beta * prev[i];
         } else {
-            x2[i] = 1;
+            yhat[i] = alpha2[fishID[i]] + beta * prev[i];
         }
     }
-    
-    for (i in 1:N_EBSm){
-         yhat[i] = ((intercept1[fishID[i]] + beta[1] * prev[i]) * (1-x2[i])) + 
-                ((intercept2[fishID[i]] + beta[2]) * x2[i]);
-        }
 }
 
 model {///make sure you have a distribution for each parameter defined 
-    mu_bp ~ normal(0, 10);
-    sigma_bp ~ cauchy(0, 5);
-    bp ~ normal(mu_bp, sigma_bp);
+    mu_eta ~ normal(0, 10);
+    sigma_eta ~ cauchy(0, 5);
+    eta ~ normal(mu_eta, sigma_eta);
     
-    sigma_int1 ~ cauchy(0, 5);
-    sigma_int2 ~ cauchy(0, 5);
-    intercept1 ~ normal(0, sigma_int1);
-    intercept2 ~ normal(0, sigma_int2);
+    sigma_alpha1 ~ cauchy(0, 5);
+    sigma_alpha2 ~ cauchy(0, 5);
+    alpha1 ~ normal(0, sigma_alpha1);
+    alpha2 ~ normal(0, sigma_alpha2);
     beta ~ normal(0, 10);
     
-    error ~ cauchy(0, 10);
+    epsilon ~ cauchy(0, 10);
 
-    oto_size ~ normal(yhat, error);
+    oto_size ~ normal(yhat, epsilon);
+}
+
+generated quantities {
+    vector[N_EBSm] sim_oto_size;
+
+    for (i in 1:N_EBSm){
+    sim_oto_size[i] = normal_rng(yhat[i], epsilon);
+    }
 }
