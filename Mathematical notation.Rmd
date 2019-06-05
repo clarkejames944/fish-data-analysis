@@ -21,25 +21,34 @@ $y_{i} = \alpha_{j \left[{i}\right]} + \beta x_{i} + \epsilon$
 **model 3**
 
 
-$y_{i} = \{^{\alpha_{1} +  \beta_{1} x_{i} + \epsilon\;\;  if\;x_{i} \le \eta} _{\alpha_{2} +  \beta_{2} x_{i} + \epsilon\;\;  if\;not}$
+$y_{i} = \left(\alpha_{1} +  \beta x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\alpha_{2} +  \beta x_{i}\right)\tau_{i} + \epsilon $
+
+
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
 
 
 ***************
 **model 4**
 
 
-$y_{i} = \{^{\alpha_{1 _{{j} \left[{i}\right]}} +  \beta_{1} x_{i} + \epsilon\;\;\;  if \;x_{i} \le \eta} _{\alpha_{2_{{j} \left[{i}\right]}} +  \beta_{2} x_{i} + \epsilon\;\;\;  if \;not}$
+$y_{i} = \left(\alpha_{1_{{j}\left[{i}\right]}} +  \beta x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\alpha_{2_{{j}\left[{i}\right]}} +  \beta x_{i}\right)\tau_{i} + \epsilon $
+
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
 
 **************
 **model 5**
 
-$y_{i} = \{^{\alpha_{1} +  \beta_{1} x_{i} + \epsilon\;\;\;  if \;x_{i} \le \eta_{j \left[{i}\right]}} _{\alpha_{2} +  \beta_{2} x_{i} + \epsilon\;\;\;  if \;not}$
+$y_{i} = \left(\alpha_{1} +  \beta x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\alpha_{2} +  \beta x_{i}\right)\tau_{i} + \epsilon $
+
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
 
 **************
 **model 6**
 
 
-$y_{i} = \{^{\alpha_{1 _{{j} \left[{i}\right]}} +  \beta_{1} x_{i} + \epsilon\;\;\;  if\; x_{i} \le \eta_{j \left[{i}\right]}} _{\alpha_{2_{{j} \left[{i}\right]}} +  \beta_{2} x_{i} + \epsilon\;\;\;  if \;not}$
+$y_{i} = \left(\alpha_{1_{{j}\left[{i}\right]}} +  \beta x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\alpha_{2_{{j}\left[{i}\right]}} +  \beta x_{i}\right)\tau_{i} + \epsilon $
+
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
 
 ***************
 **model 7**
@@ -48,7 +57,7 @@ $y_{i} = \alpha + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - \eta\right) \tau_{i}
 
 
 
-$\tau_{i} = \{^{0\;\;\;if \;x_{i} \le \eta} _{1 \;\;\;if \;not}$
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
 
 
 ***************
@@ -59,7 +68,7 @@ $y_{i} = \alpha_{j \left[{i}\right]} + \beta_{1} x_{i} + \beta_{2} \left(x_{i} -
 
 
 
-$\tau_{i} = \{^{0\;\;\;  if \;x_{i} \le \eta} _{1\;\;\; if \;not}$
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
 
 ****************
 **model 9**
@@ -69,7 +78,7 @@ $y_{i} = \alpha + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - \eta_{j \left[{i}\ri
 
 
 
-$\tau_{i} = \{^{0\;\;\;  if \;x_{i} \le \eta_{j \left[{i}\right]}} _{1 \;\;\;if \;not}$
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
 
 
 *****************
@@ -79,4 +88,35 @@ $y_{i} = \alpha_{j\left[{i}\right]} + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - 
 
 
 
-$\tau_{i} = \{^{0\;\;\;  if \;x_{i} \le \eta_{j \left[{i}\right]}} _{1 \;\;\;if\; not}$
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
+
+
+******************
+**model 11**
+
+$y_{i} = \left(\alpha_{1} +  \beta_1 x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\alpha_{2} +  \beta_2 x_{i}\right)\tau_{i} + \epsilon $
+
+
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
+
+
+******************
+**model 12**
+
+$y_{i} = \left(\alpha_{1_{{j}\left[{i}\right]}} +  \beta_1 x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\alpha_{2_{{j}\left[{i}\right]}} +  \beta_2 x_{i}\right)\tau_{i} + \epsilon $
+
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
+
+******************
+**model 13**
+
+$y_{i} = \left(\alpha_{1} +  \beta_1 x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\alpha_{2} +  \beta_2 x_{i}\right)\tau_{i} + \epsilon $
+
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
+
+******************
+**model 14**
+
+$y_{i} = \left(\alpha_{1_{{j}\left[{i}\right]}} +  \beta_1 x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\alpha_{2_{{j}\left[{i}\right]}} +  \beta_2 x_{i}\right)\tau_{i} + \epsilon $
+
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$

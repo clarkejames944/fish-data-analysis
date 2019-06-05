@@ -7,9 +7,9 @@ data {
 }
 
 parameters {
-    real<lower=0.16, upper=3.5> eta;   //breakpoint
+    real<lower=0.25, upper=4> eta;   //breakpoint
 
-    real<lower=0, upper=100> epsilon;   //error
+    real<lower=0, upper=10> epsilon;   //error
     
     real alpha;   //intercept
     real beta1;  //gradient
@@ -21,27 +21,24 @@ transformed parameters {
     vector[N_EBSm] yhat;
 
     for (i in 1:N_EBSm) {
-        if (prev[i] < eta) {
-            tau[i] = 0;
-        } else {
-            tau[i] = 1;
-        }
+        tau[i] = 1/(1 + exp(-100 * (prev[i] - eta)));
     }
+
     for (i in 1:N_EBSm){
-    yhat[i] = alpha + beta1 * prev[i] + beta2 * (prev[i] - eta) * tau[i];
+        yhat[i] = alpha + beta1 * prev[i] + beta2 * (prev[i] - eta) * tau[i];
     }
 }
 
 model {///make sure you have a distribution for each parameter defined
 
-    eta ~ normal(0, 10);
+    eta ~ normal(1, 0.2);
 
-    alpha ~ normal(0, 10);
+    alpha ~ normal(0.3, 0.2);
 
-    beta1 ~ normal(0, 10);
-    beta2 ~ normal(0, 10);
+    beta1 ~ normal(1, 0.5);
+    beta2 ~ normal(0, 4);
 
-    epsilon ~ cauchy(0, 10);
+    epsilon ~ cauchy(0, 0.1);
 
     oto_size ~ normal(yhat, epsilon);
 }
@@ -50,7 +47,10 @@ generated quantities {
     real intercept_after;
     real slope_after;
     vector[N_EBSm] sim_oto_size;
+    vector[N_EBSm] log_lik;
+
         
+
         intercept_after = alpha - (eta)*beta2;
 
         slope_after = beta1 + beta2;
@@ -58,5 +58,9 @@ generated quantities {
 
         for (i in 1:N_EBSm){
             sim_oto_size[i] = normal_rng(yhat[i], epsilon);
+        }
+
+        for (i in 1:N_EBSm){
+        log_lik[i] = normal_lpdf(oto_size[i] | yhat[i], epsilon); 
         }
 }

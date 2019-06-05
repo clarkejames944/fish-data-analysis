@@ -15,34 +15,42 @@ parameters {
 }
 
 transformed parameters {
+    vector[N_EBSm] tau; //Indicator variable
     vector[N_EBSm] yhat;
-    
+
     for (i in 1:N_EBSm) {
-        if (prev[i] < eta) {
-            yhat[i] = alpha1 + beta * prev[i];
-        } else {
-            yhat[i] = alpha2 + beta * prev[i];
-        }
+        tau[i] = 1/(1 + exp(-100 * (prev[i] - eta)));
     }
+    
+    for (i in 1:N_EBSm){
+         yhat[i] = (alpha1 + beta * prev[i]) * (1-tau[i]) + (alpha2 + beta*prev[i]) * tau[i];
+        }
+
 }
 
 model {///make sure you have a distribution for each parameter defined 
-    eta ~ normal(0, 10);
+    eta ~ normal(1, 0.5);
     
-    alpha1 ~ normal(0, 10);
-    alpha2 ~ normal(0, 10);
+    alpha1 ~ normal(0.275, 0.5);
+    alpha2 ~ normal(0.29, 0.5);
 
-    beta ~ normal(0, 10);
+    beta ~ normal(1, 0.5);
     
-    epsilon ~ cauchy(0, 10);
+    epsilon ~ cauchy(0, 1);
 
     oto_size ~ normal(yhat, epsilon);
 }
 
 generated quantities {
     vector[N_EBSm] sim_oto_size;
+    vector[N_EBSm] log_lik;
+
 
     for (i in 1:N_EBSm){
     sim_oto_size[i] = normal_rng(yhat[i], epsilon);
+    }
+
+    for (i in 1:N_EBSm){
+        log_lik[i] = normal_lpdf(oto_size[i] | yhat[i], epsilon); 
     }
 }

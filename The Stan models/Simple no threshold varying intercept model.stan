@@ -36,8 +36,14 @@ model {
 
 generated quantities {
     vector[N_EBSm] sim_oto_size;
+    vector[N_EBSm] log_lik;
+
 
     for (i in 1:N_EBSm){
         sim_oto_size[i] = normal_rng(yhat[i], epsilon);
+    }
+
+    for (i in 1:N_EBSm){
+        log_lik[i] = normal_lpdf(oto_size[i] | yhat[i], epsilon); 
     }
 }

@@ -20,6 +20,12 @@ I have created a total of 10 Stan models with differing levels of complexity. Th
 9. Hinged varying threshold fixed intercept.
 10. Hinged varying threshold and intercept.
 
+The varying slope unhinged models
+11. Unhinged fixed threshold + intercept (varying slopes).
+12. Unhinged fixed threshold, varying intercept (varying slopes).
+13. Unhinged fixed intercept varying threshold (varying slopes).
+14. Unhinged varying threshold and intercept (varying slopes)
+
 
 ##1. Simple no threshold model##
 Notation:
@@ -60,11 +66,19 @@ Adapt Delta=0.8
 - Divergences=0
 
 Worked well with a Max treedepth of 12:
-(Good)
 Max treedepth=12
 Adapt Delta=0.8
-- run time= ~40s
-- Max. Treedepth exceeded= 0
+- run time= ~10min
+- Max. Treedepth exceeded= 920
+- low BFMI=0
+- Divergences=0
+
+
+(Good enough)
+Max treedepth=13
+Adapt Delta=0.8
+- run time= ~10min
+- Max. Treedepth exceeded= 196
 - low BFMI=0
 - Divergences=0
 ```{r}
@@ -77,7 +91,10 @@ pairs(two_fit, pars=c("alpha[110]","beta","epsilon","lp__", "sigma_alpha", "yhat
 
 ##3. Unhinged fixed threshold + intercept##
 Notation:
-$y_{i} = \{^{\alpha_{1} +  \beta_{1} x_{i} + \epsilon\;\;  if\;x_{i} \le \eta} _{\alpha_{2} +  \beta_{2} x_{i} + \epsilon\;\;  if\;not}$
+$y_{i} = \left(\alpha_{1} +  \beta x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\alpha_{2} +  \beta x_{i}\right)\tau_{i} + \epsilon $
+
+
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
 
 constraint on bp. upper limit is 4
 Max treedepth= 10
@@ -127,10 +144,19 @@ Adapt Delta= 0.8
 - low BFMI=0
 - Divergences= 0
 
+Change to a continuous breakpoint and run
+(Good)
+Max treedepth= 11
+Adapt Delta= 0.8
+- run time= ~3min
+- Max. Treedepth exceeded= 0
+- low BFMI= 0
+- Divergences= 0
+
 
 #Pairs plot#
 ```{r}
-pairs(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","beta[1]", "beta[2]", "error","lp__", "sigma_int1", "sigma_int2", "yhat[110]"))
+pairs(three_fit, pars=c("alpha1", "alpha2", "eta","beta", "epsilon","lp__", "yhat[110]"))
 ```
 
 #Extracted#
@@ -139,7 +165,10 @@ pairs(three_fit, pars=c("intercept1", "intercept2", "bp", "mu_bp", "sigma_bp","b
 
 ####4. Unhinged fixed threshold, varying intercept###
 Notation:
-$y_{i} = \{^{\alpha_{1 _{{j} \left[{i}\right]}} +  \beta_{1} x_{i} + \epsilon\;\;\;  if \;x_{i} \le \eta} _{\alpha_{2_{{j} \left[{i}\right]}} +  \beta_{2} x_{i} + \epsilon\;\;\;  if \;not}$
+
+$y_{i} = \left(\alpha_{1_{{j}\left[{i}\right]}} +  \beta x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\alpha_{2_{{j}\left[{i}\right]}} +  \beta x_{i}\right)\tau_{i} + \epsilon $
+
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
 
 Max treedepth= 10
 Adapt Delta= 0.8
@@ -172,9 +201,18 @@ Adapt Delta= 0.875
 - low BFMI=4
 - Divergences= 1688
 
+Change to a continuous breakpoint and run
+(Not Good as there is a split eta (neither of which are in the correct place))
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~5min
+- Max. Treedepth exceeded= 0
+- low BFMI= 0
+- Divergences= 0
+
 #Pairs plot#
 ```{r}
-pairs(four_fit, pars=c("alpha1[110]", "alpha2[110]", "eta","beta[1]", "beta[2]", "epsilon","lp__", "sigma_alpha1", "sigma_alpha2", "yhat[110]"))
+pairs(four_fit, pars=c("alpha1[110]", "alpha2[110]", "eta","beta", "epsilon","lp__", "sigma_alpha", "yhat[110]"))
 ```
 
 #Extracted#
@@ -182,7 +220,10 @@ pairs(four_fit, pars=c("alpha1[110]", "alpha2[110]", "eta","beta[1]", "beta[2]",
 
 ####5. Unhinged fixed intercept varying threshold###
 Notation:
-$y_{i} = \{^{\alpha_{1} +  \beta_{1} x_{i} + \epsilon\;\;\;  if \;x_{i} \le \eta_{j \left[{i}\right]}} _{\alpha_{2} +  \beta_{2} x_{i} + \epsilon\;\;\;  if \;not}$
+
+$y_{i} = \left(\alpha_{1} +  \beta x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\alpha_{2} +  \beta x_{i}\right)\tau_{i} + \epsilon $
+
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
 
 Max treedepth= 10
 Adapt Delta= 0.8
@@ -198,10 +239,24 @@ Adapt Delta= 0.8
 - low BFMI=0
 - Divergences= 0
 
+Change to a continuous breakpoint
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~64min
+- Max. Treedepth exceeded= 2008
+- low BFMI= 0
+- Divergences= 0
 
+(Good)
+Max treedepth= 11
+Adapt Delta= 0.8
+- run time= ~46min
+- Max. Treedepth exceeded= 0
+- low BFMI= 0
+- Divergences= 0
 #Pairs plot#
 ```{r}
-pairs(five_fit, pars=c("alpha1", "alpha2", "eta[110]", "mu_eta", "sigma_eta","beta[1]", "beta[2]", "epsilon","lp__", "yhat[110]"))
+pairs(five_fit, pars=c("alpha1", "alpha2", "eta[110]", "mu_eta", "sigma_eta","beta", "epsilon","lp__", "yhat[110]"))
 ```
 
 #Extracted#
@@ -210,7 +265,9 @@ pairs(five_fit, pars=c("alpha1", "alpha2", "eta[110]", "mu_eta", "sigma_eta","be
 ####6. Unhinged varying threshold and intercept###
 Notation:
 
-$y_{i} = \{^{\alpha_{1 _{{j} \left[{i}\right]}} +  \beta_{1} x_{i} + \epsilon\;\;\;  if\; x_{i} \le \eta_{j \left[{i}\right]}} _{\alpha_{2_{{j} \left[{i}\right]}} +  \beta_{2} x_{i} + \epsilon\;\;\;  if \;not}$
+$y_{i} = \left(\alpha_{1_{{j}\left[{i}\right]}} +  \beta x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\alpha_{2_{{j}\left[{i}\right]}} +  \beta x_{i}\right)\tau_{i} + \epsilon $
+
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
 
 Max treedepth= 10
 Adapt Delta= 0.8
@@ -219,9 +276,18 @@ Adapt Delta= 0.8
 - low BFMI=0
 - Divergences= 0
 
+Change to a continuous breakpoint and run
+(Great)
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~41min
+- Max. Treedepth exceeded= 0
+- low BFMI= 0
+- Divergences= 0
+
 #Pairs plot#
 ```{r}
-pairs(six_fit, pars=c("alpha1[110]", "alpha2[110]", "eta[110]", "mu_eta", "sigma_eta","beta[1]", "beta[2]", "epsilon","lp__", "sigma_alpha1", "sigma_alpha2", "yhat[110]"))
+pairs(six_fit, pars=c("alpha1[110]", "alpha2[110]", "eta[110]", "mu_eta", "sigma_eta","beta", "epsilon","lp__", "sigma_alpha", "yhat[110]"))
 ```
 
 #Extracted#
@@ -234,7 +300,7 @@ $y_{i} = \alpha + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - \eta\right) \tau_{i}
 
 
 
-$\tau_{i} = \{^{0\;\;\;if \;x_{i} \le \eta} _{1 \;\;\;if \;not}$
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
 
 Max treedepth= 10
 Adapt Delta= 0.8
@@ -282,6 +348,15 @@ Adapt Delta= 0.9
 - low BFMI=0
 - Divergences= 88
 
+Change to a continuous breakpoint and run
+(Good model)
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~1min
+- Max. Treedepth exceeded= 0
+- low BFMI= 0
+- Divergences= 0
+
 #Pairs plot#
 ```{r}
 pairs(seven_fit, pars=c("alpha", "eta","beta1", "beta2", "epsilon","lp__", "yhat[110]", "slope_after", "intercept_after"))
@@ -297,7 +372,7 @@ $y_{i} = \alpha_{j \left[{i}\right]} + \beta_{1} x_{i} + \beta_{2} \left(x_{i} -
 
 
 
-$\tau_{i} = \{^{0\;\;\;  if \;x_{i} \le \eta} _{1\;\;\; if \;not}$
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
 
 Max treedepth= 10
 Adapt Delta= 0.8
@@ -313,6 +388,15 @@ Adapt Delta= 0.8
 - run time= ~17min
 - Max. Treedepth exceeded= 0 
 - low BFMI=0
+- Divergences= 0
+
+Change to a continuous breakpoint and run
+(Good)
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~6min
+- Max. Treedepth exceeded= 0
+- low BFMI= 0
 - Divergences= 0
 
 
@@ -331,7 +415,7 @@ $y_{i} = \alpha + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - \eta_{j \left[{i}\ri
 
 
 
-$\tau_{i} = \{^{0\;\;\;  if \;x_{i} \le \eta_{j \left[{i}\right]}} _{1 \;\;\;if \;not}$
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
 
 Max treedepth= 10
 Adapt Delta= 0.8
@@ -356,6 +440,14 @@ Adapt Delta= 0.8
 - low BFMI=2
 - Divergences= 0
 
+Change to a continuous breakpoint and run
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= 
+- Max. Treedepth exceeded= 
+- low BFMI= 
+- Divergences= 
+
 #Pairs plot#
 ```{r}
 pairs(nine_fit, pars=c("alpha", "eta[110]", "mu_eta", "sigma_eta","beta1", "beta2", "epsilon","lp__", "yhat[110]","slope_after", "intercept_after[110]"))
@@ -372,7 +464,7 @@ $y_{i} = \alpha_{j\left[{i}\right]} + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - 
 
 
 
-$\tau_{i} = \{^{0\;\;\;  if \;x_{i} \le \eta_{j \left[{i}\right]}} _{1 \;\;\;if\; not}$
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
 
 Max treedepth= 10
 Adapt Delta= 0.8
@@ -388,6 +480,24 @@ Adapt Delta= 0.8
 - Max. Treedepth exceeded= 0
 - low BFMI=4
 - Divergences= 0
+
+Change to a continuous breakpoint and run
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~20min
+- Max. Treedepth exceeded= 188 
+- low BFMI= 4
+- Divergences= 112
+
+
+(Good)
+Max treedepth= 11
+Adapt Delta= 0.8
+- run time= ~16min
+- Max. Treedepth exceeded= 0
+- low BFMI= 4
+- Divergences= 0
+
 
 #Pairs plot#
 ```{r}
@@ -410,4 +520,121 @@ for (i in seq_along(ten_post$lp__)) {
            col = alpha(2, .1))
 }
 ```
+
+
+####11. Unhinged fixed threshold + intercept (varying slopes)###
+Notation:
+
+$y_{i} = \left(\alpha_{1} +  \beta_1 x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\alpha_{2} +  \beta_2 x_{i}\right)\tau_{i} + \epsilon $
+
+
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
+
+Change to a continuous breakpoint
+(Good)
+Max treedepth= 11
+Adapt Delta= 0.8
+- run time= ~6min
+- Max. Treedepth exceeded= 0
+- low BFMI= 0
+- Divergences= 0
+
+#Pairs plot#
+```{r}
+pairs(eleven_fit, pars=c("alpha1", "alpha2", "beta1", "beta2", "epsilon","lp__", "eta"))
+```
+
+#Extracted#
+
+####12. Unhinged fixed threshold, varying intercept (varying slopes)###
+Notation:
+
+$y_{i} = \left(\alpha_{1_{{j}\left[{i}\right]}} +  \beta_1 x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\alpha_{2_{{j}\left[{i}\right]}} +  \beta_2 x_{i}\right)\tau_{i} + \epsilon $
+
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
+
+
+
+Change to a continuous breakpoint
+(Not good because of split in eta)
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~5min
+- Max. Treedepth exceeded= 0
+- low BFMI= 0
+- Divergences= 0
+
+#Pairs plot#
+```{r}
+pairs(twelve_fit, pars=c("alpha1[110]", "alpha2[110]", "eta","beta1", "beta2", "epsilon","lp__", "sigma_alpha", "yhat[110]"))
+
+```
+
+#Extracted#
+
+
+####13. Unhinged fixed intercept varying threshold (varying slopes)###
+Notation:
+
+$y_{i} = \left(\alpha_{1} +  \beta_1 x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\alpha_{2} +  \beta_2 x_{i}\right)\tau_{i} + \epsilon $
+
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
+
+
+Change to a continuous breakpoint
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~43min
+- Max. Treedepth exceeded= 2000
+- low BFMI= 0
+- Divergences= 0
+
+
+Max treedepth= 11
+Adapt Delta= 0.8
+- run time= ~64min
+- Max. Treedepth exceeded= 0
+- low BFMI= 0
+- Divergences= 0
+
+
+#Pairs plot#
+```{r}
+pairs(thirteen_fit, pars=c("alpha1", "alpha2", "eta[110]", "mu_eta", "sigma_eta","beta1", "beta2", "epsilon","lp__", "yhat[110]"))
+```
+
+#Extracted#
+
+
+
+####14. Unhinged varying threshold and intercept (varying slopes)###
+Notation:
+
+$y_{i} = \left(\alpha_{1_{{j}\left[{i}\right]}} +  \beta_1 x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\alpha_{2_{{j}\left[{i}\right]}} +  \beta_2 x_{i}\right)\tau_{i} + \epsilon $
+
+$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
+
+
+Change to a continuous breakpoint
+Max treedepth= 10
+Adapt Delta= 0.8
+- run time= ~58min
+- Max. Treedepth exceeded= 929
+- low BFMI= 0
+- Divergences= 0
+
+(Good)
+Max treedepth= 11
+Adapt Delta= 0.8
+- run time= ~47min
+- Max. Treedepth exceeded= 2
+- low BFMI= 0
+- Divergences= 0
+
+#Pairs plot#
+```{r}
+pairs(fourteen_fit, pars=c("alpha1[110]", "alpha2[110]", "eta[110]", "mu_eta", "sigma_eta","beta1", "beta2", "epsilon","lp__", "sigma_alpha", "yhat[110]"))
+```
+
+#Extracted#
 

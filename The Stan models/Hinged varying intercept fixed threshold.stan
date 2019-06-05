@@ -7,11 +7,11 @@ data {
 }
 
 parameters {
-    real<lower=0, upper=4> eta; 
+    real<lower=0.25, upper=4> eta; 
 
-    real<lower=0, upper=100> epsilon;   
+    real<lower=0, upper=10> epsilon;   
     
-    real<lower=0, upper=100> sigma_alpha;
+    real<lower=0> sigma_alpha;
     vector[Ngroups] alpha; // one alpha per group
     real beta1;
     real beta2;
@@ -21,28 +21,26 @@ transformed parameters {
     vector[N_EBSm] tau; //indicator variable
     vector[N_EBSm] yhat;
 
-    for (i in 1:N_EBSm) {
-        if (prev[i] < eta) {
-            tau[i] = 0;
-        } else {
-            tau[i] = 1;
+     for (i in 1:N_EBSm) {
+        tau[i] = 1/(1 + exp(-100 * (prev[i] - eta)));
         }
-    }
+
+
     for (i in 1:N_EBSm){
-    yhat[i] = alpha[fishID[i]] + beta1 * prev[i] + beta2 * (prev[i] - eta) * tau[i];
-    }
+        yhat[i] = alpha[fishID[i]] + beta1 * prev[i] + beta2 * (prev[i] - eta) * tau[i];
+        }
 }
 
 model {///make sure you have a distribution for each parameter defined
-    eta ~ normal(0, 10);
+    eta ~ normal(1, 0.2);
 
-    sigma_alpha ~ cauchy(0, 5);
-    alpha ~ normal(0, sigma_alpha);
+    sigma_alpha ~ cauchy(0, 0.2);
+    alpha ~ normal(0.3, sigma_alpha);
 
-    beta1 ~ normal(0, 10);
-    beta2 ~ normal(0, 10);
+    beta1 ~ normal(1, 0.5);
+    beta2 ~ normal(0, 0.5);
 
-    epsilon ~ cauchy(0, 10);
+    epsilon ~ cauchy(0, 0.1);
 
     oto_size ~ normal(yhat, epsilon);
 }
@@ -50,19 +48,23 @@ model {///make sure you have a distribution for each parameter defined
 generated quantities {
     vector[Ngroups] intercept_after;
     real slope_after;
-    
-        for (i in 1:Ngroups){
-            intercept_after[i] = alpha[i] - eta*beta2;
-        }
+    vector[N_EBSm] sim_oto_size;
+    vector[N_EBSm] log_lik;
+
         
+        for (i in 1:Ngroups){
+            intercept_after[i] = alpha[i] - (eta) * beta2;
+        }
+    
 
         slope_after = beta1 + beta2;
-}
+          
 
-generated quantities {
-    vector[N_EBSm] sim_oto_size;
+        for (i in 1:N_EBSm){
+            sim_oto_size[i] = normal_rng(yhat[i], epsilon);
+        }
 
-    for (i in 1:N_EBSm){
-    sim_oto_size[i] = normal_rng(yhat[i], epsilon);
-    }
+        for (i in 1:N_EBSm){
+        log_lik[i] = normal_lpdf(oto_size[i] | yhat[i], epsilon); 
+        }
 }
