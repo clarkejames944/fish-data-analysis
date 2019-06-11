@@ -7,16 +7,17 @@ data {
 }
 
 parameters {
-    vector<lower=0>[Ngroups] eta; 
+    vector[Ngroups] eta; 
 
-    real<lower=0.25, upper=4> mu_eta; //allow to find the mean value for the breakpoint
+    real<lower=0, upper=5> mu_eta; //allow to find the mean value for the breakpoint
     real<lower=0> sigma_eta; //allow to find the value of sd for the breakpoint
     
-    real<lower=0, upper=10> epsilon;    
+    real<lower=0, upper=100> epsilon;    
     
-    real<lower=0> sigma_alpha;
-    vector[Ngroups] alpha1; 
-    vector[Ngroups] alpha2; 
+    real mu_alpha;
+    real<lower=0, upper=100> sigma_alpha;
+    vector[Ngroups] alpha; 
+    real delta;
     real beta;
 }
 
@@ -29,18 +30,19 @@ transformed parameters {
     }
     
     for (i in 1:N_EBSm){
-         yhat[i] = (alpha1[fishID[i]] + beta * prev[i]) * (1-tau[i]) + (alpha2[fishID[i]] + beta * prev[i]) * tau[i];
+         yhat[i] = (alpha[fishID[i]] + beta * prev[i]) * (1-tau[i]) + ((alpha[fishID[i]] + delta) + beta * prev[i]) * tau[i];
         }
 }
 
 model {///make sure you have a distribution for each parameter defined 
-    mu_eta ~ normal(1, 0.05);
+    mu_eta ~ normal(1, 0.1);
     sigma_eta ~ cauchy(0, 0.1);
     eta ~ normal(mu_eta, sigma_eta);
     
+    mu_alpha ~ normal(0, 0.5);
     sigma_alpha ~ cauchy(0, 0.1);
-    alpha1 ~ normal(0.275, sigma_alpha);
-    alpha2 ~ normal(0.29, sigma_alpha);
+    alpha ~ normal(mu_alpha, sigma_alpha);
+    delta ~ normal(0, 0.5);
     beta ~ normal(1, 0.1);
     
     epsilon ~ cauchy(0, 0.1);

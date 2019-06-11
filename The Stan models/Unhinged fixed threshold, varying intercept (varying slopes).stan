@@ -7,14 +7,15 @@ data {
 }
 
 parameters {
-    real<lower=0.25, upper=4> eta; 
+    real<lower=0, upper=4> eta; 
     
     real<lower=0, upper=100> epsilon;    
     
     real<lower=0, upper=100> sigma_alpha;
+    real mu_alpha;
+    real delta;
     
-    vector[Ngroups] alpha1;
-    vector[Ngroups] alpha2; 
+    vector[Ngroups] alpha;
     real beta1;
     real beta2;
 }
@@ -28,19 +29,21 @@ transformed parameters {
     }
     
     for (i in 1:N_EBSm){
-         yhat[i] = (alpha1[fishID[i]] + beta1 * prev[i]) * (1-tau[i]) + (alpha2[fishID[i]] + beta2 * prev[i]) * tau[i];
+         yhat[i] = (alpha[fishID[i]] + beta1 * prev[i]) * (1-tau[i]) + ((alpha[fishID[i]] + delta) + beta2 * prev[i]) * tau[i];
         }
 }
 
 model {///make sure you have a distribution for each parameter defined 
-    eta ~ normal(1, 0.025);
+    eta ~ normal(1, 0.2);
     
-    sigma_alpha ~ cauchy(0, 0.1);
-    alpha1 ~ normal(0.275, sigma_alpha);
-    alpha2 ~ normal(0.29, sigma_alpha);
+    delta ~ normal(0, 0.5);
+    sigma_alpha ~ cauchy(0, 0.5);
+    mu_alpha ~ normal(0, 0.5);
+    alpha ~ normal(mu_alpha, sigma_alpha);
     
-    beta1 ~ normal(1, 0.1);
-    beta2 ~ normal(1, 0.1);
+    
+    beta1 ~ normal(1, 0.5);
+    beta2 ~ normal(1, 0.5);
     
     epsilon ~ cauchy(0, 1);
 

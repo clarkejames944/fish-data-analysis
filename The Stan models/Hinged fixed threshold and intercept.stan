@@ -7,7 +7,7 @@ data {
 }
 
 parameters {
-    real<lower=0.25, upper=4> eta;   //breakpoint
+    real<lower=0, upper=4> eta;   //breakpoint
 
     real<lower=0, upper=10> epsilon;   //error
     
@@ -33,10 +33,10 @@ model {///make sure you have a distribution for each parameter defined
 
     eta ~ normal(1, 0.2);
 
-    alpha ~ normal(0.3, 0.2);
+    alpha ~ normal(0, 0.2);
 
     beta1 ~ normal(1, 0.5);
-    beta2 ~ normal(0, 4);
+    beta2 ~ normal(0, 0.5);
 
     epsilon ~ cauchy(0, 0.1);
 

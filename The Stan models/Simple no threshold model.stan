@@ -2,6 +2,8 @@ data {
     int<lower=0> N_EBSm;
     vector<lower=0>[N_EBSm] prev;
     vector<lower=0>[N_EBSm] oto_size;
+
+  int<lower=0, upper=1> holdout[N_EBSm];
 }
 
 parameters {
@@ -26,6 +28,13 @@ model {
     epsilon ~ cauchy(0, 10);
 
     oto_size ~ normal(yhat, epsilon);
+
+    //likelihood whilst holding out data(for k-fold)
+    for (i in 1:N_EBSm){
+        if(holdout[i]==0){
+            target+=normal_lpdf(oto_size[i] | yhat[i], epsilon);
+        }
+    }
 }
 
 generated quantities {
@@ -37,6 +46,6 @@ generated quantities {
     }
 
     for (i in 1:N_EBSm){
-        log_lik[i] = normal_lpdf(oto_size[i] | yhat[i], epsilon); 
+        log_lik[i] = normal_lpdf(oto_size[i] | alpha + beta * prev[i], epsilon); 
     }
 }

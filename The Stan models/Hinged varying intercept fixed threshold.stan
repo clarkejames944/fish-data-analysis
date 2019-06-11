@@ -7,7 +7,7 @@ data {
 }
 
 parameters {
-    real<lower=0.25, upper=4> eta; 
+    real<lower=0, upper=5> eta; 
 
     real<lower=0, upper=10> epsilon;   
     

@@ -5,12 +5,13 @@ data {
 }
 
 parameters {
-    real<lower=0.25, upper=4> eta; 
+    real<upper=4> eta; 
     
     real<lower=0, upper=100> epsilon;    
     
-    real alpha1; 
-    real alpha2;
+    real alpha; 
+    real delta; //variable controlling the change in intercept before and after the threshold
+    
     real beta;
 }
 
@@ -23,16 +24,16 @@ transformed parameters {
     }
     
     for (i in 1:N_EBSm){
-         yhat[i] = (alpha1 + beta * prev[i]) * (1-tau[i]) + (alpha2 + beta*prev[i]) * tau[i];
+         yhat[i] = (alpha + beta * prev[i]) * (1-tau[i]) + ((alpha + delta) + beta*prev[i]) * tau[i];
         }
 
 }
 
 model {///make sure you have a distribution for each parameter defined 
-    eta ~ normal(1, 0.5);
-    
-    alpha1 ~ normal(0.275, 0.5);
-    alpha2 ~ normal(0.29, 0.5);
+    eta ~ normal(1, 1);
+    delta ~ normal(0, 0.5);
+    alpha ~ normal(0.3, 0.5);
+   
 
     beta ~ normal(1, 0.5);
     

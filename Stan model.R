@@ -15,6 +15,7 @@ library(mgcv)
 library(loo)
 
 
+
 #Data required
 fish <- read.csv("https://raw.githubusercontent.com/clarkejames944/fish-data-analysis/master/otoliths%20(working)/data_derived/data_otolith_complete.csv")
 
@@ -44,8 +45,9 @@ write.csv(not_1,"parallel_data_oto.csv")
 
 #create subsets
 
-#Male subset
+#Sex subsets
 M <- not_1 %>% filter(sex=='M')
+Fs <- not_1 %>% filter(sex=='F')
 
 #Zone and Sex subsets
 EBSm <- not_1 %>% filter(sex=='M', zone=='EBS')
@@ -80,8 +82,10 @@ fishdat <- list(N_EBSm=nrow(EBSm),
 ##wrong breakpoint (just for exploratory reasons)
 
 #Cut off the first wrong breakpoint
-EBSm_cut <- filter(EBSm, prev>0.5)
+EBSm_cut <- filter(EBSm, prev>0.4)
 
+M_cut <- filter(M, prev>0.4)
+Fs_cut <- filter(Fs, prev>0.5)
 ##update the data for the stan model
 fishdat_cut <- list(N_EBSm=nrow(EBSm_cut),
                     Ngroups = length(unique(EBSm_cut$FishID)),
@@ -93,15 +97,29 @@ fishdat_cut <- list(N_EBSm=nrow(EBSm_cut),
 
 
 
-fishdat_male <- list(N_EBSm=nrow(M),
-                Ngroups = length(unique(M$FishID)),
-                oto_size=(M$oto_size)^2,
-                Age= M$Age,
-                fishID= as.numeric(factor(M$FishID)),
-                prev=(M$prev)^2
+fishdat_male <- list(N_EBSm=nrow(M_cut),
+                Ngroups = length(unique(M_cut$FishID)),
+                oto_size=(M_cut$oto_size)^2,
+                Age= M_cut$Age,
+                fishID= as.numeric(factor(M_cut$FishID)),
+                prev=(M_cut$prev)^2
 )
 
+fishdat_female <- list(N_EBSm=nrow(Fs),
+                       Ngroups = length(unique(Fs$FishID)),
+                       oto_size=(Fs$oto_size)^2,
+                       Age= Fs$Age,
+                       fishID= as.numeric(factor(Fs$FishID)),
+                       prev=(Fs$prev)^2
+)
 
+fishdat_female_cut <- list(N_EBSm=nrow(Fs_cut),
+                       Ngroups = length(unique(Fs_cut$FishID)),
+                       oto_size=(Fs_cut$oto_size)^2,
+                       Age= Fs_cut$Age,
+                       fishID= as.numeric(factor(Fs_cut$FishID)),
+                       prev=(Fs_cut$prev)^2
+)
 
 #####The models####
 #1. Simple no threshold model. -no threshold and a fixed intercept.
@@ -193,7 +211,7 @@ fishdat1 %>%
 lik1 <- extract_log_lik(fit, parameter_name = "log_lik", merge_chains = TRUE)
 loo1 <- loo(lik1, save_psis = TRUE)
 waic1 <- waic(lik1)
-
+print(loo1)
 
 ##Check the output
 #shinystan::launch_shinystan(fit)
@@ -321,14 +339,14 @@ check_hmc_diagnostics(vs_fit)
 
 
 #Have a look at some traceplots
-posterior_vs_fit = as.array(vs_fit)
+posterior_two_fit = as.array(two_fit)
 
-lp_vs_fit = log_posterior(vs_fit)
+lp_two_fit = log_posterior(two_fit)
 
-np_vs_fit = nuts_params(vs_fit)
+np_two_fit = nuts_params(two_fit)
 
 color_scheme_set("mix-brightblue-gray")
-mcmc_trace(posterior_vs_fit, pars = "bp[271]", np = np_vs_fit)
+mcmc_trace(posterior__fit, pars = "bp[271]", np = np_vs_fit)
 ##Seems like a decent furry caterpilar plot for this parameter anyway
 
 #Have a closer look now maybe
@@ -361,7 +379,7 @@ rt <- stanc(file="The Stan models/Unhinged fixed threshold + intercept.stan")
 sm <- stan_model(stanc_ret = rt, verbose=FALSE)
 
 #For the original dataset
-system.time(three_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=15, adapt_delta=0.8)))
+system.time(three_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10, adapt_delta=0.8)))
 
 #For the cut dataset
 system.time(three_fit <- sampling(sm, data=fishdat_cut, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
@@ -369,11 +387,12 @@ system.time(three_fit <- sampling(sm, data=fishdat_cut, seed=1, iter=2000, chain
 #For the complete male dataset
 system.time(three_fit <- sampling(sm, data=fishdat_male, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
 
-
+#For the complete female dataset
+system.time(three_fit <- sampling(sm, data=fishdat_female, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(three_fit, pars=c("alpha1", "alpha2", "beta", "epsilon","lp__", "eta"))
+pairs(three_fit, pars=c("alpha", "delta", "beta", "epsilon","lp__", "eta"))
 
 ##Extract the summary from the fit to plot the predicted lines
 summary3 <- summary(three_fit)$summary %>% 
@@ -471,20 +490,19 @@ ggplot(three_df_post, aes(x=prev)) +
  
 
 
-##Check the output
-print(cs_fit)
+
 ##The 95% credible intervals seem very large for each breakpoint- not too bad now that I've constrained 
 ##the priors a bit but some are still fairly big
 
-check_hmc_diagnostics(cs_fit)
+check_hmc_diagnostics(fit)
 
 
 #Have a look at some traceplots
-posterior_cs_fit = as.array(cs_fit)
+posterior_cs_fit = as.array(fit)
 
-lp_cs_fit = log_posterior(cs_fit)
+lp_cs_fit = log_posterior(fit)
 
-np_cs_fit = nuts_params(cs_fit)
+np_cs_fit = nuts_params(fit)
 
 color_scheme_set("mix-brightblue-gray")
 mcmc_trace(posterior_cs_fit, pars = "bp[271]", np = np_cs_fit)
@@ -529,10 +547,13 @@ system.time(four_fit <- sampling(sm, data=fishdat_cut, seed=1, iter=2000, chains
 #For the complete male dataset
 system.time(four_fit <- sampling(sm, data=fishdat_male, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
 
+#For the complete female dataset
+system.time(four_fit <- sampling(sm, data=fishdat_female, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
+
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(four_fit, pars=c("alpha1[110]", "alpha2[110]", "eta","beta", "epsilon","lp__", "sigma_alpha", "yhat[110]"))
+pairs(four_fit, pars=c("alpha[110]", "delta", "eta","beta", "epsilon","lp__", "mu_alpha","sigma_alpha", "yhat[110]"))
 
 
 ##Extract the summary from the fit to plot the predicted lines
@@ -626,9 +647,13 @@ system.time(five_fit <- sampling(sm, data=fishdat_cut, seed=1, iter=2000, chains
 #For the complete male dataset
 system.time(five_fit <- sampling(sm, data=fishdat_male, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
 
+#For the complete female dataset
+system.time(five_fit <- sampling(sm, data=fishdat_female, seed=1, iter=2000, chains=4, control = list(max_treedepth=10, adapt_delta=0.8)))
+
+
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(five_fit, pars=c("alpha1", "alpha2", "eta[110]", "mu_eta", "sigma_eta","beta", "epsilon","lp__", "yhat[110]"))
+pairs(five_fit, pars=c("alpha", "delta", "eta[110]", "mu_eta", "sigma_eta","beta", "epsilon","lp__", "yhat[110]"))
 
 
 ##Extract the summary from the fit to plot the predicted lines
@@ -717,14 +742,17 @@ sm <- stan_model(stanc_ret = rt, verbose=FALSE)
 system.time(six_fit <- sampling(sm, data=fishdat, seed=1, iter=2000, chains=4, control = list(max_treedepth=10)))
 
 #For the cut dataset
-system.time(six_fit <- sampling(sm, data=fishdat_cut, seed=1, iter=2000, chains=4, control = list(max_treedepth=10)))
+system.time(six_fit <- sampling(sm, data=fishdat_cut, seed=1, iter=2000, chains=4, control = list(max_treedepth=11)))
 
 #For the complete male dataset
 system.time(six_fit <- sampling(sm, data=fishdat_male, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
 
+#For the complete female dataset
+system.time(six_fit <- sampling(sm, data=fishdat_female, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
+
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(six_fit, pars=c("alpha1[110]", "alpha2[110]", "eta[110]", "mu_eta", "sigma_eta","beta", "epsilon","lp__", "sigma_alpha", "yhat[110]"))
+pairs(six_fit, pars=c("alpha[110]", "delta", "eta[110]", "mu_eta", "sigma_eta","beta", "epsilon","lp__", "mu_alpha", "sigma_alpha", "yhat[110]"))
 
 
 ##Extract the summary from the fit to plot the predicted lines
@@ -819,6 +847,8 @@ system.time(seven_fit <- sampling(sm, data=fishdat_cut, seed=1, iter=2000, chain
 #For the complete male dataset
 system.time(seven_fit <- sampling(sm, data=fishdat_male, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
 
+#For the complete female dataset
+system.time(seven_fit <- sampling(sm, data=fishdat_female, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
@@ -923,6 +953,9 @@ system.time(eight_fit <- sampling(sm, data=fishdat_cut, seed=1, iter=2000, chain
 #For the complete male dataset
 system.time(eight_fit <- sampling(sm, data=fishdat_male, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
 
+#For the complete female dataset
+system.time(eight_fit <- sampling(sm, data=fishdat_female, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
+
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
 pairs(eight_fit, pars=c("alpha[110]", "eta","beta1", "beta2", "epsilon","lp__", "sigma_alpha", "yhat[110]", "slope_after", "intercept_after[110]"))
@@ -1017,6 +1050,9 @@ system.time(nine_fit <- sampling(sm, data=fishdat_cut, seed=1, iter=2000, chains
 
 #For the complete male dataset
 system.time(nine_fit <- sampling(sm, data=fishdat_male, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
+
+#For the complete female dataset
+system.time(nine_fit <- sampling(sm, data=fishdat_female, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
@@ -1216,10 +1252,15 @@ system.time(eleven_fit <- sampling(sm, data=fishdat_cut, seed=1, iter=2000, chai
 #For the complete male dataset
 system.time(eleven_fit <- sampling(sm, data=fishdat_male, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
 
+#For the complete female dataset
+system.time(eleven_fit <- sampling(sm, data=fishdat_female, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
+
+#For the cut female dataset
+system.time(eleven_fit <- sampling(sm, data=fishdat_female_cut, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
 
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(eleven_fit, pars=c("alpha1", "alpha2", "beta1", "beta2", "epsilon","lp__", "eta"))
+pairs(eleven_fit, pars=c("alpha", "delta", "beta1", "beta2", "epsilon","lp__", "eta"))
 
 ##Extract the summary from the fit to plot the predicted lines
 summary11 <- summary(eleven_fit)$summary %>% 
@@ -1294,9 +1335,12 @@ system.time(twelve_fit <- sampling(sm, data=fishdat_cut, seed=1, iter=2000, chai
 #For the complete male dataset
 system.time(twelve_fit <- sampling(sm, data=fishdat_male, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
 
+#For the complete female dataset
+system.time(twelve_fit <- sampling(sm, data=fishdat_female, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
+
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(twelve_fit, pars=c("alpha1[110]", "alpha2[110]", "eta","beta1", "beta2", "epsilon","lp__", "sigma_alpha", "yhat[110]"))
+pairs(twelve_fit, pars=c("alpha[110]", "delta", "eta","beta1", "beta2", "epsilon","lp__", "mu_alpha", "sigma_alpha", "yhat[110]"))
 
 ##Extract the summary from the fit to plot the predicted lines
 summary12 <- summary(twelve_fit)$summary %>% 
@@ -1369,9 +1413,12 @@ system.time(thirteen_fit <- sampling(sm, data=fishdat_cut, seed=1, iter=2000, ch
 #For the complete male dataset
 system.time(thirteen_fit <- sampling(sm, data=fishdat_male, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
 
+#For the complete female dataset
+system.time(thirteen_fit <- sampling(sm, data=fishdat_female, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
+
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(thirteen_fit, pars=c("alpha1", "alpha2", "eta[110]", "mu_eta", "sigma_eta","beta1", "beta2", "epsilon","lp__", "yhat[110]"))
+pairs(thirteen_fit, pars=c("alpha", "delta", "eta[110]", "mu_eta", "sigma_eta","beta1", "beta2", "epsilon","lp__", "yhat[110]"))
 
 ##Extract the summary from the fit to plot the predicted lines
 summary13 <- summary(thirteen_fit)$summary %>% 
@@ -1446,9 +1493,12 @@ system.time(fourteen_fit <- sampling(sm, data=fishdat_cut, seed=1, iter=2000, ch
 #For the complete male dataset
 system.time(fourteen_fit <- sampling(sm, data=fishdat_male, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
 
+#For the complete female dataset
+system.time(fourteen_fit <- sampling(sm, data=fishdat_female, seed=1, iter=2000, chains=4, control = list(max_treedepth=11, adapt_delta=0.8)))
+
 ##Pairs plot to see any correlation amongst parameters that could lead to correlations that may lead to low E-BFMI 
 ##values (to understand which parameters should be altered)
-pairs(fourteen_fit, pars=c("alpha1[110]", "alpha2[110]", "eta[110]", "mu_eta", "sigma_eta","beta1", "beta2", "epsilon","lp__", "sigma_alpha", "yhat[110]"))
+pairs(fourteen_fit, pars=c("alpha[110]", "delta", "eta[110]", "mu_eta", "sigma_eta","beta1", "beta2", "epsilon","lp__", "mu_alpha","sigma_alpha", "yhat[110]"))
 
 
 ##Extract the summary from the fit to plot the predicted lines
@@ -1502,6 +1552,7 @@ fishdat14 %>%
 ##Want to extract the log-likelihood so that we can compare the models at some point
 lik14 <- extract_log_lik(fourteen_fit, parameter_name = "log_lik", merge_chains = TRUE)
 loo14 <- loo(lik14, save_psis = TRUE)
+kf14 <- kfold(fourteen_fit)
 waic14 <- waic(lik14)
 print(loo14)
 plot(loo14)
@@ -1557,3 +1608,26 @@ waics <- c(
 waics <- as.list(waics)
 waic_wts <- waics /sum(waics)
 round(waic_wts, 3) 
+
+
+ids <- kfold_split_random(K=10, N=4920)
+length(lik14)
+ktable <- cbind(ids,lik14)
+kfold(lik14, K=10, folds=ids)
+head(ktable)
+
+M %>% ggplot(aes(x=M$prev^2, y=M$oto_size^2))+
+  geom_point(aes(colour=maturity), size=1, alpha=0.1)
+
+M %>% ggplot(aes(x=M$prev, y=M$oto_size))+
+  geom_point(aes(colour=maturity), size=1, alpha=0.1)
+
+Fs %>% ggplot(aes(x=Fs$prev^2, y=Fs$oto_size^2))+
+  geom_point(aes(colour=maturity), size=1, alpha=0.1)
+
+EBSm %>% ggplot(aes(x=EBSm$prev^2, y=EBSm$oto_size^2))+
+  geom_point(aes(colour=maturity), size=1, alpha=0.1)
+
+EBSm %>% ggplot(aes(x=EBSm$prev, y=EBSm$oto_size))+
+  geom_point(aes(colour=maturity), size=1, alpha=0.1)
+

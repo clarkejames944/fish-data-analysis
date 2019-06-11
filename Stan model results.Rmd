@@ -212,7 +212,7 @@ Adapt Delta= 0.8
 
 #Pairs plot#
 ```{r}
-pairs(four_fit, pars=c("alpha1[110]", "alpha2[110]", "eta","beta", "epsilon","lp__", "sigma_alpha", "yhat[110]"))
+pairs(four_fit, pars=c("alpha[110]", "delta", "eta","beta", "epsilon","lp__","mu_alpha" ,"sigma_alpha", "yhat[110]"))
 ```
 
 #Extracted#

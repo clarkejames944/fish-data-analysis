@@ -9,7 +9,7 @@ data {
 parameters {
     vector<lower=0>[Ngroups] eta; 
     
-    real<lower=0.25, upper=4> mu_eta;
+    real<lower=0, upper=5> mu_eta;
     real<lower=0> sigma_eta;
 
     real<lower=0, upper=10> epsilon;    
@@ -33,11 +33,11 @@ transformed parameters {
 }
 
 model {///make sure you have a distribution for each parameter defined
-    mu_eta ~ normal(1, 0.05);
-    sigma_eta ~ cauchy(0, 0.1);
+    mu_eta ~ normal(1, 0.2);
+    sigma_eta ~ cauchy(0, 0.2);
     eta ~ normal(mu_eta, sigma_eta);
 
-    alpha ~ normal(0.3, 0.1);
+    alpha ~ normal(0, 0.1);
 
     beta1 ~ normal(1, 0.1);
     beta2 ~ normal(0, 0.1);
