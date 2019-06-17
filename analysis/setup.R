@@ -23,6 +23,7 @@ prep_stan_data <- function(data) {
     n_year  = length(unique(data$Year)),
     id_fish = as.integer(factor(data$FishID)),
     id_year = as.integer(factor(data$Year)),
+    age     = as.numeric(data$Age),
     is_f    = as.integer(data$sex == "F"),
     is_m    = as.integer(data$sex == "M"),
     z0      = data$z0^2,
