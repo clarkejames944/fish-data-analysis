@@ -15,20 +15,24 @@ options(mc.cores = parallel::detectCores())
 ###############################################################################
 ## Set up the initial values list ----
 
-init_vals <- list()
-# univariate parameters
-init_vals$alpha        <-  0.77
-init_vals$d_alpha_male <- -0.08
-init_vals$d_alpha_age  <-  0.00
-init_vals$beta_1       <-  0.12
-init_vals$beta_2       <- -0.03
-init_vals$eta          <-  0.49
-init_vals$d_eta_male   <- -0.06
-init_vals$sigma_fish   <-  0.05
-init_vals$sigma_year   <-  0.03
-init_vals$sigma        <-  0.06
+# read in the model we'll take initial values from
+init_model <- readRDS(file = "models/hinge_sex_diff.rds")
+# calculate posterior mean of univariate parameters
+pars <- 
+  c("alpha", "d_alpha_male", "d_eta_male",
+    "d_beta_1_male", "d_beta_2_male",
+    "beta_1", "beta_2", "eta", "sigma_fish", "sigma_year", "sigma")
+init_vals <- lapply(rstan::extract(init_model, pars), mean)
+# calculate posterior mean of vector-valued parameters
+init_vals$u_fish <- apply(rstan::extract(init_model, "u_fish")[[1]], 2, mean)
+init_vals$u_year <- apply(rstan::extract(init_model, "u_year")[[1]], 2, mean)
+# add any additional parameters in new model
+init_vals$d_alpha_age <- 0.0 
 # replicate the list of initial conditions to match number of chains
 init_vals <- replicate(4, init_vals, simplify = FALSE)
+# remove the massive object
+rm(init_model); gc()
+
 
 ###############################################################################
 ## Run the mcmc: hinge intercept age effect model ----
