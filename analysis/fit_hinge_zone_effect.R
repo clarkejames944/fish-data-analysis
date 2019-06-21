@@ -1,6 +1,6 @@
 source("analysis/setup.R")
 
-mod_name <- "hinge_age_effect_all_fixed_effects"
+mod_name <- "hinge_zone_effect"
 
 ###############################################################################
 ## Prep data for the mcmc ----
@@ -27,10 +27,10 @@ init_vals <- lapply(rstan::extract(init_model, pars), mean)
 init_vals$u_fish <- apply(rstan::extract(init_model, "u_fish")[[1]], 2, mean)
 init_vals$u_year <- apply(rstan::extract(init_model, "u_year")[[1]], 2, mean)
 # add any additional parameters in new model
-init_vals$d_alpha_age <- 0.0 
-init_vals$d_eta_age <- 0.0 
-init_vals$d_beta_1_age <- 0.0 
-init_vals$d_beta_2_age <- 0.0 
+init_vals$d_alpha_zone <- 0.0 
+init_vals$d_eta_zone <- 0.0 
+init_vals$d_beta_1_zone <- 0.0 
+init_vals$d_beta_2_zone <- 0.0 
 # replicate the list of initial conditions to match number of chains
 init_vals <- replicate(4, init_vals, simplify = FALSE)
 # remove the massive object

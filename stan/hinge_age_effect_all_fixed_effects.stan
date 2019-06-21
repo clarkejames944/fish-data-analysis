@@ -4,7 +4,7 @@ data {
   int<lower=0> n_fish;
   int<lower=0> n_year;
   // age data
-  vector<lower=0>[n_obs] age;
+  vector<lower=0>[n_obs] a;
   // indexing vectors
   int<lower=1, upper=n_fish> id_fish[n_obs];
   int<lower=1, upper=n_year> id_year[n_obs];
@@ -31,10 +31,11 @@ parameters {
   // slope contrasts
   real d_beta_1_male;
   real d_beta_2_male;
-  // intercept + threshold age effect
+  // age effect for each fixed effect
   real d_alpha_age;
   real d_eta_age;
   real d_beta_1_age;
+  real d_beta_2_age;
   // sd + random intercept deviation due to individual fish
   real<lower=0.00, upper=1.00> sigma_fish;
   vector[n_fish] u_fish;
@@ -46,21 +47,24 @@ parameters {
 }
 
 transformed parameters {
+    real min_age;
     vector[n_obs] z1hat;
     vector[n_obs] IN;
     vector[n_obs] TR;
     vector[n_obs] B1;
     vector[n_obs] B2;
+    
+    min_age=min(a);
 
     for (i in 1:n_obs) {
       // intercepts
-      IN[i] = alpha + d_alpha_age*age[i] + d_alpha_male*is_m[i] + u_fish[id_fish[i]] + u_year[id_year[i]] ;
+      IN[i] = alpha + d_alpha_age*(a[i] - min_age) + d_alpha_male*is_m[i] + u_fish[id_fish[i]] + u_year[id_year[i]] ;
       // thresholds 
-      TR[i] = eta + d_eta_age*age[i] + d_eta_male*is_m[i];
+      TR[i] = eta + d_eta_age*(a[i] - min_age) + d_eta_male*is_m[i];
       // pre-threshold slopes
-      B1[i] = beta_1 + d_beta_1_age*age[i] + d_beta_1_male*is_m[i];
+      B1[i] = beta_1 + d_beta_1_age*(a[i] - min_age) + d_beta_1_male*is_m[i];
       // post-threshold slopes
-      B2[i] = beta_2 + d_beta_2_male*is_m[i];
+      B2[i] = beta_2 + d_beta_2_age*(a[i]-min_age) + d_beta_2_male*is_m[i];
       // predicted otolith size next year
       z1hat[i] = (IN[i] + (1 + B1[i]) * (z0[i] - TR[i])) / (1 + exp(+(z0[i] - TR[i]) / 0.02)) + 
                  (IN[i] + (1 + B2[i]) * (z0[i] - TR[i])) / (1 + exp(-(z0[i] - TR[i]) / 0.02));
@@ -82,6 +86,7 @@ model {
   d_beta_1_male ~ normal(0, 0.25);
   d_beta_2_male ~ normal(0, 0.25);
   d_beta_1_age ~ normal(0.0, 0.25);
+  d_beta_2_age ~ normal(0.0, 0.25);
   // random intercept deviation due to individual
   sigma_fish ~ cauchy(0.0, 0.25);
   u_fish ~ normal(0.0, sigma_fish);

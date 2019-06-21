@@ -5,118 +5,78 @@ output:
   pdf_document: default
   word_document: default
 ---
+individual i
 
-**model 1**
+year j
 
+age k
 
-$y_{i} = \alpha + \beta x_{i} + \epsilon$ 
+temperature l
 
-***************
-**model 2**
+zone m
 
-
-$y_{i} = \alpha_{j \left[{i}\right]} + \beta x_{i} + \epsilon$
-
-***************
-**model 3**
+**hinge_sex_diff**
 
 
-$y_{i} = \left(\alpha +  \beta x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\left(\alpha + \delta\right) +  \beta x_{i}\right)\tau_{i} + \epsilon $
+$\{^{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}$ 
 
+$\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
 
-$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
+$\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)$
 
 
 ***************
-**model 4**
+**hinge_intercept_age_effect**
 
+$\{^{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ijk} - \eta\right) + \epsilon_{ijk}}_{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ijk} - \eta\right) + \epsilon_{ijk}}$ 
 
-$y_{i} = \left(\alpha_{{{j}\left[{i}\right]}} +  \beta x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\left(\alpha_{{{j}\left[{i}\right]}} + \delta\right) +  \beta x_{i}\right)\tau_{i} + \epsilon $
+$\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
 
-$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
-
-**************
-**model 5**
-
-$y_{i} = \left(\alpha +  \beta x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\left(\alpha + \delta\right) +  \beta x_{i}\right)\tau_{i} + \epsilon $
-
-$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
-
-**************
-**model 6**
-
-
-$y_{i} = \left(\alpha_{{{j}\left[{i}\right]}} +  \beta x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\left(\alpha_{{{j}\left[{i}\right]}} + \delta\right)+  \beta x_{i}\right)\tau_{i} + \epsilon $
-
-$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
+$\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)$
 
 ***************
-**model 7**
-
-$y_{i} = \alpha + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - \eta\right) \tau_{i} + \epsilon$
+**hinge_threshold_age_effect**
 
 
+$\{^{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ij} - \eta_k\right) + \epsilon_{ijk}}_{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ij} - \eta\right) + \epsilon_{ijk}}$ 
 
-$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
+$\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
+
+$\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)$
 
 
 ***************
-**model 8**
+**hinge_pre_thres_slope_age_effect**
+
+$\{^{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_{1k}\right)\left(z_{ij} - \eta\right) + \epsilon_{ijk}}_{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_{2k}\right)\left(z_{ij} - \eta\right) + \epsilon_{ijk}}$ 
 
 
-$y_{i} = \alpha_{j \left[{i}\right]} + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - \eta\right) \tau_{i} + \epsilon$
+$\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
+
+$\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)$
 
 
+*************
 
-$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
+**hinge_sex_diff_age**
 
-****************
-**model 9**
+$\{^{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ijk} - \eta\right) + \epsilon_{ijk}}$ 
 
+$\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
 
-$y_{i} = \alpha + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - \eta_{j \left[{i}\right]}\right) \tau_{i} + \epsilon$
+$\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)$
 
+***************
 
+**hinge_temp_effect**
 
-$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
+$\{^{z'_{ijl} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ijl} - \eta\right) + \epsilon_{ijl}}$ 
 
+$\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
 
-*****************
-**model 10**
+$\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)$
 
-$y_{i} = \alpha_{j\left[{i}\right]} + \beta_{1} x_{i} + \beta_{2} \left(x_{i} - \eta_{j \left[{i}\right]}\right) \tau_{i} + \epsilon$
+***************
+**IPM**
 
-
-
-$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
-
-
-******************
-**model 11**
-
-$y_{i} = \left(\alpha +  \beta_1 x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\left(\alpha + \delta\right) +  \beta_2 x_{i}\right)\tau_{i} + \epsilon $
-
-
-$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
-
-
-******************
-**model 12**
-
-$y_{i} = \left(\alpha_{{{j}\left[{i}\right]}} +  \beta_1 x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\left(\alpha_{{{j}\left[{i}\right]}} + \delta\right)+  \beta_2 x_{i}\right)\tau_{i} + \epsilon $
-
-$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{i}\right)}}$
-
-******************
-**model 13**
-
-$y_{i} = \left(\alpha +  \beta_1 x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\left(\alpha + \delta\right)+  \beta_2 x_{i}\right)\tau_{i} + \epsilon $
-
-$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
-
-******************
-**model 14**
-
-$y_{i} = \left(\alpha_{{{j}\left[{i}\right]}} +  \beta_1 x_{i}\right) \left(1 - \tau_{i}\right) +  \left(\left(\alpha_{{{j}\left[{i}\right]}} + \delta\right)+  \beta_2 x_{i}\right)\tau_{i} + \epsilon $
-
-$\tau_{i} = \frac{1}{1 + e^{-100\left(x_{i} - \eta_{{j\left[{i}\right]}}\right)}}$
+$n_{t+1}(z',u)= \int_{z_{min}}^{z_{max}} K\left(z',z,u\right)n\left(z,u\right)dz $
