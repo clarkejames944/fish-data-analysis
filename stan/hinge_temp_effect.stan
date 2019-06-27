@@ -18,23 +18,23 @@ data {
 
 parameters {
   // fixed intercept term (females)
-  real<lower= 0.0, upper=2.0> alpha;
+  real alpha;
   // fixed threshold term (females)
-  real<lower= 0.4, upper=2.0> eta;
+  real eta;
   // slope (relative to slope of 1)
-  real<lower= 0.0, upper=1.0> beta_1;
-  real<lower=-1.0, upper=0.0> beta_2;
+  real beta_1;
+  real beta_2;
   // intercept contrasts
   real d_alpha_male;
+  real d_alpha_temp;
   // threshold contrasts
   real d_eta_male;
-  // slope contrasts
-  real d_beta_1_male;
-  real d_beta_2_male;
-  // bottom temperature effects for each fixed effect
-  real d_alpha_temp;
   real d_eta_temp;
+  // pre-threshold slope contrasts
+  real d_beta_1_male;
   real d_beta_1_temp;
+  // post-threshold slope contrasts
+  real d_beta_2_male;
   real d_beta_2_temp;
   // sd + random intercept deviation due to individual fish
   real<lower=0.00, upper=1.00> sigma_fish;
@@ -57,7 +57,7 @@ transformed parameters {
 
     for (i in 1:n_obs) {
       // intercepts
-      IN[i] = alpha + d_alpha_temp*temp[i] + d_alpha_male*is_m[i] + u_fish[id_fish[i]] + u_year[id_year[i]] ;
+      IN[i] = alpha + d_alpha_temp*temp[i] + d_alpha_male*is_m[i] + u_fish[id_fish[i]] + u_year[id_year[i]];
       // thresholds 
       TR[i] = eta + d_eta_temp*temp[i] + d_eta_male*is_m[i];
       // pre-threshold slopes
@@ -72,16 +72,16 @@ transformed parameters {
 
 model { 
   // intercept terms
-  alpha ~ normal(1.0, 0.25);
+  alpha ~ normal(1.0, 1.00);
   d_alpha_male ~ normal(0.0, 0.25);
   d_alpha_temp ~ normal(0.0, 0.25);
   // threshold terms
-  eta ~ normal(1.0, 0.5);
+  eta ~ normal(1.0, 1.00);
   d_eta_male ~ normal(0.0, 0.25);
   d_eta_temp ~ normal(0.0, 0.25);
   // slope terms
-  beta_1 ~ normal(0, 0.25);
-  beta_2 ~ normal(0, 0.25);
+  beta_1 ~ normal(0.0, 0.25);
+  beta_2 ~ normal(0.0, 0.25);
   d_beta_1_male ~ normal(0, 0.25);
   d_beta_2_male ~ normal(0, 0.25);
   d_beta_1_temp ~ normal(0.0, 0.25);

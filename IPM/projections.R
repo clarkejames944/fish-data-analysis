@@ -25,6 +25,8 @@ par_names <-
 par_posterior <- rstan::extract(stan_model, par_names) # GLOBAL
 
 # calculate posterior mean of individual fish effects 
+#this is extracting just one set of iterations out of the 4000
+#try and get a set of 1000 iterations by looping across
 u_fish <- apply(rstan::extract(stan_model, "u_fish")[[1]], 2, mean) 
 
 # cleanup (remove the massive model object)
@@ -34,9 +36,14 @@ rm(stan_model); gc()
 ###############################################################################
 ## get all the state data into one place ----
 
-state_var_names <- c("id_fish", "z0", "a", "is_f", "is_m")
+state_var_names <- c("id_fish", "z0", "a", "is_f", "is_m", "temp", "zone")
+#this prep_stan_data is a function created in the setup.R document
+#this is grabbing the appropriate data from fishdat_cut
+#then it is taking a subset based on the variable names we have 
+#just specified
 all_states <- prep_stan_data(fishdat_cut)[state_var_names]
 all_states <- as.data.frame(all_states)
+#u_fish corresponds with the id_fish column in this dataset
 all_states$u_fish <- u_fish[all_states$id_fish]
 
 
@@ -61,6 +68,7 @@ car::qqPlot(u_init)
 # raw relationship
 plot(z_init, u_init, pch = 20, cex = 0.5)
 # evidence for non-linear effect?
+#polynomial regression
 init_mod_p4 <- lm(u_init ~ poly(z_init, 4))
 summary(init_mod_p4) # no!
 # so just use the simple regression
@@ -110,6 +118,8 @@ draw_u_year <- function(m_par, method = "constant") {
   return(m_par)
 }
 # for now, just sets the year effect to 0, i.e. constant environment case
+# if I wanted an idea of the effect of environmental stochatisity I would 
+# change this part
 
 ###############################################################################
 ## Define the vital rate functions ----
@@ -269,7 +279,7 @@ iterate <- function(i_par, m_par, init_dens_par) {
   # counters
   a <- i_par$L_a 
   i <- 1
-  # keep going until we reach teh maximum allowed age
+  # keep going until we reach the maximum allowed age
   while(a < i_par$U_a) {
     # update the model parameters for current year
     m_par_use <- draw_u_year(m_par, method = "constant")

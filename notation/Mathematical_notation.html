@@ -384,7 +384,7 @@ $(document).ready(function () {
 <p>temperature l</p>
 <p>zone m</p>
 <p><strong>hinge_sex_diff</strong></p>
-<p><span class="math inline">\(\{^{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}\)</span></p>
+<p><span class="math inline">\(\{^{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y +\alpha^S + \left(1 + \left(\beta_1 + \beta^S\right)\right)\left(z_{ij} + S_{ij} - \left(\eta + \eta^S \right)\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \alpha^S + \left(1 + \left( \beta_2 + \beta^S\right)\right)\left(z_{ij} + S_{ij} - \left(\eta + \eta^S\right)\right) + \epsilon_{ij}}\)</span></p>
 <p><span class="math inline">\(\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)\)</span></p>
 <p><span class="math inline">\(\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)\)</span></p>
 <hr />
@@ -404,17 +404,19 @@ $(document).ready(function () {
 <p><span class="math inline">\(\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)\)</span></p>
 <hr />
 <p><strong>hinge_sex_diff_age</strong></p>
-<p><span class="math inline">\(\{^{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}\)</span></p>
+<p><span class="math inline">\(\{^{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ijk} - \eta\right) + \epsilon_{ijk}}\)</span></p>
 <p><span class="math inline">\(\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)\)</span></p>
 <p><span class="math inline">\(\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)\)</span></p>
 <hr />
 <p><strong>hinge_temp_effect</strong></p>
-<p><span class="math inline">\(\{^{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}\)</span></p>
+<p><span class="math inline">\(\{^{z'_{ijl} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ijl} - \eta\right) + \epsilon_{ijl}}\)</span></p>
 <p><span class="math inline">\(\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)\)</span></p>
 <p><span class="math inline">\(\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)\)</span></p>
 <hr />
 <p><strong>IPM</strong></p>
-<p>$n_{t+1}(z’,u)= <em>{z</em>{min}}^{z_{max}} K(z’,z,u)n(z,u)dz $</p>
+<p><span class="math inline">\(n_{t+1}\left(z',u\right) = \int_{z_{min}}^{z_{max}} K(z',z,u)n(z,u) \; dz\)</span></p>
+<p><span class="math inline">\(\int_{a}^{b} f(x) \; dx\)</span></p>
+<p><span class="math inline">\(\int_{a}^{b} K(Z', Z, u)n(Z,u) \; dx\)</span></p>
 
 
 

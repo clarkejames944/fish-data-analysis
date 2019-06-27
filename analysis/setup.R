@@ -25,7 +25,7 @@ prep_stan_data <- function(data) {
     id_year = as.integer(factor(data$Year)),
     a       = as.integer(data$Age),
     temp    = as.numeric(data$bottomtemp1),
-    zone    = as.factor(data$zone),
+    zone    = as.interger(factor(data$zone)),
     is_f    = as.integer(data$sex == "F"),
     is_m    = as.integer(data$sex == "M"),
     z0      = data$z0^2,

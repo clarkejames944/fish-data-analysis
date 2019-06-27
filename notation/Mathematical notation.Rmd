@@ -18,7 +18,7 @@ zone m
 **hinge_sex_diff**
 
 
-$\{^{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}$ 
+$\{^{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y +\alpha^S + \left(1 + \left(\beta_1 + \beta^S\right)\right)\left(z_{ij} + S_{ij} - \left(\eta + \eta^S \right)\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \alpha^S + \left(1 + \left( \beta_2 + \beta^S\right)\right)\left(z_{ij} + S_{ij} - \left(\eta + \eta^S\right)\right) + \epsilon_{ij}}$ 
 
 $\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
 
@@ -79,4 +79,7 @@ $\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)$
 ***************
 **IPM**
 
-$n_{t+1}(z',u)= \int_{z_{min}}^{z_{max}} K\left(z',z,u\right)n\left(z,u\right)dz $
+$n_{t+1}\left(z',u\right) = \int_{z_{min}}^{z_{max}} K(z',z,u)n(z,u) \; dz$
+
+
+

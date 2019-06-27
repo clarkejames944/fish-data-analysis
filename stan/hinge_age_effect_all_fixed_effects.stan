@@ -18,23 +18,23 @@ data {
 
 parameters {
   // fixed intercept term (females)
-  real<lower= 0.0, upper=2.0> alpha;
+  real alpha;
   // fixed threshold term (females)
-  real<lower= 0.4, upper=2.0> eta;
+  real eta;
   // slope (relative to slope of 1)
-  real<lower= 0.0, upper=1.0> beta_1;
-  real<lower=-1.0, upper=0.0> beta_2;
+  real beta_1;
+  real beta_2;
   // intercept contrasts
   real d_alpha_male;
+  real d_alpha_age;
   // threshold contrasts
   real d_eta_male;
-  // slope contrasts
-  real d_beta_1_male;
-  real d_beta_2_male;
-  // age effect for each fixed effect
-  real d_alpha_age;
   real d_eta_age;
+  // pre-threshold slope contrasts
+  real d_beta_1_male;
   real d_beta_1_age;
+  // post-threshold slope contrasts
+  real d_beta_2_male;
   real d_beta_2_age;
   // sd + random intercept deviation due to individual fish
   real<lower=0.00, upper=1.00> sigma_fish;
@@ -47,24 +47,24 @@ parameters {
 }
 
 transformed parameters {
-    real min_age;
+    real min_a;
     vector[n_obs] z1hat;
     vector[n_obs] IN;
     vector[n_obs] TR;
     vector[n_obs] B1;
     vector[n_obs] B2;
     
-    min_age=min(a);
+    min_a=min(a);
 
     for (i in 1:n_obs) {
       // intercepts
-      IN[i] = alpha + d_alpha_age*(a[i] - min_age) + d_alpha_male*is_m[i] + u_fish[id_fish[i]] + u_year[id_year[i]] ;
+      IN[i] = alpha + d_alpha_age*(a[i] - min_a) + d_alpha_male*is_m[i] + u_fish[id_fish[i]] + u_year[id_year[i]] ;
       // thresholds 
-      TR[i] = eta + d_eta_age*(a[i] - min_age) + d_eta_male*is_m[i];
+      TR[i] = eta + d_eta_age*(a[i] - min_a) + d_eta_male*is_m[i];
       // pre-threshold slopes
-      B1[i] = beta_1 + d_beta_1_age*(a[i] - min_age) + d_beta_1_male*is_m[i];
+      B1[i] = beta_1 + d_beta_1_age*(a[i] - min_a) + d_beta_1_male*is_m[i];
       // post-threshold slopes
-      B2[i] = beta_2 + d_beta_2_age*(a[i]-min_age) + d_beta_2_male*is_m[i];
+      B2[i] = beta_2 + d_beta_2_age*(a[i]-min_a) + d_beta_2_male*is_m[i];
       // predicted otolith size next year
       z1hat[i] = (IN[i] + (1 + B1[i]) * (z0[i] - TR[i])) / (1 + exp(+(z0[i] - TR[i]) / 0.02)) + 
                  (IN[i] + (1 + B2[i]) * (z0[i] - TR[i])) / (1 + exp(-(z0[i] - TR[i]) / 0.02));
@@ -73,16 +73,16 @@ transformed parameters {
 
 model { 
   // intercept terms
-  alpha ~ normal(1.0, 0.25);
+  alpha ~ normal(1.0, 1.00);
   d_alpha_male ~ normal(0.0, 0.25);
   d_alpha_age ~ normal(0.0, 0.25);
   // threshold terms
-  eta ~ normal(1.0, 0.5);
+  eta ~ normal(1.0, 1.00);
   d_eta_male ~ normal(0.0, 0.25);
   d_eta_age ~ normal(0.0, 0.25);
   // slope terms
-  beta_1 ~ normal(0, 0.25);
-  beta_2 ~ normal(0, 0.25);
+  beta_1 ~ normal(0.0, 0.25);
+  beta_2 ~ normal(0.0, 0.25);
   d_beta_1_male ~ normal(0, 0.25);
   d_beta_2_male ~ normal(0, 0.25);
   d_beta_1_age ~ normal(0.0, 0.25);
