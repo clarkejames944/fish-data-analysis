@@ -11,6 +11,9 @@ library(coda)
 library(stringr)
 library(mgcv)
 library(loo)
+library(car)
+library(Matrix)
+library(viridis)
 
 #######################################################################
 ## Function definitions ----
@@ -25,7 +28,7 @@ prep_stan_data <- function(data) {
     id_year = as.integer(factor(data$Year)),
     a       = as.integer(data$Age),
     temp    = as.numeric(data$bottomtemp1),
-    zone    = as.interger(factor(data$zone)),
+    zone    = as.integer(factor(data$zone)),
     is_f    = as.integer(data$sex == "F"),
     is_m    = as.integer(data$sex == "M"),
     z0      = data$z0^2,

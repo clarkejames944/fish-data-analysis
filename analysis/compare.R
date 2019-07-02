@@ -70,7 +70,7 @@ print(waic_3)
 ############################################################
 ## Prepare for model comparison: zone difference model ----
 
-mod_name <- "hinge_sex_zone_diff"
+mod_name <- "hinge_zone_effect"
 
 f_loc <- sub("XX", replacement = mod_name, x = "models/XX.rds")
 stan_fit <- readRDS(file = f_loc)
@@ -84,6 +84,8 @@ print(waic_4)
 
 ############################################################
 ## compare the models ---
-comp <- compare(loo_1, loo_2, loo_3)
-print(comp)
-compare(waic_1,waic_2,waic_3)
+#loo comparison
+compare(loo_1, loo_2, loo_3, loo_4)
+
+#waic comparison
+compare(waic_1, waic_2, waic_3, waic_4)

@@ -47,6 +47,7 @@ parameters {
 }
 
 transformed parameters {
+    real mean_temp;
     vector[n_obs] z1hat;
     vector[n_obs] IN;
     vector[n_obs] TR;
@@ -54,16 +55,17 @@ transformed parameters {
     vector[n_obs] B2;
     
 
-
+    mean_temp = mean(temp);
+    
     for (i in 1:n_obs) {
       // intercepts
-      IN[i] = alpha + d_alpha_temp*temp[i] + d_alpha_male*is_m[i] + u_fish[id_fish[i]] + u_year[id_year[i]];
+      IN[i] = alpha + d_alpha_temp*(temp[i]-mean_temp) + d_alpha_male*is_m[i] + u_fish[id_fish[i]] + u_year[id_year[i]];
       // thresholds 
-      TR[i] = eta + d_eta_temp*temp[i] + d_eta_male*is_m[i];
+      TR[i] = eta + d_eta_temp*(temp[i]-mean_temp) + d_eta_male*is_m[i];
       // pre-threshold slopes
-      B1[i] = beta_1 + d_beta_1_temp*temp[i] + d_beta_1_male*is_m[i];
+      B1[i] = beta_1 + d_beta_1_temp*(temp[i]-mean_temp) + d_beta_1_male*is_m[i];
       // post-threshold slopes
-      B2[i] = beta_2 + d_beta_2_temp*temp[i] + d_beta_2_male*is_m[i];
+      B2[i] = beta_2 + d_beta_2_temp*(temp[i]-mean_temp) + d_beta_2_male*is_m[i];
       // predicted otolith size next year
       z1hat[i] = (IN[i] + (1 + B1[i]) * (z0[i] - TR[i])) / (1 + exp(+(z0[i] - TR[i]) / 0.02)) + 
                  (IN[i] + (1 + B2[i]) * (z0[i] - TR[i])) / (1 + exp(-(z0[i] - TR[i]) / 0.02));

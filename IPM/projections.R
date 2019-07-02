@@ -13,7 +13,7 @@ par_names <-
     # threshold size
     "eta", "d_eta_male",
     # pre-threshold slope
-    "beta_1", "d_beta_1_male", 
+    "beta_1", "d_beta_1_male",
     # post-threshold slope
     "beta_2", "d_beta_2_male",
     # variance components
@@ -25,10 +25,21 @@ par_names <-
 par_posterior <- rstan::extract(stan_model, par_names) # GLOBAL
 
 # calculate posterior mean of individual fish effects 
-#this is extracting just one set of iterations out of the 4000
+#this is extracting all the iterations and then the mean for each individual is calculated
 #try and get a set of 1000 iterations by looping across
+
+#In this the mean of the 4000 iterations for each individual is taken
+#leaves a vector of mean values
 u_fish <- apply(rstan::extract(stan_model, "u_fish")[[1]], 2, mean) 
 
+
+#try <- rstan::extract(stan_model, "u_fish")[[1]]
+
+#try <- as.data.frame(try)
+#View(try)
+#View(u_fish)
+#glimpse(u_fish)
+#summary(try)
 # cleanup (remove the massive model object)
 rm(stan_model); gc()
 
@@ -58,12 +69,14 @@ u_z_cor <-
 # inspect - should be +ve and go up with age...
 u_z_cor
 
+
 # grad the sizes at initial age + the individual effects
 z_init <- filter(all_states, a == min(a))$z0
 u_init <- filter(all_states, a == min(a))$u_fish
 # log size is roughly normally distributed--i.e. has approx. log-normal dist
 car::qqPlot(log(z_init))
-# the rf's shoulld be normally distributed--right tail is too fat (hard to fix)
+# the rf's should be normally distributed--right tail is too fat (hard to fix)
+# we will just leave this the way it is--shouldn't make too much of a difference
 car::qqPlot(u_init)
 # raw relationship
 plot(z_init, u_init, pch = 20, cex = 0.5)
@@ -71,6 +84,7 @@ plot(z_init, u_init, pch = 20, cex = 0.5)
 #polynomial regression
 init_mod_p4 <- lm(u_init ~ poly(z_init, 4))
 summary(init_mod_p4) # no!
+# p-value only significant for the simple linear relationship
 # so just use the simple regression
 init_mod <- lm(u_init ~ z_init)
 # residual distribution is a bit better (still not great)
@@ -91,6 +105,7 @@ init_dens_par <- list(
 
 ###############################################################################
 ## Define functions to implement the model ----
+
 
 # function to select parameter vector from posterior 
 mk_m_par <- function(par_posterior, samp) {
@@ -118,8 +133,8 @@ draw_u_year <- function(m_par, method = "constant") {
   return(m_par)
 }
 # for now, just sets the year effect to 0, i.e. constant environment case
-# if I wanted an idea of the effect of environmental stochatisity I would 
-# change this part
+# if I wanted to discover the effect of environmental stochatisity I would 
+# change this
 
 ###############################################################################
 ## Define the vital rate functions ----
@@ -189,7 +204,7 @@ G_z1z_2_2 <- function (z1, z0, u, a, is_m, m_par) {
 
 ###############################################################################
 ## Define functions to implement the model ----
-
+seq_len(80)-0.5
 # calculate the mesh points, mesh width and store with their upper / lower 
 # bounds of size and random effect + upper / lower bounds of age
 mk_i_par <- function(N_z, L_z, U_z, N_u, L_u, U_u, L_a, U_a, sex) {
@@ -304,6 +319,7 @@ iterate <- function(i_par, m_par, init_dens_par) {
 
 # grab the posterior mean model parameters
 m_par <- mk_m_par(par_posterior, 0)
+m_par
 # set up the  parameters to control the numerics
 i_par <- mk_i_par(
   N_z = 80, L_z =  0.10, U_z =  3.30, 
@@ -362,13 +378,18 @@ res %>%
   group_by(a, s) %>% 
   summarise(p_stage = sum(d) * i_par$h_z * i_par$h_u) 
 
+View(res)
+ggplot(res, aes(x=z, y=d, color=factor(a)))+
+  geom_point()
 # mean otolith size in each stage
 res %>% 
   group_by(a) %>% 
   summarise(mean_z =  sum(d * z) * i_par$h_z * i_par$h_u) 
+#this increases as age increases (that makes sense!)
 
 # or do all the first two multivariate moments
 dd <- i_par$h_z * i_par$h_u 
+
 res %>% 
   group_by(a) %>%
   summarise(
@@ -385,6 +406,7 @@ res %>%
     sd_u   = sqrt(var_u),
     cor_zu = cov_zu / (sd_z * sd_u)
   ) 
+
 
 # size distribution by age / stage
 plt_data <- res %>% 

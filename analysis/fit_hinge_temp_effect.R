@@ -54,7 +54,7 @@ system.time(
     iter = 2000,
     chains = 4,
     init = init_vals,
-    control = list(max_treedepth = 11, adapt_delta = 0.8)
+    control = list(max_treedepth = 10, adapt_delta = 0.8)
   )
 )
 
