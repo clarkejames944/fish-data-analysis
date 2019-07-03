@@ -18,7 +18,17 @@ zone m
 **hinge_sex_diff**
 
 
-$\{^{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y +\alpha^S + \left(1 + \left(\beta_1 + \beta^S\right)\right)\left(z_{ij} + S_{ij} - \left(\eta + \eta^S \right)\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \alpha^S + \left(1 + \left( \beta_2 + \beta^S\right)\right)\left(z_{ij} + S_{ij} - \left(\eta + \eta^S\right)\right) + \epsilon_{ij}}$ 
+$\{^{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y +\alpha^S + \left(1 + \left(\beta_1 + \beta_1^S\right)\left(z_{ij} - \left(\eta + \eta^S\right)\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \alpha^S + \left(1 + \left( \beta_2 + \beta_2^S\right)\right)\left(z_{ij} - \left(\eta + \eta_{ij}^S_{ij}\right)\right) + \epsilon_{ij}}$ 
+
+$\{^{z'_{ij} = \alpha + \left(1 + B1\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}_{z'_{ij} = \alpha + \left(1 + B2\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}$ 
+
+$\alpha = \alpha_0 + \alpha_i^F + \alpha_j^Y +\alpha^S$
+
+$\eta_{ij} = \eta_{0_{ij}} + \eta^S_{ij}$
+
+$B1 = \beta_1 + \beta_1^S$
+
+$B2 = \beta_2 + \beta_2^S$
 
 $\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
 
@@ -28,7 +38,7 @@ $\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)$
 ***************
 **hinge_intercept_age_effect**
 
-$\{^{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ijk} - \eta\right) + \epsilon_{ijk}}_{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ijk} - \eta\right) + \epsilon_{ijk}}$ 
+$\{^{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ijk} - \eta\right) + \epsilon_{ijk}}_{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ijk} - \eta\right) + \epsilon_{ijk}} $ 
 
 $\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
 

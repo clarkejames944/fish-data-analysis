@@ -91,6 +91,7 @@ pairs(
     "lp__"
   )
 )
+
 dev.off()
 
 ###############################################################################
@@ -294,6 +295,24 @@ pairs(
     "lp__"
   )
 )
+
+f_loc <- sub("XX", replacement = mod_name, x = "figures/XX_pairs.jpeg")
+jpeg(file = f_loc)
+pairs(
+  stan_fit,
+  pars = c(
+    "alpha", "d_alpha_male",
+    "beta_1", "beta_2", 
+    "d_beta_1_male", "d_beta_2_male",
+    "d_alpha_age",
+    "d_eta_age", "d_beta_1_age",
+    "d_beta_2_age",
+    "eta", "d_eta_male",
+    "d_eta_age",
+    "sigma_fish", "sigma_year", "sigma",
+    "lp__"
+  )
+)
 dev.off()
 
 ###############################################################################
@@ -320,6 +339,7 @@ pairs(
     "lp__"
   )
 )
+
 dev.off()
 
 ###############################################################################
@@ -346,4 +366,5 @@ pairs(
     "lp__"
   )
 )
+
 dev.off()

@@ -16,12 +16,12 @@ data {
 
 parameters {
   // fixed intercept term (females)
-  real<lower= 0.0, upper=2.0> alpha;
+  real alpha;
   // fixed threshold term (females)
-  real<lower= 0.4, upper=2.0> eta;
+  real eta;
   // slope (relative to slope of 1)
-  real<lower= 0.0, upper=1.0> beta_1;
-  real<lower=-1.0, upper=0.0> beta_2;
+  real beta_1;
+  real beta_2;
   // intercept contrasts
   real d_alpha_male;
   // threshold contrasts
@@ -63,10 +63,10 @@ transformed parameters {
 
 model { 
   // intercept terms
-  alpha ~ normal(1.0, 0.25);
+  alpha ~ normal(1.0, 1.00);
   d_alpha_male ~ normal(0.0, 0.25);
   // threshold terms
-  eta ~ normal(1.0, 0.5);
+  eta ~ normal(1.0, 1.00);
   d_eta_male ~ normal(0.0, 0.25);
   // slope terms
   beta_1 ~ normal(0, 0.25);
