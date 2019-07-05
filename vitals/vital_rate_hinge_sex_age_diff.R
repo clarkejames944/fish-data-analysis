@@ -5,11 +5,11 @@
 g_z1z_1 <- function(z1, z0, u, a, is_m, m_par) {
   with(m_par, {
     # intercept
-    IN = alpha + d_alpha_male * is_m + d_alpha_age * (a-min(a)) + u + u_year
+    IN = alpha + d_alpha_male * is_m + d_alpha_age * a + u + u_year
     # threshold
-    TR = eta + d_eta_male * is_m + d_eta_age * (a-min(a))
+    TR = eta + d_eta_male * is_m + d_eta_age * a
     # pre-threshold slope
-    B1 = beta_1 + d_beta_1_male * is_m + d_beta_1_age*(a-min(a))
+    B1 = beta_1 + d_beta_1_male * is_m + d_beta_1_age*a
     # expected otolith size next year
     z1_hat = IN + (1 + B1) * (z0 - TR)
     # return the density function
@@ -22,11 +22,11 @@ g_z1z_1 <- function(z1, z0, u, a, is_m, m_par) {
 g_z1z_2 <- function(z1, z0, u, a, is_m, m_par) {
   with(m_par, {
     # intercept
-    IN = alpha + d_alpha_male * is_m + d_alpha_age * (a-min(a)) + u + u_year
+    IN = alpha + d_alpha_male * is_m + d_alpha_age * a + u + u_year
     # threshold
-    TR = eta + d_eta_male * is_m + d_eta_age * (a-min(a))
+    TR = eta + d_eta_male * is_m + d_eta_age * a
     # post-threshold slope
-    B2 = beta_2 + d_beta_2_male * is_m + d_beta_2_age*(a-min(a))
+    B2 = beta_2 + d_beta_2_male * is_m + d_beta_2_age*a
     # expected otolith size next year
     z1_hat = IN + (1 + B2) * (z0 - TR)
     # return the density function
@@ -39,7 +39,7 @@ g_z1z_2 <- function(z1, z0, u, a, is_m, m_par) {
 p_sw <- function(z1, z0, u, a, is_m, m_par) {
   with(m_par, {
     # threshold
-    TR = eta + d_eta_male * is_m + d_eta_age * (a-min(a))
+    TR = eta + d_eta_male * is_m + d_eta_age * a
     # return the switch probability
     1 / (1 + exp(-(z1 - TR) / 0.02))
   })
