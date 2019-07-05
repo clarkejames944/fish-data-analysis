@@ -14,6 +14,7 @@ library(loo)
 library(car)
 library(Matrix)
 library(viridis)
+library(reshape2)
 
 #######################################################################
 ## Function definitions ----
@@ -28,7 +29,10 @@ prep_stan_data <- function(data) {
     id_year = as.integer(factor(data$Year)),
     a       = as.integer(data$Age),
     temp    = as.numeric(data$bottomtemp1),
-    zone    = as.integer(factor(data$zone)),
+    is_EBS  = as.integer(data$zone == "EBS"),
+    is_ETAS = as.integer(data$zone == "ETAS"),
+    is_WTAS = as.integer(data$zone == "WTAS"),
+    is_NSW  = as.integer(data$zone == "NSW"),
     is_f    = as.integer(data$sex == "F"),
     is_m    = as.integer(data$sex == "M"),
     z0      = data$z0^2,

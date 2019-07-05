@@ -7,20 +7,9 @@ source("analysis/setup.R")
 stan_model <- readRDS(file = "models/hinge_sex_diff.rds")
 
 # vector of names of required parameters
-par_names <- 
-  c(# intercept parameters
-    "alpha", "d_alpha_male",
-    # threshold size
-    "eta", "d_eta_male",
-    # pre-threshold slope
-    "beta_1", "d_beta_1_male",
-    # post-threshold slope
-    "beta_2", "d_beta_2_male",
-    # variance components
-    "sigma_fish", "sigma_year", "sigma",
-    # 'random' year effects
-    "u_year"
-  )
+# source according to which model is being analysed
+source("par_names/par_names_hinge_sex_diff.R")
+
 # extract posterior draws of required parameters
 par_posterior <- rstan::extract(stan_model, par_names) # GLOBAL
 
@@ -47,7 +36,7 @@ rm(stan_model); gc()
 ###############################################################################
 ## get all the state data into one place ----
 
-state_var_names <- c("id_fish", "z0", "a", "is_f", "is_m", "temp", "zone")
+state_var_names <- c("id_fish", "z0", "a", "is_f", "is_m")
 #this prep_stan_data is a function created in the setup.R document
 #this is grabbing the appropriate data from fishdat_cut
 #then it is taking a subset based on the variable names we have 
@@ -137,53 +126,10 @@ draw_u_year <- function(m_par, method = "constant") {
 # change this
 
 ###############################################################################
-## Define the vital rate functions ----
+# obtain the appropriate vital rate functions according to 
+# the model that is being analysed
+source("vitals/vital_rate_hinge_sex_diff.R")
 
-# growth function: *pre*-threshold
-# --> given you are size z and age a now, returns the  pdf of size next
-g_z1z_1 <- function(z1, z0, u, a, is_m, m_par) {
-  with(m_par, {
-    # intercept
-    IN = alpha + d_alpha_male * is_m + u + u_year
-    # threshold
-    TR = eta + d_eta_male * is_m
-    # pre-threshold slope
-    B1 = beta_1 + d_beta_1_male * is_m
-    # expected otolith size next year
-    z1_hat = IN + (1 + B1) * (z0 - TR)
-    # return the density function
-    dnorm(z1, mean = z1_hat, sd = sigma)
-  })
-}
-
-# growth function, *post*-threshold
-# --> given you are size z and age a now, returns the  pdf of size next
-g_z1z_2 <- function(z1, z0, u, a, is_m, m_par) {
-  with(m_par, {
-    # intercept
-    IN = alpha + d_alpha_male * is_m + u + u_year
-    # threshold
-    TR = eta + d_eta_male * is_m
-    # post-threshold slope
-    B2 = beta_2 + d_beta_2_male * is_m
-    # expected otolith size next year
-    z1_hat = IN + (1 + B2) * (z0 - TR)
-    # return the density function
-    dnorm(z1, mean = z1_hat, sd = sigma)
-  })
-}
-
-# switch function --> given that you are size z and age a now, returns the 
-# probability you will switch growth trajectories
-p_sw <- function(z1, z0, u, a, is_m, m_par) {
-  with(m_par, {
-    # threshold
-    TR = eta + d_eta_male * is_m
-    # return the switch probability
-    1 / (1 + exp(-(z1 - TR) / 0.02))
-  })
-}
-  
 ###############################################################################
 ## Define the growth-switch kernel functions ----
 
@@ -204,7 +150,7 @@ G_z1z_2_2 <- function (z1, z0, u, a, is_m, m_par) {
 
 ###############################################################################
 ## Define functions to implement the model ----
-seq_len(80)-0.5
+
 # calculate the mesh points, mesh width and store with their upper / lower 
 # bounds of size and random effect + upper / lower bounds of age
 mk_i_par <- function(N_z, L_z, U_z, N_u, L_u, U_u, L_a, U_a, sex) {
@@ -318,7 +264,18 @@ iterate <- function(i_par, m_par, init_dens_par) {
 ## Using model ----
 
 # grab the posterior mean model parameters
+# if you want the first iteration then it would be 
+# m_par <- mk_m_par(par_posterior, 1)
+# use this to loop over 1000 iterations to get an idea of uncertainty
 m_par <- mk_m_par(par_posterior, 0)
+#m_par$a <- 2
+#m_par$temp <- 1
+#for (i in 1:1000){
+#  m_par[[i]] <- mk_m_par(par_posterior, i)
+#  m_par$temp[[i]] <- 0
+#}
+
+#m_par$zone <- "EBS"
 m_par
 # set up the  parameters to control the numerics
 i_par <- mk_i_par(
@@ -327,10 +284,18 @@ i_par <- mk_i_par(
   L_a = min(all_states$a), U_a = max(all_states$a),
   sex = "F" # <- code works on one sex at a time so must be scalar
 )
+
 # run the cohort dynamics
+#for (i in 1:1000){
+#  system.time(
+#   cohort_dynamics[[i]] <- iterate(i_par, m_par[[i]], init_dens_par)
+# ) # not super fast w/ above params 
+#}
+#cohort_dynamics[[1]]
+
 system.time(
   cohort_dynamics <- iterate(i_par, m_par, init_dens_par)
-) # not super fast w/ above params 
+  ) # not super fast w/ above params 
 
 # quick plot to check results...
 plt_2d <- function(nt_1, nt_2) {
@@ -347,27 +312,37 @@ plt_2d <- function(nt_1, nt_2) {
   mtext("  pre-threshold \n", side = 3, line = 0, outer = TRUE, adj = 0) 
   mtext(" post-threshold \n", side = 3, line = 0, outer = TRUE, adj = 1) 
 }
+#plt_2d(cohort_dynamics[[53]]$nt_1, cohort_dynamics[[53]]$nt_2)
 plt_2d(cohort_dynamics$nt_1, cohort_dynamics$nt_2)   
       
 # ... simpler to work with the data in 'tidy' format
 
 # function to convert to 'tidy' format
 tidy_output <- function(i_par, x) {
-  # state vars
-  out <- expand.grid(
-    z = i_par$m_z,                     # size
-    u = i_par$m_u,                     # individual effect
-    a = seq.int(i_par$L_a, i_par$U_a), # age
-    s = 1:2                            # stage
-  )
-  # density at state
-  out$d <- unlist(c(x$nt_1, x$nt_2))
-  return(out)
-}
+    # state vars
+    out <- expand.grid(
+      z = i_par$m_z,                     # size
+      u = i_par$m_u,                     # individual effect
+      a = seq.int(i_par$L_a, i_par$U_a), # age
+      s = 1:2                            # stage
+    )
+    #density at state
+    #for(i in 1:1000){
+    #out$d[[i]] <- unlist(c(x$nt_1, x$nt_2))
+    #return(out)
+    #}
+    out$d <- unlist(c(x$nt_1, x$nt_2))
+    return(out)
+  }
 
 # tidy up the data
+#for (i in 1:1000){
+#  res[[i]] <- tidy_output(i_par, cohort_dynamics[[i]])
+#}
 res <- tidy_output(i_par, cohort_dynamics)
 
+# check that I am doing this right
+res
 # sanity check proportion in each age class should be = ~1
 res %>% 
   group_by(a) %>% 
@@ -378,12 +353,11 @@ res %>%
   group_by(a, s) %>% 
   summarise(p_stage = sum(d) * i_par$h_z * i_par$h_u) 
 
-View(res)
 ggplot(res, aes(x=z, y=d, color=factor(a)))+
   geom_point()
 # mean otolith size in each stage
 res %>% 
-  group_by(a) %>% 
+  group_by(s) %>% 
   summarise(mean_z =  sum(d * z) * i_par$h_z * i_par$h_u) 
 #this increases as age increases (that makes sense!)
 
@@ -409,17 +383,30 @@ res %>%
 
 
 # size distribution by age / stage
-plt_data <- res %>% 
-  group_by(a, s, z) %>% 
-  summarise(d = sum(d) * i_par$h_u) 
+plt_data <- 
+    res %>% 
+    group_by(a, s, z) %>% 
+    summarise(d = sum(d) * i_par$h_u) 
+
+
 ggplot(plt_data, aes(x = z, y = d, group = a)) +
-  geom_line() + facet_wrap(~ s, nrow = 2) + 
-  theme_minimal() 
+    geom_line() + facet_wrap(~ s, nrow = 2) + 
+    theme_minimal() 
+
 
 # size distribution by age 
 plt_data <- res %>% 
+     group_by(a, z) %>% 
+     summarise(d = sum(d) * i_par$h_u) 
+ 
+plt_data
+
+
+plt_data <- res %>% 
   group_by(a, z) %>% 
   summarise(d = sum(d) * i_par$h_u) 
+
+  
 ggplot(plt_data, aes(x = z, y = d, group = a)) +
   geom_line() + theme_minimal() 
 

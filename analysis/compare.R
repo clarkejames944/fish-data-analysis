@@ -81,11 +81,29 @@ waic_4 <- comp_waic(stan_fit)
 print(loo_4)
 print(waic_4)
 
+############################################################
+## Prepare for model comparison: zone and temperature difference model ----
+
+mod_name <- "hinge_zone_temp_sex_diff"
+
+f_loc <- sub("XX", replacement = mod_name, x = "models/XX.rds")
+stan_fit <- readRDS(file = f_loc)
+
+loo_5 <- comp_loo(stan_fit)
+waic_5 <- comp_waic(stan_fit)
+
+print(loo_5)
+print(waic_5)
 
 ############################################################
 ## compare the models ---
 #loo comparison
-compare(loo_1, loo_2, loo_3, loo_4)
+#1=sex_diff
+#2=age effect
+#3=temp effect
+#4=zone effect
+#5=zone and temp effect
+compare(loo_1, loo_2, loo_3, loo_4, loo_5)
 
 #waic comparison
-compare(waic_1, waic_2, waic_3, waic_4)
+compare(waic_1, waic_2, waic_3, waic_4, waic_5)

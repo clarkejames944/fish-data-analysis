@@ -356,11 +356,38 @@ pdf(file = f_loc, w = 15, h = 15)
 pairs(
   stan_fit,
   pars = c(
-    "alpha", "d_alpha_male", "d_alpha_zone",
+    "alpha", "d_alpha_male", "d_alpha_EBS", "d_alpha_ETAS", "d_alpha_WTAS",
     "beta_1", "beta_2", 
-    "d_beta_1_male", "d_beta_2_male", "d_beta_1_zone",
-    "d_beta_2_zone",
-    "d_eta_zone",
+    "d_beta_1_male", "d_beta_2_male", "d_beta_1_EBS", "d_beta_1_ETAS", "d_beta_1_WTAS",
+    "d_beta_2_EBS", "d_beta_2_ETAS", "d_beta_2_WTAS",
+    "d_eta_EBS", "d_eta_ETAS", "d_eta_WTAS",
+    "eta", "d_eta_male",
+    "sigma_fish", "sigma_year", "sigma",
+    "lp__"
+  )
+)
+
+dev.off()
+
+###############################################################################
+## Summarise the model: hinge zone and temp effect ----
+
+mod_name <- "hinge_zone_temp_sex_diff"
+
+f_loc <- sub("XX", replacement = mod_name, x = "models/XX.rds")
+stan_fit <- readRDS(file = f_loc)
+
+# pairs plots
+f_loc <- sub("XX", replacement = mod_name, x = "figures/XX_pairs.pdf")
+pdf(file = f_loc, w = 15, h = 15)
+pairs(
+  stan_fit,
+  pars = c(
+    "alpha", "d_alpha_male", "d_alpha_EBS", "d_alpha_ETAS", "d_alpha_WTAS", "d_alpha_temp",
+    "beta_1", "beta_2", 
+    "d_beta_1_male", "d_beta_2_male", "d_beta_1_EBS", "d_beta_1_ETAS", "d_beta_1_WTAS", "d_beta_1_temp",
+    "d_beta_2_EBS", "d_beta_2_ETAS", "d_beta_2_WTAS", "d_beta_2_temp",
+    "d_eta_EBS", "d_eta_ETAS", "d_eta_WTAS", "d_eta_temp",
     "eta", "d_eta_male",
     "sigma_fish", "sigma_year", "sigma",
     "lp__"

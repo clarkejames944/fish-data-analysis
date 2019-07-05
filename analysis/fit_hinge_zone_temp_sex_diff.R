@@ -1,6 +1,6 @@
 source("analysis/setup.R")
 
-mod_name <- "hinge_zone_effect"
+mod_name <- "hinge_zone_temp_sex_diff"
 
 ###############################################################################
 ## Prep data for the mcmc ----
@@ -16,29 +16,24 @@ options(mc.cores = parallel::detectCores())
 ## Set up the initial values list ----
 
 # read in the model we'll take initial values from
-init_model <- readRDS(file = "models/hinge_sex_diff.rds")
+init_model <- readRDS(file = "models/hinge_zone_effect.rds")
 # calculate posterior mean of univariate parameters
 pars <- 
   c("alpha", "d_alpha_male", "d_eta_male",
     "d_beta_1_male", "d_beta_2_male",
-    "beta_1", "beta_2", "eta", "sigma_fish", "sigma_year", "sigma")
+    "beta_1", "beta_2", "eta", "sigma_fish", "sigma_year", "sigma",
+    "d_alpha_EBS", "d_eta_EBS", "d_beta_1_EBS", "d_beta_2_EBS",
+    "d_alpha_ETAS", "d_eta_ETAS", "d_beta_1_ETAS", "d_beta_2_ETAS",
+    "d_alpha_WTAS", "d_eta_WTAS", "d_beta_1_WTAS", "d_beta_2_WTAS")
 init_vals <- lapply(rstan::extract(init_model, pars), mean)
 # calculate posterior mean of vector-valued parameters
 init_vals$u_fish <- apply(rstan::extract(init_model, "u_fish")[[1]], 2, mean)
 init_vals$u_year <- apply(rstan::extract(init_model, "u_year")[[1]], 2, mean)
 # add any additional parameters in new model
-init_vals$d_alpha_EBS <- 0.0 
-init_vals$d_alpha_ETAS <- 0.0
-init_vals$d_alpha_WTAS <- 0.0
-init_vals$d_eta_EBS <- 0.0 
-init_vals$d_eta_ETAS <- 0.0
-init_vals$d_eta_WTAS <- 0.0
-init_vals$d_beta_1_EBS <- 0.0
-init_vals$d_beta_1_ETAS <- 0.0
-init_vals$d_beta_1_WTAS <- 0.0
-init_vals$d_beta_2_EBS <- 0.0 
-init_vals$d_beta_2_ETAS <- 0.0
-init_vals$d_beta_2_WTAS <- 0.0
+init_vals$d_alpha_temp <- 0.0 
+init_vals$d_eta_temp <- 0.0 
+init_vals$d_beta_1_temp <- 0.0 
+init_vals$d_beta_2_temp <- 0.0 
 # replicate the list of initial conditions to match number of chains
 init_vals <- replicate(4, init_vals, simplify = FALSE)
 # remove the massive object
@@ -46,7 +41,7 @@ rm(init_model); gc()
 
 
 ###############################################################################
-## Run the mcmc: hinge intercept and threshold age effect model ----
+## Run the mcmc: hinge temperature effect model ----
 
 # compile model
 f_loc <- sub("XX", replacement = mod_name, x = "stan/XX.stan")
