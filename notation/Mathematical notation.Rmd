@@ -9,16 +9,11 @@ individual i
 
 year j
 
-age k
-
-temperature l
-
-zone m
 
 **hinge_sex_diff**
 
 
-$\{^{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y +\alpha^S + \left(1 + \left(\beta_1 + \beta_1^S\right)\left(z_{ij} - \left(\eta + \eta^S\right)\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \alpha^S + \left(1 + \left( \beta_2 + \beta_2^S\right)\right)\left(z_{ij} - \left(\eta + \eta_{ij}^S_{ij}\right)\right) + \epsilon_{ij}}$ 
+
 
 $\{^{z'_{ij} = \alpha + \left(1 + B1\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}_{z'_{ij} = \alpha + \left(1 + B2\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}$ 
 
@@ -35,52 +30,75 @@ $\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
 $\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)$
 
 
-***************
-**hinge_intercept_age_effect**
-
-$\{^{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ijk} - \eta\right) + \epsilon_{ijk}}_{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ijk} - \eta\right) + \epsilon_{ijk}} $ 
-
-$\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
-
-$\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)$
-
-***************
-**hinge_threshold_age_effect**
-
-
-$\{^{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ij} - \eta_k\right) + \epsilon_{ijk}}_{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ij} - \eta\right) + \epsilon_{ijk}}$ 
-
-$\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
-
-$\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)$
-
-
-***************
-**hinge_pre_thres_slope_age_effect**
-
-$\{^{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_{1k}\right)\left(z_{ij} - \eta\right) + \epsilon_{ijk}}_{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_{2k}\right)\left(z_{ij} - \eta\right) + \epsilon_{ijk}}$ 
-
-
-$\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
-
-$\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)$
-
 
 *************
 
-**hinge_sex_diff_age**
+**hinge_sex_age_diff**
 
-$\{^{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ijk} - \eta\right) + \epsilon_{ijk}}$ 
+$\{^{z'_{ij} = \alpha + \left(1 + B1\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}_{z'_{ij} = \alpha + \left(1 + B2\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}$ 
+
+$\alpha = \alpha_0 + \alpha_i^F + \alpha_j^Y +\alpha^S+ \alpha^A$
+
+$\eta_{ij} = \eta_{0_{ij}} + \eta^S_{ij} + \eta^A_{ij}$
+
+$B1 = \beta_1 + \beta_1^S + \beta_1^A$
+
+$B2 = \beta_2 + \beta_2^S + \beta_2^A$
 
 $\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
 
 $\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)$
+
 
 ***************
 
 **hinge_temp_effect**
 
-$\{^{z'_{ijl} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ijl} - \eta\right) + \epsilon_{ijl}}$ 
+$\{^{z'_{ij} = \alpha + \left(1 + B1\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}_{z'_{ij} = \alpha + \left(1 + B2\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}$ 
+
+$\alpha = \alpha_0 + \alpha_i^F + \alpha_j^Y +\alpha^S+ \alpha^T$
+
+$\eta_{ij} = \eta_{0_{ij}} + \eta^S_{ij} + \eta^T_{ij}$
+
+$B1 = \beta_1 + \beta_1^S + \beta_1^T$
+
+$B2 = \beta_2 + \beta_2^S + \beta_2^T$
+
+$\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
+
+$\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)$
+
+***************
+
+**hinge_zone_effect**
+
+$\{^{z'_{ij} = \alpha + \left(1 + B1\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}_{z'_{ij} = \alpha + \left(1 + B2\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}$ 
+
+$\alpha = \alpha_0 + \alpha_i^F + \alpha_j^Y +\alpha^S+ \alpha^Z$
+
+$\eta_{ij} = \eta_{0_{ij}} + \eta^S_{ij} + \eta^Z_{ij}$
+
+$B1 = \beta_1 + \beta_1^S + \beta_1^Z$
+
+$B2 = \beta_2 + \beta_2^S + \beta_2^Z$
+
+$\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
+
+$\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)$
+
+***************
+
+**hinge_zone_temp_sex_diff**
+
+$\{^{z'_{ij} = \alpha + \left(1 + B1\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}_{z'_{ij} = \alpha + \left(1 + B2\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}$ 
+
+$\alpha = \alpha_0 + \alpha_i^F + \alpha_j^Y +\alpha^S+ \alpha^T + \alpha^Z$
+
+$\eta_{ij} = \eta_{0_{ij}} + \eta^S_{ij} + \eta^T_{ij} + \eta^Z_{ij}$
+
+$B1 = \beta_1 + \beta_1^S + \beta_1^T + \beta_1^Z$
+
+$B2 = \beta_2 + \beta_2^S + \beta_2^T + \beta_2^Z$
 
 $\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)$
 
@@ -89,7 +107,13 @@ $\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)$
 ***************
 **IPM**
 
-$n_{t+1}\left(z',u\right) = \int_{z_{min}}^{z_{max}} K(z',z,u)n(z,u) \; dz$
+$n_{t+1}\left(z',u\right) = \int_{L}^{U} K(z',z,u)n(z,u) \; dz$
+
+$K\left(z',z, u\right) = \left(1- p_{sw}\right) G_{JJ}\left(z'| z, u\right) + \left(p_{sw}\right)G_{MJ}\left(z'| z, u\right) + G_{MM}\left(z'|\ z, u\right)$
+
+$p_{sw}$ = probability of switching growth trajectories
+
+
 
 
 

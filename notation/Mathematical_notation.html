@@ -380,11 +380,7 @@ $(document).ready(function () {
 
 <p>individual i</p>
 <p>year j</p>
-<p>age k</p>
-<p>temperature l</p>
-<p>zone m</p>
 <p><strong>hinge_sex_diff</strong></p>
-<p><span class="math inline">\(\{^{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y +\alpha^S + \left(1 + \left(\beta_1 + \beta_1^S\right)\left(z_{ij} - \left(\eta + \eta^S\right)\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \alpha^S + \left(1 + \left( \beta_2 + \beta_2^S\right)\right)\left(z_{ij} - \left(\eta + \eta_{ij}^S_{ij}\right)\right) + \epsilon_{ij}}\)</span></p>
 <p><span class="math inline">\(\{^{z'_{ij} = \alpha + \left(1 + B1\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}_{z'_{ij} = \alpha + \left(1 + B2\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}\)</span></p>
 <p><span class="math inline">\(\alpha = \alpha_0 + \alpha_i^F + \alpha_j^Y +\alpha^S\)</span></p>
 <p><span class="math inline">\(\eta_{ij} = \eta_{0_{ij}} + \eta^S_{ij}\)</span></p>
@@ -393,33 +389,46 @@ $(document).ready(function () {
 <p><span class="math inline">\(\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)\)</span></p>
 <p><span class="math inline">\(\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)\)</span></p>
 <hr />
-<p><strong>hinge_intercept_age_effect</strong></p>
-<p>${^{z’_{ijk} = <em>0 + <em>i^F + <em>j^Y + (1 + <em>1)(z</em>{ijk} - ) + </em>{ijk}}</em>{z’</em>{ijk} = _0 + _i^F + <em>j^Y + (1 + <em>2)(z</em>{ijk} - ) + </em>{ijk}} $</p>
-<p><span class="math inline">\(\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)\)</span></p>
-<p><span class="math inline">\(\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)\)</span></p>
-<hr />
-<p><strong>hinge_threshold_age_effect</strong></p>
-<p><span class="math inline">\(\{^{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ij} - \eta_k\right) + \epsilon_{ijk}}_{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ij} - \eta\right) + \epsilon_{ijk}}\)</span></p>
-<p><span class="math inline">\(\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)\)</span></p>
-<p><span class="math inline">\(\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)\)</span></p>
-<hr />
-<p><strong>hinge_pre_thres_slope_age_effect</strong></p>
-<p><span class="math inline">\(\{^{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_{1k}\right)\left(z_{ij} - \eta\right) + \epsilon_{ijk}}_{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_{2k}\right)\left(z_{ij} - \eta\right) + \epsilon_{ijk}}\)</span></p>
-<p><span class="math inline">\(\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)\)</span></p>
-<p><span class="math inline">\(\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)\)</span></p>
-<hr />
-<p><strong>hinge_sex_diff_age</strong></p>
-<p><span class="math inline">\(\{^{z'_{ijk} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ijk} - \eta\right) + \epsilon_{ijk}}\)</span></p>
+<p><strong>hinge_sex_age_diff</strong></p>
+<p><span class="math inline">\(\{^{z'_{ij} = \alpha + \left(1 + B1\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}_{z'_{ij} = \alpha + \left(1 + B2\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}\)</span></p>
+<p><span class="math inline">\(\alpha = \alpha_0 + \alpha_i^F + \alpha_j^Y +\alpha^S+ \alpha^A\)</span></p>
+<p><span class="math inline">\(\eta_{ij} = \eta_{0_{ij}} + \eta^S_{ij} + \eta^A_{ij}\)</span></p>
+<p><span class="math inline">\(B1 = \beta_1 + \beta_1^S + \beta_1^A\)</span></p>
+<p><span class="math inline">\(B2 = \beta_2 + \beta_2^S + \beta_2^A\)</span></p>
 <p><span class="math inline">\(\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)\)</span></p>
 <p><span class="math inline">\(\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)\)</span></p>
 <hr />
 <p><strong>hinge_temp_effect</strong></p>
-<p><span class="math inline">\(\{^{z'_{ijl} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_1\right)\left(z_{ij} - \eta\right) + \epsilon_{ij}}_{z'_{ij} = \alpha_0 + \alpha_i^F + \alpha_j^Y + \left(1 + \beta_2\right)\left(z_{ijl} - \eta\right) + \epsilon_{ijl}}\)</span></p>
+<p><span class="math inline">\(\{^{z'_{ij} = \alpha + \left(1 + B1\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}_{z'_{ij} = \alpha + \left(1 + B2\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}\)</span></p>
+<p><span class="math inline">\(\alpha = \alpha_0 + \alpha_i^F + \alpha_j^Y +\alpha^S+ \alpha^T\)</span></p>
+<p><span class="math inline">\(\eta_{ij} = \eta_{0_{ij}} + \eta^S_{ij} + \eta^T_{ij}\)</span></p>
+<p><span class="math inline">\(B1 = \beta_1 + \beta_1^S + \beta_1^T\)</span></p>
+<p><span class="math inline">\(B2 = \beta_2 + \beta_2^S + \beta_2^T\)</span></p>
+<p><span class="math inline">\(\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)\)</span></p>
+<p><span class="math inline">\(\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)\)</span></p>
+<hr />
+<p><strong>hinge_zone_effect</strong></p>
+<p><span class="math inline">\(\{^{z'_{ij} = \alpha + \left(1 + B1\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}_{z'_{ij} = \alpha + \left(1 + B2\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}\)</span></p>
+<p><span class="math inline">\(\alpha = \alpha_0 + \alpha_i^F + \alpha_j^Y +\alpha^S+ \alpha^Z\)</span></p>
+<p><span class="math inline">\(\eta_{ij} = \eta_{0_{ij}} + \eta^S_{ij} + \eta^Z_{ij}\)</span></p>
+<p><span class="math inline">\(B1 = \beta_1 + \beta_1^S + \beta_1^Z\)</span></p>
+<p><span class="math inline">\(B2 = \beta_2 + \beta_2^S + \beta_2^Z\)</span></p>
+<p><span class="math inline">\(\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)\)</span></p>
+<p><span class="math inline">\(\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)\)</span></p>
+<hr />
+<p><strong>hinge_zone_temp_sex_diff</strong></p>
+<p><span class="math inline">\(\{^{z'_{ij} = \alpha + \left(1 + B1\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}_{z'_{ij} = \alpha + \left(1 + B2\right)\left(z_{ij} - \eta_{ij}\right) + \epsilon_{ij}}\)</span></p>
+<p><span class="math inline">\(\alpha = \alpha_0 + \alpha_i^F + \alpha_j^Y +\alpha^S+ \alpha^T + \alpha^Z\)</span></p>
+<p><span class="math inline">\(\eta_{ij} = \eta_{0_{ij}} + \eta^S_{ij} + \eta^T_{ij} + \eta^Z_{ij}\)</span></p>
+<p><span class="math inline">\(B1 = \beta_1 + \beta_1^S + \beta_1^T + \beta_1^Z\)</span></p>
+<p><span class="math inline">\(B2 = \beta_2 + \beta_2^S + \beta_2^T + \beta_2^Z\)</span></p>
 <p><span class="math inline">\(\alpha_{i}^{F} \sim N\left(0, \sigma^2_F\right)\)</span></p>
 <p><span class="math inline">\(\alpha_{j}^{Y} \sim N\left(0, \sigma^2_Y\right)\)</span></p>
 <hr />
 <p><strong>IPM</strong></p>
-<p><span class="math inline">\(n_{t+1}\left(z',u\right) = \int_{z_{min}}^{z_{max}} K(z',z,u)n(z,u) \; dz\)</span></p>
+<p><span class="math inline">\(n_{t+1}\left(z',u\right) = \int_{L}^{U} K(z',z,u)n(z,u) \; dz\)</span></p>
+<p><span class="math inline">\(K\left(z',z, u\right) = \left(1- p_{sw}\right) G_{JJ}\left(z'| z, u\right) + \left(p_{sw}\right)G_{MJ}\left(z'| z, u\right) + G_{MM}\left(z'|\ z, u\right)\)</span></p>
+<p><span class="math inline">\(p_{sw}\)</span> = probability of switching growth trajectories</p>
 
 
 

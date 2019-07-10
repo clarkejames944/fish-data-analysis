@@ -4,11 +4,11 @@ source("analysis/setup.R")
 ## Read in the model: ----
 
 # read in the model we'll use
-stan_model <- readRDS(file = "models/hinge_sex_diff.rds")
+stan_model <- readRDS(file = "models/hinge_zone_temp_sex_diff.rds")
 
 # vector of names of required parameters
 # source according to which model is being analysed
-source("par_names/par_names_hinge_sex_diff.R")
+source("par_names/par_names_hinge_zone_temp_sex_diff.R")
 
 # extract posterior draws of required parameters
 par_posterior <- rstan::extract(stan_model, par_names) # GLOBAL
@@ -128,7 +128,7 @@ draw_u_year <- function(m_par, method = "constant") {
 ###############################################################################
 # obtain the appropriate vital rate functions according to 
 # the model that is being analysed
-source("vitals/vital_rate_hinge_sex_diff.R")
+source("vitals/vital_rate_hinge_zone_temp_sex_diff.R")
 
 ###############################################################################
 ## Define the growth-switch kernel functions ----
@@ -269,13 +269,16 @@ iterate <- function(i_par, m_par, init_dens_par) {
 # use this to loop over 1000 iterations to get an idea of uncertainty
 m_par <- mk_m_par(par_posterior, 0)
 #m_par$a <- 2
-#m_par$temp <- 1
+m_par$temp <- 0
 #for (i in 1:1000){
 #  m_par[[i]] <- mk_m_par(par_posterior, i)
 #  m_par$temp[[i]] <- 0
 #}
-
-#m_par$zone <- "EBS"
+m_par$zone <- "WTAS"
+m_par$is_EBS = ifelse(m_par$zone == "EBS", 1, 0)
+m_par$is_ETAS = ifelse(m_par$zone == "ETAS", 1, 0)
+m_par$is_WTAS = ifelse(m_par$zone == "WTAS", 1, 0)
+m_par$is_NSW = ifelse(m_par$zone == "NSW", 1, 0)
 m_par
 # set up the  parameters to control the numerics
 i_par <- mk_i_par(
@@ -336,11 +339,12 @@ tidy_output <- function(i_par, x) {
   }
 
 # tidy up the data
-#for (i in 1:1000){
+
+ #for (i in 1:1000){
 #  res[[i]] <- tidy_output(i_par, cohort_dynamics[[i]])
 #}
 res <- tidy_output(i_par, cohort_dynamics)
-
+#melt.data.frame(res)
 # check that I am doing this right
 res
 # sanity check proportion in each age class should be = ~1
