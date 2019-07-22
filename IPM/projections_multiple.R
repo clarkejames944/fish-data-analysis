@@ -4,11 +4,11 @@ source("analysis/setup.R")
 ## Read in the model: ----
 
 # read in the model we'll use
-stan_model <- readRDS(file = "models/hinge_zone_temp_sex_diff.rds")
+stan_model <- readRDS(file = "models/hinge_sex_diff.rds")
 
 # vector of names of required parameters
 # source according to which model is being analysed
-source("par_names/par_names_hinge_zone_temp_sex_diff.R")
+source("par_names/par_names_hinge_sex_diff.R")
 
 # extract posterior draws of required parameters
 par_posterior <- rstan::extract(stan_model, par_names) # GLOBAL
@@ -128,7 +128,7 @@ draw_u_year <- function(m_par, method = "constant") {
 ###############################################################################
 # obtain the appropriate vital rate functions according to 
 # the model that is being analysed
-source("vitals/vital_rate_hinge_zone_temp_sex_diff.R")
+source("vitals/vital_rate_hinge_sex_diff.R")
 
 ###############################################################################
 ## Define the growth-switch kernel functions ----
@@ -263,15 +263,8 @@ iterate <- function(i_par, m_par, init_dens_par) {
 ###############################################################################
 ## Using model ----
 
-# grab the posterior mean model parameters
-m_par <- mk_m_par(par_posterior, 0)
-m_par$temp <- 1
-m_par$zone <- "WTAS"
-m_par$is_EBS = ifelse(m_par$zone == "EBS", 1, 0)
-m_par$is_ETAS = ifelse(m_par$zone == "ETAS", 1, 0)
-m_par$is_WTAS = ifelse(m_par$zone == "WTAS", 1, 0)
-m_par$is_NSW = ifelse(m_par$zone == "NSW", 1, 0)
-
+#####################################################
+## Some functions outside the loop -----
 
 # set up the  parameters to control the numerics
 i_par <- mk_i_par(
@@ -280,12 +273,31 @@ i_par <- mk_i_par(
   L_a = min(all_states$a), U_a = max(all_states$a),
   sex = "F" # <- code works on one sex at a time so must be scalar
 )
-# run the cohort dynamics
-system.time(
-  cohort_dynamics <- iterate(i_par, m_par, init_dens_par)
-) # not super fast w/ above params 
 
-# quick plot to check results...
+# ... simpler to work with the data in 'tidy' format
+
+# tidy up the data
+
+# function to convert to 'tidy' format
+tidy_output <- function(i_par, x) {
+  # state vars
+  out <- expand.grid(
+    z = i_par$m_z,                     # size
+    u = i_par$m_u,                     # individual effect
+    a = seq.int(i_par$L_a, i_par$U_a), # age
+    s = 1:2                            # stage
+  )
+  #density at state
+  #for(i in 1:1000){
+  #out$d[[i]] <- unlist(c(x$nt_1, x$nt_2))
+  #return(out)
+  #}
+  out$d <- unlist(c(x$nt_1, x$nt_2))
+  return(out)
+}
+
+
+#  For a quick plot to check results...
 plt_2d <- function(nt_1, nt_2) {
   plt <- function(n_t, i_par, zmax, col) {
     dim(n_t) <- c(i_par$N_z, i_par$N_u)
@@ -300,47 +312,114 @@ plt_2d <- function(nt_1, nt_2) {
   mtext("  pre-threshold \n", side = 3, line = 0, outer = TRUE, adj = 0) 
   mtext(" post-threshold \n", side = 3, line = 0, outer = TRUE, adj = 1) 
 }
-plt_2d(cohort_dynamics$nt_1, cohort_dynamics$nt_2)   
-      
-# ... simpler to work with the data in 'tidy' format
 
-# function to convert to 'tidy' format
-tidy_output <- function(i_par, x) {
-  # state vars
-  out <- expand.grid(
-    z = i_par$m_z,                     # size
-    u = i_par$m_u,                     # individual effect
-    a = seq.int(i_par$L_a, i_par$U_a), # age
-    s = 1:2                            # stage
-  )
-  # density at state
-  out$d <- unlist(c(x$nt_1, x$nt_2))
-  return(out)
+
+###############################################################
+## Model within the loop to grab a large sample of the iterations ----
+
+# grab the posterior mean model parameters
+# if you want the first iteration then it would be 
+
+# use this to loop over 1000 iterations to get an idea of uncertainty
+
+for (i in 1:1000){
+  m_par <- mk_m_par(par_posterior, i)
+  #m_par$temp <- 0
+  #m_par$zone <- "WTAS"
+  #m_par$is_EBS = ifelse(m_par$zone == "EBS", 1, 0)
+  #m_par$is_ETAS = ifelse(m_par$zone == "ETAS", 1, 0)
+  #m_par$is_WTAS = ifelse(m_par$zone == "WTAS", 1, 0)
+  #m_par$is_NSW = ifelse(m_par$zone == "NSW", 1, 0)
+
+  #run the cohort dynamics
+  system.time(
+   cohort_dynamics <- iterate(i_par, m_par, init_dens_par)
+   ) # not super fast w/ above params 
+
+  # quick plot to check results
+  #plt_2d(cohort_dynamics$nt_1, cohort_dynamics$nt_2)   
+
+  # create a tidy output of the results
+  res <- tidy_output(i_par, cohort_dynamics)
+  
+  #organise the results for plotting
+  plt_data[[i]] <- 
+    res %>% 
+    group_by(a, s, z) %>% 
+    summarise(d = sum(d) * i_par$h_u) 
 }
 
-# tidy up the data
-res <- tidy_output(i_par, cohort_dynamics)
+plt_data_res <- as.list(plt_data)
+plt_data_res1 <- cbind(plt_data_res)
+plt_data_res1.1 <- as.data.frame(plt_data_res1)
 
-# sanity check proportion in each age class should be = ~1
-res %>% 
-  group_by(a) %>% 
-  summarise(p_stage = sum(d) * i_par$h_z * i_par$h_u)
+iteration <- 1:nrow(plt_data_res1.1)
+iteration <- as.data.frame(iteration)
 
-# proportion by age / stage
-res %>% 
-  group_by(a, s) %>% 
-  summarise(p_stage = sum(d) * i_par$h_z * i_par$h_u) 
+plt_data_res1.1 <- cbind(plt_data_res1.1, iteration)
+save(plt_data_res1.1, file= "iteration_data.rda")
 
-# mean otolith size in each stage
-res %>% 
-  group_by(a) %>% 
-  summarise(mean_z =  sum(d * z) * i_par$h_z * i_par$h_u) 
 
-# or do all the first two multivariate moments
-dd <- i_par$h_z * i_par$h_u 
-res %>% 
-  group_by(a) %>%
+res_tb <- tibble::as_tibble(plt_data_res1.1)
+res_tb <- tidyr::unnest(res_tb)
+
+# generally more sensible to calculate posterior summaries of scalar quantitites
+# but let's get tthe posterior mean of the density function and the interquartile range
+
+res_tb %>% 
+  group_by(a, s, z) %>% 
   summarise(
+    d   = mean(d),
+    q25 = quantile(d, probs = 0.25),
+    q75 = quantile(d, probs = 0.75),
+  )
+
+# if we need to calculate posterior summaries for a scalar quantitites we can do it in
+# two steps... e.g. for mean otolith size at each age
+# 1. calculate the model summaries per draw ('iteration') 
+res_summary <- res_tb %>% 
+  group_by(iteration, a) %>% 
+  summarise(
+    mu_z = sum(z * d) / sum(d)
+  )
+# 2. then compute whatever numbers we need to summarise the posterior
+res_summary %>% 
+  group_by(a) %>% 
+  summarise(
+    mean_mu_z   = mean(mu_z),
+    q10_mu_z = quantile(mu_z, probs = 0.10), # for the 80% interval
+    q75_mu_z = quantile(mu_z, probs = 0.75), # for the 50% interval
+    q25_mu_z = quantile(mu_z, probs = 0.25), # for the 50% interval
+    q90_mu_z = quantile(mu_z, probs = 0.90), # for the 80% interval
+  )
+
+
+
+
+
+  # sanity check proportion in each age class should be = ~1
+  res %>% 
+    group_by(a) %>% 
+      summarise(p_stage = sum(d) * i_par$h_z * i_par$h_u)
+
+  # proportion by age / stage
+  res %>% 
+    group_by(a, s) %>% 
+      summarise(p_stage = sum(d) * i_par$h_z * i_par$h_u) 
+
+
+  # mean otolith size in each stage
+    res %>% 
+      group_by(s) %>% 
+        summarise(mean_z =  sum(d * z) * i_par$h_z * i_par$h_u) 
+  #this increases as age increases (that makes sense!)
+
+  # or do all the first two multivariate moments
+  dd <- i_par$h_z * i_par$h_u 
+
+ res %>% 
+    group_by(a) %>%
+      summarise(
     # normalisation constant
     n      = sum(d) * dd,
     # moments
@@ -355,18 +434,36 @@ res %>%
     cor_zu = cov_zu / (sd_z * sd_u)
   ) 
 
+
+#Works-but I could get more control using ggplot
+plot(plt_data_res[[1]]$z, plt_data_res[[1]]$d, type="l")
+for (i in seq_along(plt_data_res))
+  lines(plt_data_res[[i]]$z, plt_data_res[[i]]$d)
+
+
 # size distribution by age / stage
-plt_data <- res %>% 
-  group_by(a, s, z) %>% 
-  summarise(d = sum(d) * i_par$h_u) 
+
+ggplot(plt_data_res1.1, aes(x = z, y = d, group = a)) +
+    geom_line(aes(group=plt_data_res1.1$iteration)) + facet_wrap(~ s, nrow = 2) + 
+    theme_minimal() 
+
 ggplot(plt_data, aes(x = z, y = d, group = a)) +
   geom_line() + facet_wrap(~ s, nrow = 2) + 
   theme_minimal() 
 
 # size distribution by age 
 plt_data <- res %>% 
+     group_by(a, z) %>% 
+     summarise(d = sum(d) * i_par$h_u) 
+ 
+plt_data
+
+
+plt_data <- res %>% 
   group_by(a, z) %>% 
   summarise(d = sum(d) * i_par$h_u) 
+
+  
 ggplot(plt_data, aes(x = z, y = d, group = a)) +
   geom_line() + theme_minimal() 
 

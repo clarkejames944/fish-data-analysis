@@ -40,19 +40,19 @@ mod_data <- fish %>%
 
 gam_form_1 <- z1 ~ s(z0, k = 25) + s(Age) + s(z0, k = 25, by = Age)
 g_mods_1 <- fit_grow_mod(gam_form_1, mod_data)
-# save(gam_mods_1, file = "g_mods_1.rda")
+save(gam_mods_1, file = "g_mods_1.rda")
 
 gam_form_2.1 <- z1 ~ s(z0, k = 25) + s(Age) + s(z0, k = 25, by = Age) + s(FishID, bs = "re") + s(Year_f, bs = "re")
 g_mods_2.1 <- fit_grow_mod(gam_form_2.1, mod_data)
-# save(gam_mods_2.1, file = "g_mods_2.1.rda")
+save(gam_mods_2.1, file = "g_mods_2.1.rda")
 
 gam_form_2 <- z1 ~ s(z0, k = 25, by = Age_f) + s(FishID, bs = "re") + s(Year_f, bs = "re")
 g_mods_2 <- fit_grow_mod(gam_form_2, mod_data)
-# save(gam_mods_2, file = "g_mods_2.rda")
+save(gam_mods_2, file = "g_mods_2.rda")
 
 gam_form_3 <- z1 ~ s(z0, k = 25) + s(FishID, bs = "re") + s(Year_f, bs = "re")
 g_mods_3 <- fit_grow_mod(gam_form_3, mod_data)
-# save(gam_mods_3, file = "g_mods_3.rda")
+save(gam_mods_3, file = "g_mods_3.rda")
 
 gam_form_4 <- z1 ~ s(z0, k = 25)
 g_mods_4 <- fit_grow_mod(gam_form_4, mod_data)

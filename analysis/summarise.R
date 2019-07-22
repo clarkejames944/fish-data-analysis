@@ -380,17 +380,30 @@ stan_fit <- readRDS(file = f_loc)
 # pairs plots
 f_loc <- sub("XX", replacement = mod_name, x = "figures/XX_pairs.pdf")
 pdf(file = f_loc, w = 15, h = 15)
+#pairs(
+#  stan_fit,
+#  pars = c(
+#    "alpha", "d_alpha_male", "d_alpha_EBS", "d_alpha_ETAS", "d_alpha_WTAS", "d_alpha_temp",
+#    "beta_1", "beta_2", 
+#    "d_beta_1_male", "d_beta_2_male", "d_beta_1_EBS", "d_beta_1_ETAS", "d_beta_1_WTAS", "d_beta_1_temp",
+#    "d_beta_2_EBS", "d_beta_2_ETAS", "d_beta_2_WTAS", "d_beta_2_temp",
+#    "d_eta_EBS", "d_eta_ETAS", "d_eta_WTAS", "d_eta_temp",
+#    "eta", "d_eta_male",
+#    "sigma_fish", "sigma_year", "sigma",
+#    "lp__"
+#  )
+#)
+
+# to double-check the weird temperature effects
 pairs(
   stan_fit,
   pars = c(
-    "alpha", "d_alpha_male", "d_alpha_EBS", "d_alpha_ETAS", "d_alpha_WTAS", "d_alpha_temp",
+    "alpha", "d_alpha_temp",
     "beta_1", "beta_2", 
-    "d_beta_1_male", "d_beta_2_male", "d_beta_1_EBS", "d_beta_1_ETAS", "d_beta_1_WTAS", "d_beta_1_temp",
-    "d_beta_2_EBS", "d_beta_2_ETAS", "d_beta_2_WTAS", "d_beta_2_temp",
-    "d_eta_EBS", "d_eta_ETAS", "d_eta_WTAS", "d_eta_temp",
-    "eta", "d_eta_male",
-    "sigma_fish", "sigma_year", "sigma",
-    "lp__"
+    "d_beta_1_temp",
+    "d_beta_2_temp",
+    "d_eta_temp",
+    "eta"
   )
 )
 
