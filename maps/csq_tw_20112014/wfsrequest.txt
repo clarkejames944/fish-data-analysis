@@ -1,0 +1,1 @@
+https://www.cmar.csiro.au/geoserver/nerp/ows?service=WFS&version=1.0.0&request=GetFeature&typeName=nerp:csq_tw_20112014&outputFormat=shape-zip

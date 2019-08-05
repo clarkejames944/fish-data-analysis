@@ -4,13 +4,15 @@ source("analysis/setup.R")
 
 # show that the temperatures differ considerably with zone
 
-ggplot(fishdat_cut, aes(x= bottomtemp1, y= z0, color=zone))+
-         geom_point()
 ylab <- "Seafloor temperature (°C)"
-ggplot(fishdat_cut, aes(x= zone, y= bottomtemp1))+
+ ggplot(fishdat_cut, aes(x= zone, y= bottomtemp1, fill=zone))+
   geom_boxplot()+
   xlab("Zone") + ylab(ylab)+
-  theme_classic()
+  theme_set(theme_classic())
+ 
+  theme_update(legend.position="none")
+
+ 
 
 ##########################################################    
 
