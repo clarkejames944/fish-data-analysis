@@ -4,11 +4,11 @@ source("analysis/setup.R")
 ## Read in the model: ----
 
 # read in the model we'll use
-stan_model <- readRDS(file = "models/hinge_sex_diff.rds")
+stan_model <- readRDS(file = "models/hinge_zone_temp_sex_diff.rds")
 
 # vector of names of required parameters
 # source according to which model is being analysed
-source("par_names/par_names_hinge_sex_diff.R")
+source("par_names/par_names_hinge_zone_temp_sex_diff.R")
 
 # extract posterior draws of required parameters
 par_posterior <- rstan::extract(stan_model, par_names) # GLOBAL
@@ -128,7 +128,7 @@ draw_u_year <- function(m_par, method = "constant") {
 ###############################################################################
 # obtain the appropriate vital rate functions according to 
 # the model that is being analysed
-source("vitals/vital_rate_hinge_sex_diff.R")
+source("vitals/vital_rate_hinge_zone_temp_sex_diff.R")
 
 ###############################################################################
 ## Define the growth-switch kernel functions ----
@@ -324,12 +324,12 @@ plt_2d <- function(nt_1, nt_2) {
 
 for (i in 1:1000){
   m_par <- mk_m_par(par_posterior, i)
-  #m_par$temp <- 0
-  #m_par$zone <- "WTAS"
-  #m_par$is_EBS = ifelse(m_par$zone == "EBS", 1, 0)
-  #m_par$is_ETAS = ifelse(m_par$zone == "ETAS", 1, 0)
-  #m_par$is_WTAS = ifelse(m_par$zone == "WTAS", 1, 0)
-  #m_par$is_NSW = ifelse(m_par$zone == "NSW", 1, 0)
+  m_par$temp <- 0
+  m_par$zone <- "EBS"
+  m_par$is_EBS = ifelse(m_par$zone == "EBS", 1, 0)
+  m_par$is_ETAS = ifelse(m_par$zone == "ETAS", 1, 0)
+  m_par$is_WTAS = ifelse(m_par$zone == "WTAS", 1, 0)
+  m_par$is_NSW = ifelse(m_par$zone == "NSW", 1, 0)
 
   #run the cohort dynamics
   system.time(
@@ -351,13 +351,12 @@ for (i in 1:1000){
 
 plt_data_res <- as.list(plt_data)
 plt_data_res1 <- cbind(plt_data_res)
-plt_data_res1.1 <- as.data.frame(plt_data_res1)
+plt_data_res1.1 <- as_tibble(plt_data_res1)
 
 iteration <- 1:nrow(plt_data_res1.1)
 iteration <- as.data.frame(iteration)
 
 plt_data_res1.1 <- cbind(plt_data_res1.1, iteration)
-save(plt_data_res1.1, file= "iteration_data.rda")
 
 
 res_tb <- tibble::as_tibble(plt_data_res1.1)
@@ -382,20 +381,15 @@ res_summary <- res_tb %>%
   summarise(
     mu_z = sum(z * d) / sum(d)
   )
+
+## save rda file based on which version of the IPM we run
+
+save(res_summary, file= "EBSf_iteration_data.rda")
+
 # 2. then compute whatever numbers we need to summarise the posterior
-res_summary %>% 
-  group_by(a) %>% 
-  summarise(
-    mean_mu_z   = mean(mu_z),
-    q10_mu_z = quantile(mu_z, probs = 0.10), # for the 80% interval
-    q75_mu_z = quantile(mu_z, probs = 0.75), # for the 50% interval
-    q25_mu_z = quantile(mu_z, probs = 0.25), # for the 50% interval
-    q90_mu_z = quantile(mu_z, probs = 0.90), # for the 80% interval
-  )
 
-
-
-
+#########################################################################3
+## these predictions will be used to create graphs in the Projection graphs R script
 
   # sanity check proportion in each age class should be = ~1
   res %>% 
@@ -433,6 +427,9 @@ res_summary %>%
     sd_u   = sqrt(var_u),
     cor_zu = cov_zu / (sd_z * sd_u)
   ) 
+ 
+  ggplot(res, aes(x=u, y=z, group=a))+
+   geom_line()
 
 
 #Works-but I could get more control using ggplot

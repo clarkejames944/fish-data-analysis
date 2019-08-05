@@ -36,7 +36,7 @@ rm(stan_model); gc()
 ###############################################################################
 ## get all the state data into one place ----
 
-state_var_names <- c("id_fish", "z0", "a", "is_f", "is_m")
+state_var_names <- c("id_fish", "z0", "a", "is_f", "is_m", "is_EBS","is_ETAS","is_WTAS","is_NSW")
 #this prep_stan_data is a function created in the setup.R document
 #this is grabbing the appropriate data from fishdat_cut
 #then it is taking a subset based on the variable names we have 
@@ -45,6 +45,7 @@ all_states <- prep_stan_data(fishdat_cut)[state_var_names]
 all_states <- as.data.frame(all_states)
 #u_fish corresponds with the id_fish column in this dataset
 all_states$u_fish <- u_fish[all_states$id_fish]
+
 
 ###############################################################################
 ## construct initial distribution ----
@@ -56,6 +57,14 @@ u_z_cor <-
   summarise(u_z_cor = cor(u_fish, z0))
 # inspect - should be +ve and go up with age...
 u_z_cor
+
+
+##### Change the zone initial distribution here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+all_states <- filter(all_states, is_EBS=="1")
+
+
+
 
 
 # grad the sizes at initial age + the individual effects
@@ -300,7 +309,7 @@ plt_2d <- function(nt_1, nt_2) {
   mtext(" post-threshold \n", side = 3, line = 0, outer = TRUE, adj = 1) 
 }
 plt_2d(cohort_dynamics$nt_1, cohort_dynamics$nt_2)   
-      
+
 # ... simpler to work with the data in 'tidy' format
 
 # function to convert to 'tidy' format

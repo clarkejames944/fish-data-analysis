@@ -15,6 +15,7 @@ library(car)
 library(Matrix)
 library(viridis)
 library(reshape2)
+library(tidyverse)
 
 #######################################################################
 ## Function definitions ----
