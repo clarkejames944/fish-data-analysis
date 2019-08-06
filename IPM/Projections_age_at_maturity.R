@@ -62,7 +62,7 @@ u_z_cor
 
 ##### Change the zone and sex initial distribution here!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 
-all_states <- filter(all_states, is_NSW=="1")
+all_states <- filter(all_states, is_EBS=="1")
 all_states <- filter(all_states, is_f== "1")
 
 
@@ -335,7 +335,7 @@ plt_2d <- function(nt_1, nt_2) {
 for (i in 1:1000){
   m_par <- mk_m_par(par_posterior, i)
   m_par$temp <- 0
-  m_par$zone <- "NSW"
+  m_par$zone <- "EBS"
   m_par$is_EBS = ifelse(m_par$zone == "EBS", 1, 0)
   m_par$is_ETAS = ifelse(m_par$zone == "ETAS", 1, 0)
   m_par$is_WTAS = ifelse(m_par$zone == "WTAS", 1, 0)
@@ -353,10 +353,11 @@ for (i in 1:1000){
   res <- tidy_output(i_par, cohort_dynamics)
   
   #organise the results for plotting
-  plt_data[[i]] <- 
+  plt_data[[i]]  <- 
     res %>% 
-    group_by(a, s, z) %>% 
-    summarise(d = sum(d) * i_par$h_u) 
+    group_by(a, s) %>% 
+    summarise(p_stage = sum(d) * i_par$h_z * i_par$h_u,
+                   d = sum(d) * i_par$h_u) 
 }
 
 
@@ -376,12 +377,14 @@ res_tb <- tidyr::unnest(res_tb)
 # generally more sensible to calculate posterior summaries of scalar quantitites
 # but let's get tthe posterior mean of the density function and the interquartile range
 
+res_tb <- res_tb %>% filter(s=="2")
+
 res_tb %>% 
-  group_by(a, s, z) %>% 
+  group_by(a) %>% 
   summarise(
-    d   = mean(d),
-    q25 = quantile(d, probs = 0.25),
-    q75 = quantile(d, probs = 0.75),
+    p_stage   = mean(p_stage),
+    q25 = quantile(p_stage, probs = 0.25),
+    q75 = quantile(p_stage, probs = 0.75),
   )
 
 # if we need to calculate posterior summaries for a scalar quantitites we can do it in
@@ -390,12 +393,12 @@ res_tb %>%
 res_summary <- res_tb %>% 
   group_by(iteration, a) %>% 
   summarise(
-    mu_z = sum(z * d) / sum(d)
+    mu_p = sum(p_stage * d) / sum(d)
   )
 
 ## save rda file based on which version of the IPM we run
 
-save(res_summary, file= "IPM_summaries/NSWf_iteration_data.rda")
+save(res_summary, file= "IPM_summaries/EBSf_age_at_maturity_data.rda")
 
 # 2. then compute whatever numbers we need to summarise the posterior
 
