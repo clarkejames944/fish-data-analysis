@@ -371,26 +371,43 @@ raw_size_at_age <- raw_size_at_age %>% transmute(a=Age, mean_mu_z=mean, se=se, s
 raw_size_at_age <- mutate(raw_size_at_age, sex= car::recode(sex, "'F' = 'Female'"))
 raw_size_at_age <- mutate(raw_size_at_age, sex= car::recode(sex, "'M' = 'Male'"))
 
-ggplot(full_curr_summary, aes(x=a, y=mean_mu_z, linetype=zone))+
+ggplot(full_curr_summary, aes(x=a, y=mean_mu_z, linetype=sex))+
   geom_line()+
-  geom_ribbon(aes(ymin=q10_mu_z, ymax=q90_mu_z, fill=zone), alpha=0.35)+
-  facet_wrap(~sex)+
+  geom_ribbon(aes(ymin=q10_mu_z, ymax=q90_mu_z, fill=sex), alpha=0.5)+
+  facet_grid(sex~zone)+
   ylab("Mean otolith size (cm)") + xlab("Age (years)")+
-  geom_point(data = raw_size_at_age, aes(color=zone), position = position_dodge(width = 0.5))+
-  geom_errorbar(data = raw_size_at_age, aes(ymin=mean_mu_z-se, ymax=mean_mu_z+se, color=zone), position = position_dodge(width = 0.5))+
-  theme_classic()
+  geom_point(data = raw_size_at_age, aes(color=sex))+
+  geom_errorbar(data = raw_size_at_age, aes(ymin=mean_mu_z-se, ymax=mean_mu_z+se, color=sex, width=0.15))+
+  geom_abline(intercept = -0.15, slope = 0.23)+
+  scale_fill_manual(values = c("royalblue3", "darkorange1"))+
+  scale_colour_manual(values = c("royalblue3", "darkorange1"))+
+  theme_linedraw()
 
 
+ggplot(full_curr_summary, aes(x=a, y=mean_mu_z, linetype=sex))+
+  geom_line()+
+  geom_ribbon(aes(ymin=q10_mu_z, ymax=q90_mu_z, fill=sex), alpha=0.5)+
+  facet_wrap(~zone, nrow = 1)+
+  ylab("Mean otolith size (cm)") + xlab("Age (years)")+
+  geom_point(data = raw_size_at_age, aes(color=sex))+
+  geom_errorbar(data = raw_size_at_age, aes(ymin=mean_mu_z-se, ymax=mean_mu_z+se, color=sex, width=0.15))+
+  geom_abline(intercept = -0.15, slope = 0.23)+
+  scale_fill_manual(values = c("royalblue3", "darkorange1"))+
+  scale_colour_manual(values = c("royalblue3", "darkorange1"))+
+  theme_linedraw()
 
 ## plot of size at age separated by temperature and sex
 full_summary %>% 
-  ggplot(aes(x=a, y=mean_mu_z, linetype=sex))+
-  geom_line(aes(color=temp))+
-  geom_ribbon(aes(ymin=q10_mu_z, ymax=q90_mu_z, fill=temp), alpha=0.35)+
-  facet_wrap(~zone)+
-  ylab("Mean otolith size (cm)") + xlab("Age (years)")+
-  geom_point(data = raw_size_at_age, position = position_dodge(width = 0.5))+
-  geom_errorbar(data = raw_size_at_age, aes(ymin=mean_mu_z-se, ymax=mean_mu_z+se), position = position_dodge(width = 0.5))+
-  theme_classic()
+  ggplot(aes(x=a, y=mean_mu_z))+
+  geom_line(aes(linetype=temp))+
+  geom_ribbon(aes(ymin=q10_mu_z, ymax=q90_mu_z, fill=temp), alpha=0.5)+
+  facet_grid(sex~zone)+
+  ylab(expression(paste("Mean otolith size (", cm^2, ")")))+ xlab("Age (years)")+
+  geom_point(data = raw_size_at_age)+
+  geom_errorbar(data = raw_size_at_age, aes(ymin=mean_mu_z-se, ymax=mean_mu_z+se, width=0.15))+
+  geom_abline(intercept = -0.15, slope = 0.23)+
+  scale_fill_manual(values = c("royalblue3", "darkorange1"))+
+  scale_colour_manual(values = c("royalblue3", "darkorange1"))+
+  theme_linedraw()
 
 

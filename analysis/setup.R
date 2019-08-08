@@ -37,7 +37,8 @@ prep_stan_data <- function(data) {
     is_f    = as.integer(data$sex == "F"),
     is_m    = as.integer(data$sex == "M"),
     z0      = data$z0^2,
-    z1      = data$z1^2
+    z1      = data$z1^2,
+    floorlength = data$floorlength
   )
 }
 
