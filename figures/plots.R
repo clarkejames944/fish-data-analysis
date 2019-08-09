@@ -40,3 +40,32 @@ cor(fishdat_max$floorlength, fishdat_max$z0, method = "pearson")
 modlength <- lm(z0~floorlength, data=fishdat_max)
 
 summary.lm(modlength)
+
+
+#######################################################
+
+### Data summary plots
+
+
+### bottom temperature against year by zone
+fishdat_sum <- fishdat_cut %>% group_by(zone, Year) %>% 
+  summarise(bottomtemp1=mean(bottomtemp1))
+
+ylab <- "Seafloor temperature (°C)"
+fishdat_sum %>% 
+  ggplot(aes(x= Year, y= bottomtemp1, color=zone))+
+  xlab("Year") + ylab(ylab)+
+  labs(color="Zone")+
+  geom_line()
+
+
+
+#### Fish ID against year by zone
+
+fishy <- fishdat_cut %>% group_by(zone, FishID) %>% mutate(count=n())
+fishdat_arr <- fishdat_cut %>% arrange(zone)
+fishdat_arr$Fish.ID <- as.integer(fishdat_arr$FishID)
+fishdat_arr$Fish.ID <- as.factor(fishdat_arr$Fish.ID)
+fishdat_arr %>% 
+  ggplot(aes(x= Year, y=Fish.ID, color=zone))+
+  geom_line()

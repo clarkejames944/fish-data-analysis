@@ -191,9 +191,12 @@ full_curr_summary <- full_join(full_f_summary, full_m_summary)
 
 #################################################
 
-ggplot(full_curr_summary, aes(x=a, y=mean_mu_p, linetype=zone))+
+ggplot(full_curr_summary, aes(x=a, y=mean_mu_p, linetype=sex))+
   geom_line()+
-  geom_ribbon(aes(ymin=q25_mu_p, ymax=q75_mu_p, fill=zone), alpha=0.45)+
-  facet_wrap(~sex)+
-  ylab("Proportion 'adult'") + xlab("Age (years)")+
-  theme_classic()
+  geom_ribbon(aes(ymin=q25_mu_p, ymax=q75_mu_p, fill=sex), alpha=0.5)+
+  facet_grid(~zone)+
+  ylab("Proportion of individuals post-threshold") + xlab("Age (years)")+
+  labs(fill= "Sex", linetype="Sex")+
+  scale_fill_manual(values = c("royalblue3", "darkorange1"))+
+  theme(axis.title = element_text(size=13),
+         axis.text= element_text(size=11))

@@ -362,6 +362,7 @@ full_summary <- full_join(full_curr_summary, full_temp_summary)
 ######################################################################
 ## Make the plots
 
+
 raw_size_at_age <- fishdat_cut %>% group_by(Age, zone, sex) %>% 
                       summarise(mean=mean((z0)^2),
                                 se= sd((z0)^2)/sqrt(length(z0))
