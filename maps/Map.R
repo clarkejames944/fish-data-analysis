@@ -25,6 +25,10 @@ library(sf)
 library(rnaturalearth)
 library(rnaturalearthdata)
 library(rgeos)
+library(ggmap)
+library(ggsn)
+library(ggspatial)
+library(anchors)
 ########################################################################
 outline <- maps::map("worldHires", regions=c("Australia", "Tasmania"), exact=TRUE, plot=FALSE) # returns a list of x/y coords
 xrange <- range(outline$x, na.rm=TRUE) # get bounding box
@@ -51,21 +55,57 @@ aus <- oz(states = FALSE, coast = TRUE, xlim = NULL,
 oz(sections=c(4,5,6,7,8,10, 12,13,14,15,16))
 
 ########################################################################
-aus<-maps::map("worldHires", "Australia", fill=TRUE, xlim=c(110,160),
+aus <- maps::map("worldHires", "Australia", fill=TRUE, xlim=c(110,160),
          ylim=c(-45,-5), mar=c(0,0,0,0))
+aus <- fortify(aus)
+ins_map <- ggplot() + 
+  geom_polygon(data= aus, aes(x=long, y=lat, group=group))+
+  coord_equal()+
+  theme_classic()+labs(x=NULL, y=NULL)+
+  geom_rect(data=pol, aes(xmin=xmin, xmax=xmax, ymin=ymin, ymax=ymax), alpha=0, size=1, linetype=1)
 
-ggplot(fortify(aus), aes(y=lat, x=long, group=group)) + geom_polygon()
 
-
-south_aus<-maps::map("worldHires", "Australia", fill=TRUE, xlim=c(130,160),
+south_aus <- maps::map("worldHires", "Australia", fill=TRUE, xlim=c(130,160),
                ylim=c(-45,-20), mar=c(0,0,0,0))
 
-ggplot(fortify(south_aus), aes(y=lat, x=long,)) + geom_polygon()
+south_aus <- fortify(south_aus)
 
-aus.sp <- maps::map2SpatialPolygons(aus)
-par(mar=c(0,0,0,0))
-plot(aus.sp, asp=1)
-ggplot(fortify(aus.sp), aes(y=lat, x=long, group=group)) + geom_polygon()
+points(x=map_points$centlong, y=map_points$centlat, col="red", pch=20)
+text(x=map_points$centlong, y=map_points$centlat, map_points$zone, pos=4)
+
+map <- ggplot(south_aus, aes(long, lat)) + 
+  geom_polygon(aes(group=group), fill="khaki")+
+  coord_equal()+
+  scale_y_continuous(limits= c(-45,-32.5), expand = c( 0 , 0 ))+
+  scale_x_continuous(limits=c(130,155), expand = c( 0 , 0 ))+
+  geom_point(data=map_points, color="steelblue")+
+  geom_text(data=map_points, label=map_points$zone, vjust=1.5)+
+  ggsn::scalebar(south_aus, dist=400, dist_unit = "km", transform = TRUE, height=0.0015, box.fill = c("black", "white"), model = "International")+
+  theme_classic()
+
+  ggsn::north2(map, x = 0.1, y=0.3)
+
+
+  pol<-data.frame(xmin=5,xmax=10 ,ymin=-1 ,ymax=4)
+  
+  grid.newpage()
+  v1<-viewport(width = 1, height = 1, x = 0.5, y = 0.5) #plot area for the main map
+  v2<-viewport(width = 0.3, height = 0.3, x = 0.86, y = 0.28) #plot area for the inset map
+  print(map,vp=v1) 
+  print(ins_map,vp=v2)
+
+
+#######################################################################
+
+#Create table for centre of latitiude and longitude for each zone
+
+map_points <- fishdat_cut %>% dplyr::select(zone, centlat, centlong)
+map_points <- map_points %>% group_by(zone) %>% 
+  summarise(lat=min(centlat),
+            long=min(centlong))
+map_points[2,3] <- 148.5
+map_points[4,3] <- 145
+
 
 ########################################################################
 aus <- ne_countries(country = "australia", scale = 'large', returnclass = 'sf')
@@ -93,3 +133,6 @@ ggplot(aus) + geom_sf(fill='grey10')+
 
 ggplot(aus) + geom_sf(fill='grey10')+
   geom_sf(data=aus_sac, fill="orange", alpha=0.5)
+
+######################################################################
+

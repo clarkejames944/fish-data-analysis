@@ -61,11 +61,57 @@ fishdat_sum %>%
 
 
 #### Fish ID against year by zone
+fishdat_cut$Year <- as.numeric(fishdat_cut$Year)
 
-fishy <- fishdat_cut %>% group_by(zone, FishID) %>% mutate(count=n())
-fishdat_arr <- fishdat_cut %>% arrange(zone)
-fishdat_arr$Fish.ID <- as.integer(fishdat_arr$FishID)
-fishdat_arr$Fish.ID <- as.factor(fishdat_arr$Fish.ID)
-fishdat_arr %>% 
-  ggplot(aes(x= Year, y=Fish.ID, color=zone))+
-  geom_line()
+fishdat_arr <- fishdat_cut %>% group_by(FishID) %>% arrange(min(Year))
+
+Fish.ID <- 1:length(unique(fishdat_arr$FishID))
+
+fishdat_arr$Fish.ID <- Fish.ID[fishdat_arr$FishID]
+
+test <- NULL
+x <- split(fishdat_cut, fishdat_cut$zone)
+for(i in seq(x)){
+  if(i == 1){
+    s <- x[[i]]
+    s$ID <- as.numeric(as.factor(as.character(s$FishID)))
+    s <- s[order(s$Year),]
+    test <- c(test, unique(s$ID))
+    
+    x[[i]] <- s
+  } else {
+    s <- x[[i]]
+    
+    s$ID <- (as.numeric(as.factor(as.character(s$FishID)))) + max(x[[(i-1)]]$ID)
+    s <- s[order(s$Year),]
+    test <- c(test, unique(s$ID))
+    
+    x[[i]] <- s
+  }
+}
+x <- do.call("rbind", x)
+lapply(split(x, x$zone), function(x) c(head(x$ID), tail(x$ID)))
+
+
+x$ID <- factor(x$ID, levels = test)
+levels(x$ID)
+test
+
+x$ID <- as.factor(x$ID)
+# x$ID <- droplevels(x$ID)
+# x$ID <- factor(x$ID, levels = unique(names(sort(sapply(split(x, x$ID), function(x) min(x$Year))))))
+
+ggplot(data = x, aes(x= Year, y=ID, color=zone))+
+  geom_line() +
+  geom_point(size = 0.1)+
+  # facet_wrap("zone", scales = "free_y")+
+  scale_y_discrete(breaks = seq(0, 5000 , by = 200))+
+  geom_text(x=1975, y=1500, label="EBS")+
+  geom_text(x=1975, y=3700, label="ETAS")+
+  geom_text(x=1975, y=3300, label="WTAS")+
+  geom_text(x=1975, y=4000, label="NSW")+
+  theme(axis.text.y=element_blank(),
+        panel.grid.major.y = element_blank(),
+        axis.ticks.y = element_blank())
+
+
