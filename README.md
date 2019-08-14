@@ -18,6 +18,8 @@ which impact the otolith growth
 
 ## fit_hinge_age_effect_all_fixed_effects.R
 
+Thes files beginning with fit are all used to run the corresponding stan models
+
 ## fit_hinge_basemodel.R
 
 ## fit_hinge_intercept+pre_thres_slope_age_effect.R
@@ -44,8 +46,13 @@ which impact the otolith growth
 
 ## setup.R
 
+Setup script for the packages we want to use in our analyses and the manipulation of the model
+that we want.
+
 ## summarise.R
 
+Used to summarise the outputs from the regression models, e.g. to create and check the pairs plot produced by the 
+Stan model.
 ###################################################
 
 # Figures folder 
@@ -65,7 +72,7 @@ When collecting multiple iterations I had a seperate R script
 
 ####################################################
 
-#IPM summaries
+# IPM summaries
 
 All the data-frames produced by the IPM to be used to make the graphs that
 are found in the IPM folder
@@ -81,19 +88,19 @@ The main map script is found in the analysis folder
 
 ####################################################
 
-#miscellaneous 
+# miscellaneous 
 
 Some of the very early analysis I carried out on the data, which wasn't used in the final analysis.
 
 ####################################################
 
-#models
+# models
 
 Saved the fitted Stan models here
 
 ####################################################
 
-#notation
+# notation
 
 Some files for building the mathematical notation that I was to use in the model
 
@@ -105,7 +112,7 @@ The original datasets and some preliminary work carried out by Federico Giazza
 
 ####################################################
 
-#par_names
+# par_names
 
 I stored the parameter names from each regression model to be used for the IPM in here
 
@@ -114,20 +121,20 @@ There is a call to this folder in the IPM code.
 
 ####################################################
 
-#posterior predictive checks
+# posterior predictive checks
 
 This is where I carried out the posterior predictive checks on the model chosen by the comparison, to check
 if the model sufficiently described our data.
 
 ####################################################
 
-#stan
+# stan
 
 This is where all the Stan files are stored for each regression model.
 
 #####################################################
 
-#vitals
+# vitals
 
 This is similar to the 'par_names' folder in that this contains the vital rates functions for each regression model,
 to be input into the IPM. This was so that the IPM could remain a general one. There is a call to this file 
